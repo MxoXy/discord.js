@@ -151,7 +151,7 @@ class RequestHandler {
     }
 
     let sublimitTimeout;
-    if (res && res.headers) {
+    if (res.headers) {
       const serverDate = res.headers.get('date');
       const limit = res.headers.get('x-ratelimit-limit');
       const remaining = res.headers.get('x-ratelimit-remaining');
@@ -223,6 +223,10 @@ class RequestHandler {
     if (res.status >= 400 && res.status < 500) {
       // Handle ratelimited requests
       if (res.status === 429) {
+        console.warn(
+          `[RATELIMIT] ${request.method.toUpperCase()} ${request.route}`,
+          JSON.stringify(request.options.data),
+        );
         // A ratelimit was hit - this should never happen
         this.manager.client.emit('debug', `429 hit on route ${request.route}${sublimitTimeout ? ' for sublimit' : ''}`);
         // If caused by a sublimit, wait it out here so other requests on the route can be handled
@@ -231,6 +235,18 @@ class RequestHandler {
         }
         return this.execute(request);
       }
+
+      if (res.status === 403)
+        console.warn(
+          `[FORBIDDEN] ${request.method.toUpperCase()} ${request.route}`,
+          JSON.stringify(request.options.data),
+        );
+
+      if (res.status === 404)
+        console.warn(
+          `[NOT FOUND] ${request.method.toUpperCase()} ${request.path}`,
+          JSON.stringify(request.options.data),
+        );
 
       // Handle possible malformed requests
       let data;
