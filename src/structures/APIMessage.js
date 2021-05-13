@@ -88,6 +88,8 @@ class APIMessage {
    * @returns {?(string|string[])}
    */
   makeContent() {
+    const GuildMember = require('./GuildMember');
+
     let content;
     if (this.options.content === null) {
       content = '';
@@ -114,6 +116,13 @@ class APIMessage {
       if (isSplit) {
         content = Util.splitMessage(content, splitOptions);
       }
+    }
+
+    if (this.options.reply && !this.isUser && this.target.type !== 'dm' && !isSplit) {
+      const id = this.target.client.users.resolveID(this.options.reply);
+      content = `<@${
+        this.options.reply instanceof GuildMember && this.options.reply.nickname ? '!' : ''
+      }${id}>, ${content}`;
     }
 
     return content;
@@ -174,15 +183,29 @@ class APIMessage {
       delete allowedMentions.repliedUser;
     }
 
+    if (this.options.reply) {
+      const id = this.target.client.users.resolveID(this.options.reply);
+      if (allowedMentions) {
+        const parsed = allowedMentions.parse && allowedMentions.parse.includes('users');
+        // Check if the mention won't be parsed, and isn't supplied in `users`
+        if (!parsed && !(allowedMentions.users && allowedMentions.users.includes(id))) {
+          if (!allowedMentions.users) allowedMentions.users = [];
+          allowedMentions.users.push(id);
+        }
+      } else {
+        allowedMentions = { users: [id] };
+      }
+    }
+
     let message_reference;
-    if (typeof this.options.reply === 'object') {
+    if (typeof this.options.replyTo !== 'undefined') {
       const message_id = this.isMessage
-        ? this.target.channel.messages.resolveID(this.options.reply.messageReference)
-        : this.target.messages.resolveID(this.options.reply.messageReference);
+        ? this.target.channel.messages.resolveID(this.options.replyTo)
+        : this.target.messages.resolveID(this.options.replyTo);
       if (message_id) {
         message_reference = {
           message_id,
-          fail_if_not_exists: this.options.reply.failIfNotExists ?? true,
+          fail_if_not_exists: false,
         };
       }
     }

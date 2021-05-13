@@ -149,6 +149,7 @@ class TextChannel extends GuildChannel {
   get lastMessage() {}
   get lastPinAt() {}
   send() {}
+  embed() {}
   startTyping() {}
   stopTyping() {}
   get typing() {}

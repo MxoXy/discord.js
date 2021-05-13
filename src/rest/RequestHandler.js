@@ -236,17 +236,19 @@ class RequestHandler {
         return this.execute(request);
       }
 
-      if (res.status === 403)
+      if (res.status === 403) {
         console.warn(
           `[FORBIDDEN] ${request.method.toUpperCase()} ${request.route}`,
           JSON.stringify(request.options.data),
         );
+      }
 
-      if (res.status === 404)
+      if (res.status === 404) {
         console.warn(
           `[NOT FOUND] ${request.method.toUpperCase()} ${request.path}`,
           JSON.stringify(request.options.data),
         );
+      }
 
       // Handle possible malformed requests
       let data;

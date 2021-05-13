@@ -602,17 +602,100 @@ class Message extends Base {
    * @param {ReplyMessageOptions|MessageAdditions} [options] The additional options to provide
    * @returns {Promise<Message|Message[]>}
    */
-  reply(content, options) {
+  replyTo(content, options) {
     return this.channel.send(
       content instanceof APIMessage
         ? content
         : APIMessage.transformOptions(content, options, {
-            reply: {
-              messageReference: this,
-              failIfNotExists: options?.failIfNotExists ?? content?.failIfNotExists ?? true,
-            },
+            replyTo: this,
           }),
     );
+  }
+
+  /**
+   * Responds to the command message
+   * @param {Object} [options] - Options for the response
+   * @returns {Message|Message[]}
+   * @private
+   */
+  respond({ type = 'reply', content, options }) {
+    if (type === 'reply' && this.channel.type === 'dm') type = 'plain';
+    if (type !== 'direct') {
+      const permissions = this.channel.type !== 'dm' && this.channel.permissionsFor(this.client.user);
+      if (!permissions?.has('SEND_MESSAGES')) {
+        return this.author.send({
+          embed: {
+            // eslint-disable-next-line max-len
+            description: `❌ Impossible de répondre à votre demande dans le salon <#${this.channel.id}> car je n'ai pas la permission de parler.`,
+            color: 0xce0000,
+          },
+        });
+      }
+    }
+
+    switch (type) {
+      case 'plain':
+        return this.channel.send(content, options);
+      case 'reply':
+        return this.channel.send(
+          content instanceof APIMessage
+            ? content
+            : APIMessage.transformOptions(content, options, { reply: this.member || this.author }),
+        );
+      case 'direct':
+        return this.author.send(content, options);
+      default:
+        throw new RangeError(`Unknown response type "${type}".`);
+    }
+  }
+
+  /**
+   * Responds with a plain message
+   * @param {StringResolvable} content - Content for the message
+   * @param {MessageOptions} [options] - Options for the message
+   * @returns {Promise<Message|Message[]>}
+   */
+  say(content, options) {
+    return this.respond({ type: 'plain', content, options });
+  }
+
+  /**
+   * Replies to the message.
+   * @param {StringResolvable|APIMessage} [content=''] The content for the message
+   * @param {MessageOptions|MessageAdditions} [options={}] The options to provide
+   * @returns {Promise<Message|Message[]>}
+   * @example
+   * // Reply to a message
+   * message.reply('Hey, I\'m a reply!')
+   *   .then(() => console.log(`Sent a reply to ${message.author.username}`))
+   *   .catch(console.error);
+   */
+  reply(content, options) {
+    return this.respond({ type: 'reply', content, options });
+  }
+
+  /**
+   * Responds with a direct embed
+   * @param {RichEmbed|Object} embed - Embed to send
+   * @param {StringResolvable} [content] - Content for the message
+   * @param {MessageOptions} [options] - Options for the message
+   * @returns {Promise<Message|Message[]>}
+   */
+  directEmbed(embed, content = '', options = {}) {
+    options.embed = embed;
+    return this.respond({ type: 'direct', content, options });
+  }
+
+  /**
+   * Responds with an embed
+   * @param {RichEmbed|Object} embed - Embed to send
+   * @param {StringResolvable} [content] - Content for the message
+   * @param {MessageOptions} [options] - Options for the message
+   * @returns {Promise<Message|Message[]>}
+   */
+  embed(embed, content = '', options = {}) {
+    options.embed = embed;
+    return this.respond({ type: 'plain', content, options });
   }
 
   /**
