@@ -135,9 +135,9 @@ class GuildBanManager extends BaseManager {
    *   .catch(console.error);
    */
   async create(user, options = { days: 0 }) {
-    if (typeof options !== 'object') throw new TypeError('INVALID_TYPE', 'options', 'object', true);
+    if (typeof options !== 'object') throw new TypeError('INVALID_TYPE');
     const id = this.client.users.resolveID(user);
-    if (!id) throw new Error('BAN_RESOLVE_ID', true);
+    if (!id) throw new Error('BAN_RESOLVE_ID');
     await this.client.api
       .guilds(this.guild.id)
       .bans(id)
