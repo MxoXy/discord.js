@@ -32,6 +32,21 @@ class GuildChannelManager extends BaseManager {
     this.cache.set(channel.id, channel);
     return channel;
   }
+  
+  async fetch(id) {
+    if (id) {
+      const existing = this.cache.get(id);
+      if (existing) return existing;
+    }
+
+    const channels = await this.client.api.guilds(this.guild.id).channels.get();
+    for (const channel of channels) {
+      const type = ChannelTypes[channel.type];
+      channel.type = type ? type.toLowerCase() : 'unknown';
+      this.add(channel);
+    }
+    return id ? this.cache.get(id) || null : this;
+  }
 
   /**
    * Data that can be resolved to give a Guild Channel object. This can be:
