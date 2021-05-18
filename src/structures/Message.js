@@ -567,6 +567,7 @@ class Message extends Base {
 
   /**
    * Deletes the message.
+   * @param {number} [timeout=0] How long to wait to delete the message in milliseconds
    * @returns {Promise<Message>}
    * @example
    * // Delete a message
@@ -574,8 +575,17 @@ class Message extends Base {
    *   .then(msg => console.log(`Deleted message from ${msg.author.username}`))
    *   .catch(console.error);
    */
-  async delete() {
-    await this.channel.messages.delete(this.id);
+  async delete(timeout = 0) {
+    if (timeout <= 0) {
+      if (this.deleted) return this;
+      await this.channel.messages.delete(this.id);
+    } else {
+      return new Promise(resolve => {
+        this.client.setTimeout(() => {
+          resolve(this.delete());
+        }, timeout);
+      });
+    }
     return this;
   }
 
