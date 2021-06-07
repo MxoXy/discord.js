@@ -192,7 +192,13 @@ class Message extends Base {
      * Supplemental application information for group activities
      * @type {?ClientApplication}
      */
-    this.application = data.application ? new ClientApplication(this.client, data.application) : null;
+    this.groupActivityApplication = data.application ? new ClientApplication(this.client, data.application) : null;
+
+    /**
+     * ID of the application of the interaction that sent this message, if any
+     * @type {?Snowflake}
+     */
+    this.applicationID = data.application_id ?? null;
 
     /**
      * Group activity
@@ -537,6 +543,8 @@ class Message extends Base {
    * @property {MessageAttachment[]} [attachments] An array of attachments to keep,
    * all attachments will be kept if omitted
    * @property {FileOptions[]|BufferResolvable[]|MessageAttachment[]} [files] Files to add to the message
+   * @property {MessageActionRow[]} [components] Action rows containing interactive components for the message
+   * (buttons, select menus)
    */
 
   /**
@@ -852,7 +860,7 @@ class Message extends Base {
     return super.toJSON({
       channel: 'channelID',
       author: 'authorID',
-      application: 'applicationID',
+      groupActivityApplication: 'groupActivityApplicationID',
       guild: 'guildID',
       cleanContent: true,
       member: false,
