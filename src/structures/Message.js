@@ -753,7 +753,7 @@ class Message extends Base {
    * @param {MessageOptions} [options] - Options for the message
    * @returns {Promise<Message|Message[]>}
    */
-  directEmbed(embed, content = '', options = {}) {
+  directEmbed(embed, content, options = {}) {
     options.embed = embed;
     return this.respond({ type: 'direct', content, options });
   }
@@ -765,7 +765,7 @@ class Message extends Base {
    * @param {MessageOptions} [options] - Options for the message
    * @returns {Promise<Message|Message[]>}
    */
-  embed(embed, content = '', options = {}) {
+  embed(embed, content, options = {}) {
     options.embed = embed;
     return this.respond({ type: 'plain', content, options });
   }
