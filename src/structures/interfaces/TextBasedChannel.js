@@ -190,7 +190,7 @@ class TextBasedChannel {
    * @param {MessageOptions} [options] - Options for the message
    * @returns {Promise<Message|Message[]>}
    */
-  embed(embed, content, options = {}) {
+  embed(embed, content = null, options = {}) {
     options.embed = embed;
     return this.send(content, options);
   }
