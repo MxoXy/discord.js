@@ -767,22 +767,26 @@ class Message extends Base {
   /**
    * Responds with a direct embed
    * @param {RichEmbed|Object} embed - Embed to send
+   * @param {StringResolvable} [content] - Content for the message
    * @param {MessagePayload|MessageOptions} [options] The options to provide
    * @returns {Promise<Message|Message[]>}
    */
-  directEmbed(embed, options = {}) {
+  directEmbed(embed, content = null, options = {}) {
     options.embeds = [embed];
+    options.content = content;
     return this.author.send(options);
   }
 
   /**
    * Responds with an embed
    * @param {RichEmbed|Object} embed - Embed to send
+   * @param {StringResolvable} [content] - Content for the message
    * @param {MessagePayload|MessageOptions} [options] The options to provide
    * @returns {Promise<Message|Message[]>}
    */
-  embed(embed, options = {}) {
+  embed(embed, content = null, options = {}) {
     options.embed = embed;
+    options.content = content;
     return this.channel.send(options);
   }
 

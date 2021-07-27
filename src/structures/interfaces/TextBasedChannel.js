@@ -175,11 +175,13 @@ class TextBasedChannel {
   /**
    * Responds with an embed
    * @param {RichEmbed|Object} embed - Embed to send
+   * @param {StringResolvable} [content] - Content for the message
    * @param {MessagePayload|MessageOptions} [options] The options to provide
    * @returns {Promise<Message|Message[]>}
    */
-  embed(embed, options = {}) {
+  embed(embed, content = null, options = {}) {
     options.embeds = [embed];
+    options.content = content;
     return this.send(options);
   }
 
