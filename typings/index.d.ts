@@ -1610,6 +1610,20 @@ export class StoreChannel extends GuildChannel {
   public type: 'GUILD_STORE';
 }
 
+export class Structures extends null {
+  private constructor();
+  public static get<K extends keyof Extendable>(structure: K): Extendable[K];
+  public static get(structure: string): (...args: any[]) => void;
+  public static extend<K extends keyof Extendable, T extends Extendable[K]>(
+    structure: K,
+    extender: (baseClass: Extendable[K]) => T,
+  ): T;
+  public static extend<T extends (...args: any[]) => void>(
+    structure: string,
+    extender: (baseClass: typeof Function) => T,
+  ): T;
+}
+
 export class SystemChannelFlags extends BitField<SystemChannelFlagsString> {
   public static FLAGS: Record<SystemChannelFlagsString, number>;
   public static resolve(bit?: BitFieldResolvable<SystemChannelFlagsString, number>): number;
@@ -3311,6 +3325,13 @@ export interface EscapeMarkdownOptions {
 }
 
 export type ExplicitContentFilterLevel = keyof typeof ExplicitContentFilterLevels;
+
+interface Extendable {
+  TextChannel: typeof TextChannel;
+  NewsChannel: typeof NewsChannel;
+  Guild: typeof Guild;
+  Message: typeof Message;
+}
 
 export interface FetchApplicationCommandOptions extends BaseFetchOptions {
   guildId?: Snowflake;

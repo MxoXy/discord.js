@@ -3,10 +3,8 @@
 const Base = require('./Base');
 let CategoryChannel;
 let DMChannel;
-let NewsChannel;
 let StageChannel;
 let StoreChannel;
-let TextChannel;
 let ThreadChannel;
 let VoiceChannel;
 const { ChannelTypes, ThreadChannelTypes } = require('../util/Constants');
@@ -127,12 +125,11 @@ class Channel extends Base {
   }
 
   static create(client, data, guild, allowUnknownGuild) {
+    const Structures = require('../util/Structures');
     if (!CategoryChannel) CategoryChannel = require('./CategoryChannel');
     if (!DMChannel) DMChannel = require('./DMChannel');
-    if (!NewsChannel) NewsChannel = require('./NewsChannel');
     if (!StageChannel) StageChannel = require('./StageChannel');
     if (!StoreChannel) StoreChannel = require('./StoreChannel');
-    if (!TextChannel) TextChannel = require('./TextChannel');
     if (!ThreadChannel) ThreadChannel = require('./ThreadChannel');
     if (!VoiceChannel) VoiceChannel = require('./VoiceChannel');
 
@@ -150,6 +147,7 @@ class Channel extends Base {
       if (guild || allowUnknownGuild) {
         switch (data.type) {
           case ChannelTypes.GUILD_TEXT: {
+            const TextChannel = Structures.get('TextChannel');
             channel = new TextChannel(guild, data, client);
             break;
           }
@@ -162,6 +160,7 @@ class Channel extends Base {
             break;
           }
           case ChannelTypes.GUILD_NEWS: {
+            const NewsChannel = Structures.get('NewsChannel');
             channel = new NewsChannel(guild, data, client);
             break;
           }
