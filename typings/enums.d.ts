@@ -20,6 +20,7 @@ export enum ApplicationCommandOptionTypes {
   CHANNEL = 7,
   ROLE = 8,
   MENTIONABLE = 9,
+  NUMBER = 10,
 }
 
 export enum ApplicationCommandPermissionTypes {
@@ -142,4 +143,5 @@ export enum VerificationLevels {
 export enum WebhookTypes {
   Incoming = 1,
   'Channel Follower' = 2,
+  Application = 3,
 }
