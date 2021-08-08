@@ -53,6 +53,15 @@ class TextBasedChannel {
   }
 
   /**
+   * Has the permissions to send embeds in the channel
+   * @type {boolean}
+   * @readonly
+   */
+  get embedable() {
+    return this.permissionsFor(this.guild.me)?.has(['VIEW_CHANNEL', 'SEND_MESSAGES', 'EMBED_LINKS']) ?? false;
+  }
+
+  /**
    * Base options provided when sending.
    * @typedef {Object} BaseMessageOptions
    * @property {boolean} [tts=false] Whether or not the message should be spoken aloud

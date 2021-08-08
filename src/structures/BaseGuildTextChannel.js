@@ -227,6 +227,7 @@ class BaseGuildTextChannel extends GuildChannel {
   /* eslint-disable no-empty-function */
   get lastMessage() {}
   get lastPinAt() {}
+  get embedable() {}
   send() {}
   embed() {}
   sendTyping() {}
