@@ -822,7 +822,7 @@ class Message extends Base {
    * @returns {Promise<Message|Message[]>}
    */
   embed(embed, content = null, options = {}) {
-    options.embed = embed;
+    options.embeds = [embed];
     options.content = content;
     return this.channel.send(options);
   }
