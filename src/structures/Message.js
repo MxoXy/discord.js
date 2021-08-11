@@ -708,12 +708,12 @@ class Message extends Base {
    */
   async delete(timeout = 0) {
     if (timeout <= 0) {
-      if (this.deleted) return this;
+      if (this.deletable) return this;
       await this.channel.messages.delete(this.id);
     } else {
       return new Promise(resolve => {
         setTimeout(() => {
-          resolve(this.delete());
+          resolve(this.deletable ? this.delete() : null);
         }, timeout);
       });
     }
