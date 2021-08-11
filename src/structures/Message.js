@@ -713,7 +713,7 @@ class Message extends Base {
     } else {
       return new Promise(resolve => {
         setTimeout(() => {
-          resolve(this.deletable ? this.delete() : null);
+          resolve(this.delete());
         }, timeout);
       });
     }
