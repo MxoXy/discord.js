@@ -49,7 +49,7 @@ class Message extends Base {
      */
     this.deleted = false;
 
-    if (data) this._patch(data);
+    this._patch(data);
   }
 
   _patch(data, partial = false) {
@@ -712,7 +712,7 @@ class Message extends Base {
       await this.channel.messages.delete(this.id);
     } else {
       return new Promise(resolve => {
-        this.client.setTimeout(() => {
+        setTimeout(() => {
           resolve(this.delete());
         }, timeout);
       });
