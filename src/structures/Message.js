@@ -828,6 +828,19 @@ class Message extends Base {
   }
 
   /**
+   * Responds with embeds
+   * @param {RichEmbed|Object} embeds - Embeds to send
+   * @param {StringResolvable} [content] - Content for the message
+   * @param {MessagePayload|MessageOptions} [options] The options to provide
+   * @returns {Promise<Message|Message[]>}
+   */
+  embeds(embeds, content = null, options = {}) {
+    options.embeds = embeds;
+    options.content = content;
+    return this.channel.send(options);
+  }
+
+  /**
    * Fetch this message.
    * @param {boolean} [force=true] Whether to skip the cache check and request the API
    * @returns {Promise<Message>}
