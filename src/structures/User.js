@@ -266,6 +266,7 @@ class User extends Base {
   /* eslint-disable no-empty-function */
   send() {}
   embed() {}
+  embeds() {}
 }
 
 TextBasedChannel.applyToClass(User);

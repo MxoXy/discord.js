@@ -230,6 +230,7 @@ class BaseGuildTextChannel extends GuildChannel {
   get embedable() {}
   send() {}
   embed() {}
+  embeds() {}
   sendTyping() {}
   createMessageCollector() {}
   awaitMessages() {}
