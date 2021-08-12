@@ -708,7 +708,7 @@ class Message extends Base {
    */
   async delete(timeout = 0) {
     if (timeout <= 0) {
-      if(!this.deletable) return this;
+      if (!this.deletable) return this;
       await this.channel.messages.delete(this.id);
     } else {
       return new Promise(resolve => {
