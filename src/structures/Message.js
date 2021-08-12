@@ -814,6 +814,19 @@ class Message extends Base {
     return this.author.send(options);
   }
 
+    /**
+   * Responds with direct embeds
+   * @param {RichEmbed|Object} embed - Embeds to send
+   * @param {StringResolvable} [content] - Content for the message
+   * @param {MessagePayload|MessageOptions} [options] The options to provide
+   * @returns {Promise<Message|Message[]>}
+   */
+  directEmbeds(embeds, content = null, options = {}) {
+    options.embeds = embeds;
+    options.content = content;
+    return this.author.send(options);
+  }
+
   /**
    * Responds with an embed
    * @param {RichEmbed|Object} embed - Embed to send
