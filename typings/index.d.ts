@@ -47,6 +47,7 @@ import {
   Snowflake,
 } from 'discord-api-types/v9';
 import { EventEmitter } from 'events';
+import { AgentOptions } from 'https';
 import { Stream } from 'stream';
 import { MessagePort, Worker } from 'worker_threads';
 import * as WebSocket from 'ws';
@@ -397,6 +398,7 @@ type If<T extends boolean, A, B = null> = T extends true ? A : T extends false ?
 export class Client<Ready extends boolean = boolean> extends BaseClient {
   public constructor(options: ClientOptions);
   private actions: unknown;
+  private presence: ClientPresence;
   private _eval(script: string): unknown;
   private _validateOptions(options: ClientOptions): void;
 
@@ -467,16 +469,24 @@ export class ClientApplication extends Application {
   public fetch(): Promise<ClientApplication>;
 }
 
+export class ClientPresence extends Presence {
+  public constructor(client: Client, data: RawPresenceData);
+  private _parse(data: PresenceData): RawPresenceData;
+
+  public set(presence: PresenceData): ClientPresence;
+}
+
 export class ClientUser extends User {
   public mfaEnabled: boolean;
+  public readonly presence: ClientPresence;
   public verified: boolean;
   public edit(data: ClientUserEditData): Promise<this>;
-  public setActivity(options?: ActivityOptions): Presence;
-  public setActivity(name: string, options?: ActivityOptions): Presence;
-  public setAFK(afk: boolean, shardId?: number | number[]): Presence;
+  public setActivity(options?: ActivityOptions): ClientPresence;
+  public setActivity(name: string, options?: ActivityOptions): ClientPresence;
+  public setAFK(afk: boolean, shardId?: number | number[]): ClientPresence;
   public setAvatar(avatar: BufferResolvable | Base64Resolvable): Promise<this>;
-  public setPresence(data: PresenceData): Presence;
-  public setStatus(status: PresenceStatusData, shardId?: number | number[]): Presence;
+  public setPresence(data: PresenceData): ClientPresence;
+  public setStatus(status: PresenceStatusData, shardId?: number | number[]): ClientPresence;
   public setUsername(username: string): Promise<this>;
 }
 
@@ -532,7 +542,7 @@ export class CommandInteraction extends BaseCommandInteraction {
 }
 
 export class CommandInteractionOptionResolver {
-  public constructor(client: Client, options: CommandInteractionOption[]);
+  public constructor(client: Client, options: CommandInteractionOption[], resolved: CommandInteractionResolvedData);
   public readonly client: Client;
   public readonly data: readonly CommandInteractionOption[];
   public readonly resolved: Readonly<CommandInteractionResolvedData>;
@@ -691,6 +701,7 @@ export class Guild extends AnonymousGuild {
   public readonly widgetChannel: TextChannel | null;
   public widgetChannelId: Snowflake | null;
   public widgetEnabled: boolean | null;
+  public readonly maximumBitrate: number;
   public createTemplate(name: string, description?: string): Promise<GuildTemplate>;
   public delete(): Promise<Guild>;
   public discoverySplashURL(options?: StaticImageURLOptions): string | null;
@@ -812,6 +823,7 @@ export class GuildChannel extends Channel {
   public type: Exclude<keyof typeof ChannelTypes, 'DM' | 'GROUP_DM' | 'UNKNOWN'>;
   public readonly viewable: boolean;
   public clone(options?: GuildChannelCloneOptions): Promise<this>;
+  public delete(reason?: string): Promise<this>;
   public edit(data: ChannelData, reason?: string): Promise<this>;
   public equals(channel: GuildChannel): boolean;
   public lockPermissions(): Promise<this>;
@@ -1157,6 +1169,7 @@ export class Message extends Base {
   public react(emoji: EmojiIdentifierResolvable): Promise<MessageReaction>;
   public removeAttachments(): Promise<Message>;
   public reply(options: string | MessagePayload | ReplyMessageOptions): Promise<Message>;
+  public resolveComponent(customId: string): MessageActionRowComponent | null;
   public startThread(options: StartThreadOptions): Promise<ThreadChannel>;
   public suppressEmbeds(suppress?: boolean): Promise<Message>;
   public toJSON(): unknown;
@@ -1169,6 +1182,9 @@ export class MessageActionRow extends BaseMessageComponent {
   public type: 'ACTION_ROW';
   public components: MessageActionRowComponent[];
   public addComponents(
+    ...components: MessageActionRowComponentResolvable[] | MessageActionRowComponentResolvable[][]
+  ): this;
+  public setComponents(
     ...components: MessageActionRowComponentResolvable[] | MessageActionRowComponentResolvable[][]
   ): this;
   public spliceComponents(
@@ -1194,6 +1210,7 @@ export class MessageAttachment {
   public width: number | null;
   public setFile(attachment: BufferResolvable | Stream, name?: string): this;
   public setName(name: string): this;
+  public setSpoiler(spoiler?: boolean): this;
   public toJSON(): unknown;
 }
 
@@ -1285,7 +1302,7 @@ export class MessageEmbed {
   public setFooter(text: string, iconURL?: string): this;
   public setImage(url: string): this;
   public setThumbnail(url: string): this;
-  public setTimestamp(timestamp?: Date | number): this;
+  public setTimestamp(timestamp?: Date | number | null): this;
   public setTitle(title: string): this;
   public setURL(url: string): this;
   public spliceFields(index: number, deleteCount: number, ...fields: EmbedFieldData[] | EmbedFieldData[][]): this;
@@ -1380,6 +1397,7 @@ export class MessageSelectMenu extends BaseMessageComponent {
   public placeholder: string | null;
   public type: 'SELECT_MENU';
   public addOptions(...options: MessageSelectOptionData[] | MessageSelectOptionData[][]): this;
+  public setOptions(...options: MessageSelectOptionData[] | MessageSelectOptionData[][]): this;
   public setCustomId(customId: string): this;
   public setDisabled(disabled?: boolean): this;
   public setMaxValues(maxValues: number): this;
@@ -1815,6 +1833,7 @@ export class ThreadChannel extends TextBasedChannel(Channel) {
   public permissionsFor(memberOrRole: GuildMember | Role): Readonly<Permissions>;
   public permissionsFor(memberOrRole: GuildMemberResolvable | RoleResolvable): Readonly<Permissions> | null;
   public fetchOwner(options?: FetchOwnerOptions): Promise<ThreadMember | null>;
+  public fetchStarterMessage(options?: BaseFetchOptions): Promise<Message>;
   public setArchived(archived?: boolean, reason?: string): Promise<ThreadChannel>;
   public setAutoArchiveDuration(
     autoArchiveDuration: ThreadAutoArchiveDuration,
@@ -1859,7 +1878,9 @@ export class Typing extends Base {
 
 export class User extends PartialTextBasedChannel(Base) {
   public constructor(client: Client, data: RawUserData);
+  public accentColor: number | null;
   public avatar: string | null;
+  public banner: string | null;
   public bot: boolean;
   public readonly createdAt: Date;
   public readonly createdTimestamp: number;
@@ -1867,12 +1888,14 @@ export class User extends PartialTextBasedChannel(Base) {
   public readonly defaultAvatarURL: string;
   public readonly dmChannel: DMChannel | null;
   public flags: Readonly<UserFlags> | null;
+  public readonly hexAccentColor: HexColorString | null;
   public id: Snowflake;
   public readonly partial: false;
   public system: boolean;
   public readonly tag: string;
   public username: string;
   public avatarURL(options?: ImageURLOptions): string | null;
+  public bannerURL(options?: ImageURLOptions): string | null;
   public createDM(): Promise<DMChannel>;
   public deleteDM(): Promise<DMChannel>;
   public displayAvatarURL(options?: ImageURLOptions): string;
@@ -2157,6 +2180,8 @@ export class WelcomeScreen extends Base {
 
 //#region Constants
 
+type EnumHolder<T> = { [P in keyof T]: T[P] };
+
 export const Constants: {
   Package: {
     name: string;
@@ -2192,7 +2217,13 @@ export const Constants: {
         size: AllowedImageSize,
         dynamic: boolean,
       ) => string;
-      Banner: (guildId: Snowflake, hash: string, format: AllowedImageFormat, size: AllowedImageSize) => string;
+      Banner: (
+        id: Snowflake,
+        hash: string,
+        format: DynamicImageFormat,
+        size: AllowedImageSize,
+        dynamic: boolean,
+      ) => string;
       Icon: (
         guildId: Snowflake,
         hash: string,
@@ -2240,7 +2271,7 @@ export const Constants: {
   Status: ConstantsStatus;
   Opcodes: ConstantsOpcodes;
   APIErrors: APIErrors;
-  ChannelTypes: typeof ChannelTypes;
+  ChannelTypes: EnumHolder<typeof ChannelTypes>;
   ThreadChannelTypes: ThreadChannelTypes[];
   TextBasedChannelTypes: TextBasedChannelTypes[];
   VoiceBasedChannelTypes: VoiceBasedChannelTypes[];
@@ -2248,26 +2279,26 @@ export const Constants: {
   InviteScopes: InviteScope[];
   MessageTypes: MessageType[];
   SystemMessageTypes: SystemMessageType[];
-  ActivityTypes: typeof ActivityTypes;
-  StickerTypes: typeof StickerTypes;
-  StickerFormatTypes: typeof StickerFormatTypes;
-  OverwriteTypes: typeof OverwriteTypes;
-  ExplicitContentFilterLevels: typeof ExplicitContentFilterLevels;
-  DefaultMessageNotificationLevels: typeof DefaultMessageNotificationLevels;
-  VerificationLevels: typeof VerificationLevels;
-  MembershipStates: typeof MembershipStates;
-  ApplicationCommandOptionTypes: typeof ApplicationCommandOptionTypes;
-  ApplicationCommandPermissionTypes: typeof ApplicationCommandPermissionTypes;
-  InteractionTypes: typeof InteractionTypes;
-  InteractionResponseTypes: typeof InteractionResponseTypes;
-  MessageComponentTypes: typeof MessageComponentTypes;
-  MessageButtonStyles: typeof MessageButtonStyles;
-  MFALevels: typeof MFALevels;
-  NSFWLevels: typeof NSFWLevels;
-  PrivacyLevels: typeof PrivacyLevels;
-  WebhookTypes: typeof WebhookTypes;
-  PremiumTiers: typeof PremiumTiers;
-  ApplicationCommandTypes: typeof ApplicationCommandTypes;
+  ActivityTypes: EnumHolder<typeof ActivityTypes>;
+  StickerTypes: EnumHolder<typeof StickerTypes>;
+  StickerFormatTypes: EnumHolder<typeof StickerFormatTypes>;
+  OverwriteTypes: EnumHolder<typeof OverwriteTypes>;
+  ExplicitContentFilterLevels: EnumHolder<typeof ExplicitContentFilterLevels>;
+  DefaultMessageNotificationLevels: EnumHolder<typeof DefaultMessageNotificationLevels>;
+  VerificationLevels: EnumHolder<typeof VerificationLevels>;
+  MembershipStates: EnumHolder<typeof MembershipStates>;
+  ApplicationCommandOptionTypes: EnumHolder<typeof ApplicationCommandOptionTypes>;
+  ApplicationCommandPermissionTypes: EnumHolder<typeof ApplicationCommandPermissionTypes>;
+  InteractionTypes: EnumHolder<typeof InteractionTypes>;
+  InteractionResponseTypes: EnumHolder<typeof InteractionResponseTypes>;
+  MessageComponentTypes: EnumHolder<typeof MessageComponentTypes>;
+  MessageButtonStyles: EnumHolder<typeof MessageButtonStyles>;
+  MFALevels: EnumHolder<typeof MFALevels>;
+  NSFWLevels: EnumHolder<typeof NSFWLevels>;
+  PrivacyLevels: EnumHolder<typeof PrivacyLevels>;
+  WebhookTypes: EnumHolder<typeof WebhookTypes>;
+  PremiumTiers: EnumHolder<typeof PremiumTiers>;
+  ApplicationCommandTypes: EnumHolder<typeof ApplicationCommandTypes>;
 };
 
 export const version: string;
@@ -2837,6 +2868,7 @@ export interface APIErrors {
   MAXIMUM_NON_GUILD_MEMBERS_BANS: 30035;
   MAXIMUM_BAN_FETCHES: 30037;
   MAXIMUM_NUMBER_OF_STICKERS_REACHED: 30039;
+  MAXIMUM_PRUNE_REQUESTS: 30040;
   UNAUTHORIZED: 40001;
   ACCOUNT_VERIFICATION_REQUIRED: 40002;
   DIRECT_MESSAGES_TOO_FAST: 40003;
@@ -3913,6 +3945,7 @@ export interface HTTPErrorData {
 }
 
 export interface HTTPOptions {
+  agent?: Omit<AgentOptions, 'keepAlive'>;
   api?: string;
   version?: number;
   host?: string;
@@ -4032,7 +4065,9 @@ export type MembershipState = keyof typeof MembershipStates;
 
 export type MessageActionRowComponent = MessageButton | MessageSelectMenu;
 
-export type MessageActionRowComponentOptions = MessageButtonOptions | MessageSelectMenuOptions;
+export type MessageActionRowComponentOptions =
+  | (Required<BaseMessageComponentOptions> & MessageButtonOptions)
+  | (Required<BaseMessageComponentOptions> & MessageSelectMenuOptions);
 
 export type MessageActionRowComponentResolvable = MessageActionRowComponent | MessageActionRowComponentOptions;
 
@@ -4098,7 +4133,7 @@ export interface MessageEditOptions {
   files?: (FileOptions | BufferResolvable | Stream | MessageAttachment)[];
   flags?: BitFieldResolvable<MessageFlagsString, number>;
   allowedMentions?: MessageMentionOptions;
-  components?: (MessageActionRow | MessageActionRowOptions)[];
+  components?: (MessageActionRow | (Required<BaseMessageComponentOptions> & MessageActionRowOptions))[];
 }
 
 export interface MessageEmbedAuthor {
@@ -4197,11 +4232,12 @@ export interface MessageOptions {
   nonce?: string | number;
   content?: string | null;
   embeds?: (MessageEmbed | MessageEmbedOptions)[];
-  components?: (MessageActionRow | MessageActionRowOptions)[];
+  components?: (MessageActionRow | (Required<BaseMessageComponentOptions> & MessageActionRowOptions))[];
   allowedMentions?: MessageMentionOptions;
   files?: (FileOptions | BufferResolvable | Stream | MessageAttachment)[];
   reply?: ReplyOptions;
   stickers?: StickerResolvable[];
+  attachments?: MessageAttachment[];
 }
 
 export type MessageReactionResolvable =
@@ -4646,7 +4682,7 @@ export interface WebhookEditData {
 
 export type WebhookEditMessageOptions = Pick<
   WebhookMessageOptions,
-  'content' | 'embeds' | 'files' | 'allowedMentions' | 'components'
+  'content' | 'embeds' | 'files' | 'allowedMentions' | 'components' | 'attachments'
 >;
 
 export interface WebhookMessageOptions extends Omit<MessageOptions, 'reply'> {
