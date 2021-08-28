@@ -48,9 +48,9 @@ class GuildEmoji extends BaseGuildEmoji {
   _patch(data) {
     super._patch(data);
 
-    console.log(data.roles);
     if (data.user) this.author = this.client.users._add(data.user);
     if (data.roles) this._roles = data.roles;
+    console.log(this._roles);
   }
 
   /**
