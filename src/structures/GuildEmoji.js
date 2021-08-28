@@ -50,7 +50,6 @@ class GuildEmoji extends BaseGuildEmoji {
 
     if (data.user) this.author = this.client.users._add(data.user);
     if (data.roles) this._roles = data.roles;
-    console.log(this._roles);
   }
 
   /**
