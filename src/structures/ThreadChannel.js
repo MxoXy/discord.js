@@ -476,6 +476,7 @@ class ThreadChannel extends Channel {
   /* eslint-disable no-empty-function */
   get lastMessage() {}
   get lastPinAt() {}
+  get embedable() {}
   send() {}
   sendTyping() {}
   createMessageCollector() {}
