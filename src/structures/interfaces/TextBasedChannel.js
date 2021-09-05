@@ -58,6 +58,7 @@ class TextBasedChannel {
    * @readonly
    */
   get embedable() {
+    console.log(this.permissionsFor(this.guild.me))
     return this.permissionsFor(this.guild.me)?.has(['VIEW_CHANNEL', 'SEND_MESSAGES', 'EMBED_LINKS']) ?? false;
   }
 
