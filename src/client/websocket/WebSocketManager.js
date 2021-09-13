@@ -125,7 +125,7 @@ class WebSocketManager extends EventEmitter {
       url: gatewayURL,
       shards: recommendedShards,
       session_start_limit: sessionStartLimit,
-    } = await this.client.api.gateway.bot.get().catch(error => {
+    } = await this.client.skip.api.gateway.bot.get().catch(error => {
       throw error.httpStatus === 401 ? invalidToken : error;
     });
 
@@ -152,8 +152,6 @@ class WebSocketManager extends EventEmitter {
     this.totalShards = shards.length;
     this.debug(`Spawning shards: ${shards.join(', ')}`);
     this.shardQueue = new Set(shards.map(id => new WebSocketShard(this, id)));
-
-    console.log(`Recommended Shards Count: ${recommendedShards}`);
 
     return this.createShards();
   }
