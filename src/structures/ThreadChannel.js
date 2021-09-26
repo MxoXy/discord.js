@@ -436,15 +436,7 @@ class ThreadChannel extends Channel {
     return (
       !this.archived &&
       (this.type !== 'private_thread' || this.joined || this.manageable) &&
-      this.permissionsFor(this.client.user)?.any(
-        [
-          Permissions.FLAGS.SEND_MESSAGES,
-          this.type === 'GUILD_PRIVATE_THREAD'
-            ? Permissions.FLAGS.USE_PRIVATE_THREADS
-            : Permissions.FLAGS.USE_PUBLIC_THREADS,
-        ],
-        false,
-      )
+      this.permissionsFor(this.client.user)?.has(Permissions.FLAGS.SEND_MESSAGES_IN_THREADS, false)
     );
   }
 
