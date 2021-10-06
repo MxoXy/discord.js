@@ -3,8 +3,10 @@
 const Base = require('./Base');
 let CategoryChannel;
 let DMChannel;
+let NewsChannel;
 let StageChannel;
 let StoreChannel;
+let TextChannel;
 let ThreadChannel;
 let VoiceChannel;
 const { ChannelTypes, ThreadChannelTypes, VoiceBasedChannelTypes } = require('../util/Constants');
@@ -114,8 +116,7 @@ class Channel extends Base {
   }
 
   /**
-   * Indicates whether this channel is voice-based
-   * ({@link VoiceChannel} or {@link StageChannel}).
+   * Indicates whether this channel is {@link BaseGuildVoiceChannel voice-based}.
    * @returns {boolean}
    */
   isVoice() {
@@ -131,13 +132,14 @@ class Channel extends Base {
   }
 
   static create(client, data, guild, { allowUnknownGuild, fromInteraction } = {}) {
-    const Structures = require('../util/Structures');
-    if (!CategoryChannel) CategoryChannel = require('./CategoryChannel');
-    if (!DMChannel) DMChannel = require('./DMChannel');
-    if (!StageChannel) StageChannel = require('./StageChannel');
-    if (!StoreChannel) StoreChannel = require('./StoreChannel');
-    if (!ThreadChannel) ThreadChannel = require('./ThreadChannel');
-    if (!VoiceChannel) VoiceChannel = require('./VoiceChannel');
+    CategoryChannel ??= require('./CategoryChannel');
+    DMChannel ??= require('./DMChannel');
+    NewsChannel ??= require('./NewsChannel');
+    StageChannel ??= require('./StageChannel');
+    StoreChannel ??= require('./StoreChannel');
+    TextChannel ??= require('./TextChannel');
+    ThreadChannel ??= require('./ThreadChannel');
+    VoiceChannel ??= require('./VoiceChannel');
 
     let channel;
     if (!data.guild_id && !guild) {
@@ -148,12 +150,11 @@ class Channel extends Base {
         channel = new PartialGroupDMChannel(client, data);
       }
     } else {
-      if (!guild) guild = client.guilds.cache.get(data.guild_id);
+      guild ??= client.guilds.cache.get(data.guild_id);
 
       if (guild || allowUnknownGuild) {
         switch (data.type) {
           case ChannelTypes.GUILD_TEXT: {
-            const TextChannel = Structures.get('TextChannel');
             channel = new TextChannel(guild, data, client);
             break;
           }
@@ -166,7 +167,6 @@ class Channel extends Base {
             break;
           }
           case ChannelTypes.GUILD_NEWS: {
-            const NewsChannel = Structures.get('NewsChannel');
             channel = new NewsChannel(guild, data, client);
             break;
           }
