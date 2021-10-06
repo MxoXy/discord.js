@@ -81,7 +81,7 @@ class MessagePayload {
   }
 
   /**
-   * Wether or not the target is a {@link MessageManager}
+   * Whether or not the target is a {@link MessageManager}
    * @type {boolean}
    * @readonly
    */
@@ -209,7 +209,7 @@ class MessagePayload {
   /**
    * Resolves a single file into an object sendable to the API.
    * @param {BufferResolvable|Stream|FileOptions|MessageAttachment} fileLike Something that could be resolved to a file
-   * @returns {MessageFile}
+   * @returns {Promise<MessageFile>}
    */
   static async resolveFile(fileLike) {
     let attachment;
