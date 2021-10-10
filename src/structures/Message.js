@@ -137,7 +137,11 @@ class Message extends Base {
        */
       this.embeds = data.embeds.map(e => new Embed(e, true));
     } else {
-      this.embeds = this.embeds?.slice() ?? [];
+      try {
+        this.embeds = this.embeds?.slice() ?? [];
+      } catch (error) {
+        console.error('Je suis lerreur dans le message qui fait chier', error, this.embeds, this);
+      }
     }
 
     if ('components' in data) {
