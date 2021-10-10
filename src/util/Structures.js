@@ -94,8 +94,6 @@ class Structures extends null {
 }
 
 const structures = {
-  TextChannel: require('../structures/TextChannel'),
-  NewsChannel: require('../structures/NewsChannel'),
   Guild: require('../structures/Guild'),
   Message: require('../structures/Message'),
 };
