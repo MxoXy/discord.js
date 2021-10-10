@@ -381,7 +381,6 @@ class GuildMember extends Base {
   /* eslint-disable no-empty-function */
   send() {}
   embed() {}
-  embeds() {}
 }
 
 TextBasedChannel.applyToClass(GuildMember);

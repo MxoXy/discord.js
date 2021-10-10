@@ -203,19 +203,6 @@ class TextBasedChannel {
   }
 
   /**
-   * Responds with embeds
-   * @param {RichEmbed|Object} embeds - Embeds to send
-   * @param {StringResolvable} [content] - Content for the message
-   * @param {MessagePayload|MessageOptions} [options] The options to provide
-   * @returns {Promise<Message|Message[]>}
-   */
-  embeds(embeds, content = null, options = {}) {
-    options.embeds = embeds;
-    options.content = content;
-    return this.channel.send(options);
-  }
-
-  /**
    * Sends a typing indicator in the channel.
    * @returns {Promise<void>} Resolves upon the typing status being sent
    * @example

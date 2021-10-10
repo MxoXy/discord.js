@@ -137,11 +137,7 @@ class Message extends Base {
        */
       this.embeds = data.embeds.map(e => new Embed(e, true));
     } else {
-      try {
-        this.embeds = this.embeds?.slice() ?? [];
-      } catch (error) {
-        console.error('Je suis lerreur dans le message qui fait chier', error, this.embeds, this);
-      }
+      this.embeds = this.embeds?.slice() ?? [];
     }
 
     if ('components' in data) {
@@ -852,19 +848,6 @@ class Message extends Base {
   }
 
   /**
-   * Responds with direct embeds
-   * @param {Array<RichEmbed|Object>} embeds - Embeds to send
-   * @param {StringResolvable} [content] - Content for the message
-   * @param {MessagePayload|MessageOptions} [options] The options to provide
-   * @returns {Promise<Message|Message[]>}
-   */
-  directEmbeds(embeds, content = null, options = {}) {
-    options.embeds = embeds;
-    options.content = content;
-    return this.author.send(options);
-  }
-
-  /**
    * Responds with an embed
    * @param {RichEmbed|Object} embed - Embed to send
    * @param {StringResolvable} [content] - Content for the message
@@ -888,19 +871,6 @@ class Message extends Base {
     options.embeds = [embed];
     options.content = content;
     return this.replyTo(options);
-  }
-
-  /**
-   * Responds with embeds
-   * @param {RichEmbed|Object} embeds - Embeds to send
-   * @param {StringResolvable} [content] - Content for the message
-   * @param {MessagePayload|MessageOptions} [options] The options to provide
-   * @returns {Promise<Message|Message[]>}
-   */
-  embeds(embeds, content = null, options = {}) {
-    options.embeds = embeds;
-    options.content = content;
-    return this.channel.send(options);
   }
 
   /**
