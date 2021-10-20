@@ -1317,7 +1317,7 @@ export class Message extends Base {
   public createMessageComponentCollector<
     T extends MessageComponentType | MessageComponentTypes | undefined = undefined,
   >(options?: MessageCollectorOptionsParams<T>): InteractionCollectorReturnType<T>;
-  public delete(): Promise<Message>;
+  public delete(timeout?: number): Promise<Message>;
   public edit(content: string | MessageEditOptions | MessagePayload): Promise<Message>;
   public embed(
     embed: MessageEmbed | MessageEmbedOptions,
