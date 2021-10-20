@@ -1321,19 +1321,19 @@ export class Message extends Base {
   public edit(content: string | MessageEditOptions | MessagePayload): Promise<Message>;
   public embed(
     embed: MessageEmbed | MessageEmbedOptions,
-    content?: string,
+    content?: string | null,
     options?: Omit<MessageOptions, 'embeds'>,
   ): Promise<Message>;
   public send(content: string, options: MessagePayload | Omit<MessageOptions, 'content'>): Promise<Message>;
   public reply(content: string, options: MessagePayload | Omit<MessageOptions, 'content'>): Promise<Message>;
   public directEmbed(
     embed: MessageEmbed | MessageEmbedOptions,
-    content?: string,
+    content?: string | null,
     options?: Omit<MessageOptions, 'embeds'>,
   ): Promise<Message>;
   public embedReplyTo(
     embed: MessageEmbed | MessageEmbedOptions,
-    content?: string,
+    content?: string | null,
     options?: Omit<MessageOptions, 'embeds'>,
   ): Promise<Message>;
   public equals(message: Message, rawData: unknown): boolean;
