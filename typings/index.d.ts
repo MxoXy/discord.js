@@ -1319,6 +1319,23 @@ export class Message extends Base {
   >(options?: MessageCollectorOptionsParams<T>): InteractionCollectorReturnType<T>;
   public delete(): Promise<Message>;
   public edit(content: string | MessageEditOptions | MessagePayload): Promise<Message>;
+  public embed(
+    embed: MessageEmbed | MessageEmbedOptions,
+    content?: string,
+    options?: Omit<MessageOptions, 'embeds'>,
+  ): Promise<Message>;
+  public send(content: string, options: MessagePayload | Omit<MessageOptions, 'content'>): Promise<Message>;
+  public reply(content: string, options: MessagePayload | Omit<MessageOptions, 'content'>): Promise<Message>;
+  public directEmbed(
+    embed: MessageEmbed | MessageEmbedOptions,
+    content?: string,
+    options?: Omit<MessageOptions, 'embeds'>,
+  ): Promise<Message>;
+  public embedReplyTo(
+    embed: MessageEmbed | MessageEmbedOptions,
+    content?: string,
+    options?: Omit<MessageOptions, 'embeds'>,
+  ): Promise<Message>;
   public equals(message: Message, rawData: unknown): boolean;
   public fetchReference(): Promise<Message>;
   public fetchWebhook(): Promise<Webhook>;
@@ -1327,7 +1344,7 @@ export class Message extends Base {
   public pin(): Promise<Message>;
   public react(emoji: EmojiIdentifierResolvable): Promise<MessageReaction>;
   public removeAttachments(): Promise<Message>;
-  public reply(options: string | MessagePayload | ReplyMessageOptions): Promise<Message>;
+  public replyTo(options: string | MessagePayload | ReplyMessageOptions): Promise<Message>;
   public resolveComponent(customId: string): MessageActionRowComponent | null;
   public startThread(options: StartThreadOptions): Promise<ThreadChannel>;
   public suppressEmbeds(suppress?: boolean): Promise<Message>;
@@ -2914,6 +2931,7 @@ export function TextBasedChannel<T, I extends keyof TextBasedChannelFields = nev
 
 export interface PartialTextBasedChannelFields {
   send(options: string | MessagePayload | MessageOptions): Promise<Message>;
+  embed(embed: MessageEmbed | MessageEmbedOptions, content?: string, options?: MessageOptions): Promise<Message>;
 }
 
 export interface TextBasedChannelFields extends PartialTextBasedChannelFields {

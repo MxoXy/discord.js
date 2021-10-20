@@ -88,6 +88,7 @@ class DMChannel extends Channel {
   get lastMessage() {}
   get lastPinAt() {}
   send() {}
+  embed() {}
   sendTyping() {}
   createMessageCollector() {}
   awaitMessages() {}

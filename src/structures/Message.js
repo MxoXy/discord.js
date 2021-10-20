@@ -812,7 +812,7 @@ class Message extends Base {
   /**
    * Responds with a plain message
    * @param {string|MessagePayload|MessageOptions} options The options to provide
-   * @returns {Promise<Message|Message[]>}
+   * @returns {Promise<Message>}
    */
   send(options) {
     return this.channel.send(options);
@@ -820,9 +820,9 @@ class Message extends Base {
 
   /**
    * Replies to the message.
-   * @param {StringResolvable|APIMessage} [content=''] The content for the message
-   * @param {string|MessagePayload|MessageOptions} [options] The options to provide
-   * @returns {Promise<Message|Message[]>}
+   * @param {string} [content=''] The content for the message
+   * @param {MessagePayload|MessageOptions} [options] The options to provide
+   * @returns {Promise<Message>}
    * @example
    * // Reply to a message
    * message.reply('Hey, I\'m a reply!')
@@ -835,11 +835,11 @@ class Message extends Base {
   }
 
   /**
-   * Responds with a direct embed
-   * @param {RichEmbed|Object} embed - Embed to send
-   * @param {StringResolvable} [content] - Content for the message
-   * @param {MessagePayload|MessageOptions} [options] The options to provide
-   * @returns {Promise<Message|Message[]>}
+   * Responds with an embed
+   * @param {MessageEmbed|MessageEmbedOptions} embed - Embed to send
+   * @param {string} [content] - Content for the message
+   * @param {MessageOptions} [options] The options to provide
+   * @returns {Promise<Message>}
    */
   directEmbed(embed, content = null, options = {}) {
     options.embeds = [embed];
@@ -849,10 +849,10 @@ class Message extends Base {
 
   /**
    * Responds with an embed
-   * @param {RichEmbed|Object} embed - Embed to send
-   * @param {StringResolvable} [content] - Content for the message
-   * @param {MessagePayload|MessageOptions} [options] The options to provide
-   * @returns {Promise<Message|Message[]>}
+   * @param {MessageEmbed|MessageEmbedOptions} embed - Embed to send
+   * @param {string} [content] - Content for the message
+   * @param {MessageOptions} [options] The options to provide
+   * @returns {Promise<Message>}
    */
   embed(embed, content = null, options = {}) {
     options.embeds = [embed];
@@ -861,11 +861,11 @@ class Message extends Base {
   }
 
   /**
-   * Send an inline embed reply to this message.
-   * @param {RichEmbed|Object} embed - Embed to send
-   * @param {StringResolvable} [content] - Content for the message
-   * @param {MessagePayload|MessageOptions} [options] The options to provide
-   * @returns {Promise<Message|Message[]>}
+   * Responds with an embed
+   * @param {MessageEmbed | MessageEmbedOptions} embed - Embed to send
+   * @param {string} [content] - Content for the message
+   * @param {MessageOptions} [options] The options to provide
+   * @returns {Promise<Message>}
    */
   embedReplyTo(embed, content = null, options = {}) {
     options.embeds = [embed];
