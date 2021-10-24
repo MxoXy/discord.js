@@ -606,6 +606,8 @@ class WebSocketShard extends EventEmitter {
       shard: [this.id, Number(client.options.shardCount)],
     };
 
+    console.log('DEBUG SHARD: ', d);
+
     if (client.gatewayQueue) await client.gatewayQueue.start(this.id);
 
     this.debug(`[IDENTIFY] Shard ${this.id}/${client.options.shardCount} with intents: ${d.intents}`);
