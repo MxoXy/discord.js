@@ -42,14 +42,14 @@ function makeImageUrl(root, { format = 'png', size } = {}) {
 exports.Endpoints = {
   CDN(root) {
     return {
-      Emoji: (emojiId, format = 'webp') => `${root}/emojis/${emojiId}.${format}`,
+      Emoji: (emojiId, format) => `${root}/emojis/${emojiId}.${format}`,
       Asset: name => `${root}/assets/${name}`,
       DefaultAvatar: discriminator => `${root}/embed/avatars/${discriminator}.png`,
       Avatar: (userId, hash, format, size, dynamic = false) => {
         if (dynamic && hash.startsWith('a_')) format = 'gif';
         return makeImageUrl(`${root}/avatars/${userId}/${hash}`, { format, size });
       },
-      GuildMemberAvatar: (guildId, memberId, hash, format = 'png', size, dynamic = false) => {
+      GuildMemberAvatar: (guildId, memberId, hash, format, size, dynamic = false) => {
         if (dynamic && hash.startsWith('a_')) format = 'gif';
         return makeImageUrl(`${root}/guilds/${guildId}/users/${memberId}/avatars/${hash}`, { format, size });
       },
@@ -73,8 +73,7 @@ exports.Endpoints = {
       TeamIcon: (teamId, hash, options) => makeImageUrl(`${root}/team-icons/${teamId}/${hash}`, options),
       Sticker: (stickerId, stickerFormat) =>
         `${root}/stickers/${stickerId}.${stickerFormat === 'LOTTIE' ? 'json' : 'png'}`,
-      RoleIcon: (roleId, hash, format = 'webp', size) =>
-        makeImageUrl(`${root}/role-icons/${roleId}/${hash}`, { size, format }),
+      RoleIcon: (roleId, hash, format, size) => makeImageUrl(`${root}/role-icons/${roleId}/${hash}`, { size, format }),
     };
   },
   invite: (root, code) => `${root}/${code}`,
