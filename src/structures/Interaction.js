@@ -1,7 +1,8 @@
 'use strict';
 
 const Base = require('./Base');
-const { InteractionTypes } = require('../util/Constants');
+const { InteractionTypes, MessageComponentTypes } = require('../util/Constants');
+const Permissions = require('../util/Permissions');
 const SnowflakeUtil = require('../util/SnowflakeUtil');
 
 /**
@@ -13,19 +14,19 @@ class Interaction extends Base {
     super(client);
 
     /**
-     * The type of this interaction
+     * The interaction's type
      * @type {InteractionType}
      */
     this.type = InteractionTypes[data.type];
 
     /**
-     * The ID of this interaction
+     * The interaction's id
      * @type {Snowflake}
      */
     this.id = data.id;
 
     /**
-     * The token of this interaction
+     * The interaction's token
      * @type {string}
      * @name Interaction#token
      * @readonly
@@ -33,40 +34,46 @@ class Interaction extends Base {
     Object.defineProperty(this, 'token', { value: data.token });
 
     /**
-     * The ID of the application
+     * The application's id
      * @type {Snowflake}
      */
-    this.applicationID = data.application_id;
+    this.applicationId = data.application_id;
 
     /**
-     * The ID of the channel this interaction was sent in
+     * The id of the channel this interaction was sent in
      * @type {?Snowflake}
      */
-    this.channelID = data.channel_id ?? null;
+    this.channelId = data.channel_id ?? null;
 
     /**
-     * The ID of the guild this interaction was sent in
+     * The id of the guild this interaction was sent in
      * @type {?Snowflake}
      */
-    this.guildID = data.guild_id ?? null;
+    this.guildId = data.guild_id ?? null;
 
     /**
      * The user which sent this interaction
      * @type {User}
      */
-    this.user = this.client.users.add(data.user ?? data.member.user);
+    this.user = this.client.users._add(data.user ?? data.member.user);
 
     /**
      * If this interaction was sent in a guild, the member which sent it
-     * @type {?GuildMember|Object}
+     * @type {?(GuildMember|APIGuildMember)}
      */
-    this.member = data.member ? this.guild?.members.add(data.member) ?? data.member : null;
+    this.member = data.member ? this.guild?.members._add(data.member) ?? data.member : null;
 
     /**
      * The version
      * @type {number}
      */
     this.version = data.version;
+
+    /**
+     * The permissions of the member, if one exists, in the channel this interaction was executed in
+     * @type {?Readonly<Permissions>}
+     */
+    this.memberPermissions = data.member?.permissions ? new Permissions(data.member.permissions).freeze() : null;
   }
 
   /**
@@ -89,11 +96,11 @@ class Interaction extends Base {
 
   /**
    * The channel this interaction was sent in
-   * @type {?Channel}
+   * @type {?TextBasedChannels}
    * @readonly
    */
   get channel() {
-    return this.client.channels.cache.get(this.channelID) ?? null;
+    return this.client.channels.cache.get(this.channelId) ?? null;
   }
 
   /**
@@ -102,23 +109,77 @@ class Interaction extends Base {
    * @readonly
    */
   get guild() {
-    return this.client.guilds.cache.get(this.guildID) ?? null;
+    return this.client.guilds.cache.get(this.guildId) ?? null;
   }
 
   /**
-   * Indicates whether this interaction is a command interaction.
+   * Indicates whether this interaction is received from a guild.
+   * @returns {boolean}
+   */
+  inGuild() {
+    return Boolean(this.guildId && this.member);
+  }
+
+  /**
+   * Indicates whether or not this interaction is both cached and received from a guild.
+   * @returns {boolean}
+   */
+  inCachedGuild() {
+    return Boolean(this.guild && this.member);
+  }
+
+  /**
+   * Indicates whether or not this interaction is received from an uncached guild.
+   * @returns {boolean}
+   */
+  inRawGuild() {
+    return Boolean(this.guildId && !this.guild && this.member);
+  }
+
+  /**
+   * Indicates whether this interaction is a {@link CommandInteraction}.
    * @returns {boolean}
    */
   isCommand() {
-    return InteractionTypes[this.type] === InteractionTypes.APPLICATION_COMMAND;
+    return InteractionTypes[this.type] === InteractionTypes.APPLICATION_COMMAND && typeof this.targetId === 'undefined';
   }
 
   /**
-   * Indicates whether this interaction is a component interaction.
+   * Indicates whether this interaction is a {@link ContextMenuInteraction}
+   * @returns {boolean}
+   */
+  isContextMenu() {
+    return InteractionTypes[this.type] === InteractionTypes.APPLICATION_COMMAND && typeof this.targetId !== 'undefined';
+  }
+
+  /**
+   * Indicates whether this interaction is a {@link MessageComponentInteraction}.
    * @returns {boolean}
    */
   isMessageComponent() {
     return InteractionTypes[this.type] === InteractionTypes.MESSAGE_COMPONENT;
+  }
+
+  /**
+   * Indicates whether this interaction is a {@link ButtonInteraction}.
+   * @returns {boolean}
+   */
+  isButton() {
+    return (
+      InteractionTypes[this.type] === InteractionTypes.MESSAGE_COMPONENT &&
+      MessageComponentTypes[this.componentType] === MessageComponentTypes.BUTTON
+    );
+  }
+
+  /**
+   * Indicates whether this interaction is a {@link SelectMenuInteraction}.
+   * @returns {boolean}
+   */
+  isSelectMenu() {
+    return (
+      InteractionTypes[this.type] === InteractionTypes.MESSAGE_COMPONENT &&
+      MessageComponentTypes[this.componentType] === MessageComponentTypes.SELECT_MENU
+    );
   }
 }
 

@@ -1,6 +1,6 @@
 'use strict';
 
-const assert = require('assert');
+const assert = require('node:assert');
 const { token } = require('./auth');
 const { Client, Intents } = require('../src');
 
@@ -10,12 +10,12 @@ client.on('ready', async () => {
   try {
     const guild = await client.guilds.create('testing', {
       channels: [
-        { name: 'afk channel', type: 'voice', id: 0 },
+        { name: 'afk channel', type: 'GUILD_VOICE', id: 0 },
         { name: 'system-channel', id: 1 },
       ],
-      afkChannelID: 0,
+      afkChannelId: 0,
       afkTimeout: 60,
-      systemChannelID: 1,
+      systemChannelId: 1,
     });
     console.log(guild.id);
     assert.strictEqual(guild.afkChannel.name, 'afk channel');

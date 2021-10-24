@@ -9,8 +9,8 @@ const Webhook = require('./Webhook');
 class InteractionWebhook {
   /**
    * @param {Client} client The instantiating client
-   * @param {Snowflake} id ID of the application
-   * @param {string} token Token of the interaction
+   * @param {Snowflake} id The application's id
+   * @param {string} token The interaction's token
    */
   constructor(client, id, token) {
     /**
@@ -28,9 +28,8 @@ class InteractionWebhook {
   /* eslint-disable no-empty-function, valid-jsdoc */
   /**
    * Sends a message with this webhook.
-   * @param {string|APIMessage|MessageAdditions} content The content for the reply
-   * @param {InteractionReplyOptions} [options] Additional options for the reply
-   * @returns {Promise<Message|Object>}
+   * @param {string|MessagePayload|InteractionReplyOptions} options The content for the reply
+   * @returns {Promise<Message|APIMessage>}
    */
   send() {}
   fetchMessage() {}

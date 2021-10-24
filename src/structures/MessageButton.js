@@ -6,16 +6,16 @@ const { MessageButtonStyles, MessageComponentTypes } = require('../util/Constant
 const Util = require('../util/Util');
 
 /**
- * Represents a Button message component.
+ * Represents a button message component.
  * @extends {BaseMessageComponent}
  */
 class MessageButton extends BaseMessageComponent {
   /**
    * @typedef {BaseMessageComponentOptions} MessageButtonOptions
    * @property {string} [label] The text to be displayed on this button
-   * @property {string} [customID] A unique string to be sent in the interaction when clicked
+   * @property {string} [customId] A unique string to be sent in the interaction when clicked
    * @property {MessageButtonStyleResolvable} [style] The style of this button
-   * @property {Emoji} [emoji] The emoji to be displayed to the left of the text
+   * @property {EmojiIdentifierResolvable} [emoji] The emoji to be displayed to the left of the text
    * @property {string} [url] Optional URL for link-style buttons
    * @property {boolean} [disabled=false] Disables the button to prevent interactions
    */
@@ -40,7 +40,7 @@ class MessageButton extends BaseMessageComponent {
      * A unique string to be sent in the interaction when clicked
      * @type {?string}
      */
-    this.customID = data.custom_id ?? data.customID ?? null;
+    this.customId = data.custom_id ?? data.customId ?? null;
 
     /**
      * The style of this button
@@ -50,9 +50,9 @@ class MessageButton extends BaseMessageComponent {
 
     /**
      * Emoji for this button
-     * @type {?Emoji|string}
+     * @type {?RawEmoji}
      */
-    this.emoji = data.emoji ?? null;
+    this.emoji = data.emoji ? Util.resolvePartialEmoji(data.emoji) : null;
 
     /**
      * The URL this button links to, if it is a Link style button
@@ -62,27 +62,27 @@ class MessageButton extends BaseMessageComponent {
 
     /**
      * Whether this button is currently disabled
-     * @type {?boolean}
+     * @type {boolean}
      */
     this.disabled = data.disabled ?? false;
   }
 
   /**
-   * Sets the custom ID of this button
-   * @param {string} customID A unique string to be sent in the interaction when clicked
+   * Sets the custom id for this button
+   * @param {string} customId A unique string to be sent in the interaction when clicked
    * @returns {MessageButton}
    */
-  setCustomID(customID) {
-    this.customID = Util.verifyString(customID, RangeError, 'BUTTON_CUSTOM_ID');
+  setCustomId(customId) {
+    this.customId = Util.verifyString(customId, RangeError, 'BUTTON_CUSTOM_ID');
     return this;
   }
 
   /**
    * Sets the interactive status of the button
-   * @param {boolean} disabled Whether this button should be disabled
+   * @param {boolean} [disabled=true] Whether this button should be disabled
    * @returns {MessageButton}
    */
-  setDisabled(disabled) {
+  setDisabled(disabled = true) {
     this.disabled = disabled;
     return this;
   }
@@ -93,8 +93,7 @@ class MessageButton extends BaseMessageComponent {
    * @returns {MessageButton}
    */
   setEmoji(emoji) {
-    if (/^\d{17,19}$/.test(emoji)) this.emoji = { id: emoji };
-    else this.emoji = Util.parseEmoji(`${emoji}`);
+    this.emoji = Util.resolvePartialEmoji(emoji);
     return this;
   }
 
@@ -119,7 +118,8 @@ class MessageButton extends BaseMessageComponent {
   }
 
   /**
-   * Sets the URL of this button. MessageButton#style should be LINK
+   * Sets the URL of this button.
+   * <info>MessageButton#style must be LINK when setting a URL</info>
    * @param {string} url The URL of this button
    * @returns {MessageButton}
    */
@@ -130,11 +130,11 @@ class MessageButton extends BaseMessageComponent {
 
   /**
    * Transforms the button to a plain object.
-   * @returns {Object} The raw data of this button
+   * @returns {APIMessageButton} The raw data of this button
    */
   toJSON() {
     return {
-      custom_id: this.customID,
+      custom_id: this.customId,
       disabled: this.disabled,
       emoji: this.emoji,
       label: this.label,
@@ -146,14 +146,13 @@ class MessageButton extends BaseMessageComponent {
 
   /**
    * Data that can be resolved to a MessageButtonStyle. This can be
-   * * {@link MessageButtonStyle}
-   * * string
+   * * MessageButtonStyle
    * * number
-   * @typedef {string|number|MessageButtonStyle} MessageButtonStyleResolvable
+   * @typedef {number|MessageButtonStyle} MessageButtonStyleResolvable
    */
 
   /**
-   * Resolves the style of a MessageButton
+   * Resolves the style of a button
    * @param {MessageButtonStyleResolvable} style The style to resolve
    * @returns {MessageButtonStyle}
    * @private
