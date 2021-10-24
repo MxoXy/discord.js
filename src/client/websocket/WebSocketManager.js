@@ -122,43 +122,17 @@ class WebSocketManager extends EventEmitter {
 
   /**
    * Connects this manager to the gateway.
+   * @returns {Promise<boolean>}
    * @private
    */
-  async connect() {
-    const invalidToken = new Error(WSCodes[4004]);
-    const {
-      url: gatewayURL,
-      shards: recommendedShards,
-      session_start_limit: sessionStartLimit,
-    } = await this.client.skip.api.gateway.bot.get().catch(error => {
-      throw error.httpStatus === 401 ? invalidToken : error;
-    });
-
-    const { total, remaining } = sessionStartLimit;
-
-    this.debug(`Fetched Gateway Information
-    URL: ${gatewayURL}
-    Recommended Shards: ${recommendedShards}`);
-
-    this.debug(`Session Limit Information
-    Total: ${total}
-    Remaining: ${remaining}`);
-
-    this.gateway = `${gatewayURL}/`;
+  connect() {
+    this.gateway = `${this.client.gatewayUrl}/`;
 
     let { shards } = this.client.options;
-
-    if (shards === 'auto') {
-      this.debug(`Using the recommended shard count provided by Discord: ${recommendedShards}`);
-      this.totalShards = this.client.options.shardCount = recommendedShards;
-      shards = this.client.options.shards = Array.from({ length: recommendedShards }, (_, i) => i);
-    }
 
     this.totalShards = shards.length;
     this.debug(`Spawning shards: ${shards.join(', ')}`);
     this.shardQueue = new Set(shards.map(id => new WebSocketShard(this, id)));
-
-    console.log(`Recommended shards: ${recommendedShards} - total: ${total} - remaining: ${remaining}`);
 
     return this.createShards();
   }
