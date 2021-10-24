@@ -158,7 +158,7 @@ class WebSocketManager extends EventEmitter {
     this.debug(`Spawning shards: ${shards.join(', ')}`);
     this.shardQueue = new Set(shards.map(id => new WebSocketShard(this, id)));
 
-    console.log(`Recommended Shards Count: ${recommendedShards}`);
+    console.log(`Recommended shards: ${recommendedShards} - total: ${total} - remaining: ${remaining}`);
 
     return this.createShards();
   }
