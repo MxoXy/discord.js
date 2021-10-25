@@ -148,8 +148,6 @@ class WebSocketManager extends EventEmitter {
 
     const [shard] = this.shardQueue;
 
-    console.log(shard);
-
     this.shardQueue.delete(shard);
 
     if (!shard.eventsAttached) {
