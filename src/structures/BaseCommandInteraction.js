@@ -178,10 +178,12 @@ class BaseCommandInteraction extends Interaction {
   /* eslint-disable no-empty-function */
   deferReply() {}
   reply() {}
+  replyEmbed() {}
   fetchReply() {}
   editReply() {}
   deleteReply() {}
   followUp() {}
+  embed() {}
 }
 
 InteractionResponses.applyToClass(BaseCommandInteraction, ['deferUpdate', 'update']);

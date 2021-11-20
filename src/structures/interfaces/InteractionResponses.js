@@ -108,6 +108,32 @@ class InteractionResponses {
   }
 
   /**
+   * Creates a embed reply to this interaction.
+   * <info>Use the `fetchReply` option to get the bot's reply message.</info>
+   * @param {MessageEmbed|APIEmbed} embed The embed for the reply
+   * @param {MessagePayload|InteractionReplyOptions} [options] The options for the reply
+   * @returns {Promise<Message|APIMessage|void>}
+   * @example
+   * // Create an embed reply
+   * const embed = new MessageEmbed().setDescription('Pong!');
+   *
+   * interaction.replyEmbed(embed)
+   *   .then((message) => console.log(`Embed reply sent`))
+   *   .catch(console.error);
+   * @example
+   * // Create an ephemeral embed reply
+   * const embed = new MessageEmbed().setDescription('Pong!');
+   *
+   * interaction.replyEmbed(embed, { ephemeral: true })
+   *   .then(() => console.log('Embed reply sent.'))
+   *   .catch(console.error);
+   */
+  replyEmbed(embed, options = {}) {
+    options.embeds = [embed];
+    return this.reply(options);
+  }
+
+  /**
    * Fetches the initial reply to this interaction.
    * @see Webhook#fetchMessage
    * @returns {Promise<Message|APIMessage>}
@@ -161,6 +187,17 @@ class InteractionResponses {
    */
   followUp(options) {
     return this.webhook.send(options);
+  }
+
+  /**
+   * Send a follow-up embed message to this interaction.
+   * @param {MessageEmbed|APIEmbed} embed The embed for the reply
+   * @param {MessagePayload|InteractionReplyOptions} [options] The options for the reply
+   * @returns {Promise<Message|APIMessage>}
+   */
+  embed(embed, options = {}) {
+    options.embeds = [embed];
+    return this.reply(options);
   }
 
   /**
@@ -223,10 +260,12 @@ class InteractionResponses {
     const props = [
       'deferReply',
       'reply',
+      'replyEmbed',
       'fetchReply',
       'editReply',
       'deleteReply',
       'followUp',
+      'embed',
       'deferUpdate',
       'update',
     ];
