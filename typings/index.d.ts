@@ -310,6 +310,14 @@ export abstract class BaseCommandInteraction<Cached extends CacheType = CacheTyp
   public followUp(options: string | MessagePayload | InteractionReplyOptions): Promise<GuildCacheMessage<Cached>>;
   public reply(options: InteractionReplyOptions & { fetchReply: true }): Promise<GuildCacheMessage<Cached>>;
   public reply(options: string | MessagePayload | InteractionReplyOptions): Promise<void>;
+  public replyEmbed(
+    embed: MessageEmbed | MessageEmbedOptions,
+    options?: Omit<MessagePayload | InteractionReplyOptions, 'embeds'>,
+  ): Promise<GuildCacheMessage<Cached>>;
+  public embed(
+    embed: MessageEmbed | MessageEmbedOptions,
+    options?: Omit<MessagePayload | InteractionReplyOptions, 'embeds'>,
+  ): Promise<GuildCacheMessage<Cached>>;
   private transformOption(
     option: APIApplicationCommandOption,
     resolved: APIApplicationCommandInteractionData['resolved'],
@@ -1387,21 +1395,15 @@ export class Message<Cached extends boolean = boolean> extends Base {
   >(options?: MessageCollectorOptionsParams<T>): InteractionCollectorReturnType<T, Cached>;
   public delete(timeout?: number): Promise<Message>;
   public edit(content: string | MessageEditOptions | MessagePayload): Promise<Message>;
-  public embed(
-    embed: MessageEmbed | MessageEmbedOptions,
-    content?: string | null,
-    options?: Omit<MessageOptions, 'embeds'>,
-  ): Promise<Message>;
+  public embed(embed: MessageEmbed | MessageEmbedOptions, options?: Omit<MessageOptions, 'embeds'>): Promise<Message>;
   public send(content: string, options: MessagePayload | Omit<MessageOptions, 'content'>): Promise<Message>;
-  public reply(content: string, options: MessagePayload | Omit<MessageOptions, 'content'>): Promise<Message>;
+  public replyMention(content: string, options: MessagePayload | Omit<MessageOptions, 'content'>): Promise<Message>;
   public directEmbed(
     embed: MessageEmbed | MessageEmbedOptions,
-    content?: string | null,
     options?: Omit<MessageOptions, 'embeds'>,
   ): Promise<Message>;
-  public embedReplyTo(
+  public replyEmbed(
     embed: MessageEmbed | MessageEmbedOptions,
-    content?: string | null,
     options?: Omit<MessageOptions, 'embeds'>,
   ): Promise<Message>;
   public equals(message: Message, rawData: unknown): boolean;
@@ -1412,7 +1414,7 @@ export class Message<Cached extends boolean = boolean> extends Base {
   public pin(): Promise<Message>;
   public react(emoji: EmojiIdentifierResolvable): Promise<MessageReaction>;
   public removeAttachments(): Promise<Message>;
-  public replyTo(options: string | MessagePayload | ReplyMessageOptions): Promise<Message>;
+  public reply(options: string | MessagePayload | ReplyMessageOptions): Promise<Message>;
   public resolveComponent(customId: string): MessageActionRowComponent | null;
   public startThread(options: StartThreadOptions): Promise<ThreadChannel>;
   public suppressEmbeds(suppress?: boolean): Promise<Message>;
@@ -1522,6 +1524,14 @@ export class MessageComponentInteraction<Cached extends CacheType = CacheType> e
   public followUp(options: string | MessagePayload | InteractionReplyOptions): Promise<GuildCacheMessage<Cached>>;
   public reply(options: InteractionReplyOptions & { fetchReply: true }): Promise<GuildCacheMessage<Cached>>;
   public reply(options: string | MessagePayload | InteractionReplyOptions): Promise<void>;
+  public replyEmbed(
+    embed: MessageEmbed | MessageEmbedOptions,
+    options?: Omit<MessagePayload | InteractionReplyOptions, 'embeds'>,
+  ): Promise<GuildCacheMessage<Cached>>;
+  public embed(
+    embed: MessageEmbed | MessageEmbedOptions,
+    options?: Omit<MessagePayload | InteractionReplyOptions, 'embeds'>,
+  ): Promise<GuildCacheMessage<Cached>>;
   public update(options: InteractionUpdateOptions & { fetchReply: true }): Promise<GuildCacheMessage<Cached>>;
   public update(options: string | MessagePayload | InteractionUpdateOptions): Promise<void>;
 
