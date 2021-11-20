@@ -767,11 +767,11 @@ class Message extends Base {
    * @returns {Promise<Message>}
    * @example
    * // Reply to a message
-   * message.replyTo('This is a reply!')
+   * message.reply('This is a reply!')
    *   .then(() => console.log(`Replied to message "${message.content}"`))
    *   .catch(console.error);
    */
-  replyTo(options) {
+  reply(options) {
     if (!this.channel) return Promise.reject(new Error('CHANNEL_NOT_CACHED'));
     let data;
 
@@ -839,11 +839,11 @@ class Message extends Base {
    * @returns {Promise<Message>}
    * @example
    * // Reply to a message
-   * message.reply('Hey, I\'m a reply!')
+   * message.replyreplyMention('Hey, I\'m a reply!')
    *   .then(() => console.log(`Sent a reply to ${message.author.username}`))
    *   .catch(console.error);
    */
-  reply(content, options = {}) {
+  replyMention(content, options = {}) {
     options.content = `${this.author.toString()}, ${content}`;
     return this.channel.send(options);
   }
@@ -851,40 +851,34 @@ class Message extends Base {
   /**
    * Responds with an embed
    * @param {MessageEmbed|MessageEmbedOptions} embed - Embed to send
-   * @param {string} [content] - Content for the message
    * @param {MessageOptions} [options] The options to provide
    * @returns {Promise<Message>}
    */
-  directEmbed(embed, content = null, options = {}) {
+  directEmbed(embed, options = {}) {
     options.embeds = [embed];
-    options.content = content;
     return this.author.send(options);
   }
 
   /**
    * Responds with an embed
    * @param {MessageEmbed|MessageEmbedOptions} embed - Embed to send
-   * @param {string} [content] - Content for the message
    * @param {MessageOptions} [options] The options to provide
    * @returns {Promise<Message>}
    */
-  embed(embed, content = null, options = {}) {
+  embed(embed, options = {}) {
     options.embeds = [embed];
-    options.content = content;
     return this.channel.send(options);
   }
 
   /**
    * Responds with an embed
    * @param {MessageEmbed | MessageEmbedOptions} embed - Embed to send
-   * @param {string} [content] - Content for the message
    * @param {MessageOptions} [options] The options to provide
    * @returns {Promise<Message>}
    */
-  embedReplyTo(embed, content = null, options = {}) {
+  replyEmbed(embed, options = {}) {
     options.embeds = [embed];
-    options.content = content;
-    return this.replyTo(options);
+    return this.reply(options);
   }
 
   /**
