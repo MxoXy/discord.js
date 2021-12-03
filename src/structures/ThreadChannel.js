@@ -443,7 +443,7 @@ class ThreadChannel extends Channel {
   }
 
   /**
-   * Whether the channel is viewable by the client user
+   * Whether the thread is viewable by the client user
    * @type {boolean}
    * @readonly
    */
