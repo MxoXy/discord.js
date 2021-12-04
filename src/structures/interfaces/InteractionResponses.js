@@ -199,7 +199,7 @@ class InteractionResponses {
    */
   embed(embed, options = {}) {
     options.embeds = [embed];
-    return this.reply(options);
+    return this.followUp(options);
   }
 
   /**
