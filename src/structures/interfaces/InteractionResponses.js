@@ -279,6 +279,7 @@ class InteractionResponses {
       'replyEmbed',
       'fetchReply',
       'editReply',
+      'editEmbed',
       'deleteReply',
       'followUp',
       'embed',
