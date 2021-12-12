@@ -176,7 +176,7 @@ class InteractionResponses {
    */
   async editEmbed(embed, options = {}) {
     options.embeds = [embed];
-    return this.editReply(embed);
+    return this.editReply(options);
   }
 
   /**
