@@ -98,6 +98,7 @@ class MessageComponentInteraction extends Interaction {
   replyEmbed() {}
   fetchReply() {}
   editReply() {}
+  editEmbed() {}
   deleteReply() {}
   followUp() {}
   embed() {}

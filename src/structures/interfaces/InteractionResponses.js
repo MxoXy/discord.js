@@ -168,6 +168,18 @@ class InteractionResponses {
   }
 
   /**
+   * Edits the initial reply to this interaction with embed.
+   * @see Webhook#editMessage
+   * @param {MessageEmbed|APIEmbed} embed The embed for the reply
+   * @param {string|MessagePayload|WebhookEditMessageOptions} options The new options for the message
+   * @returns {Promise<Message|APIMessage>}
+   */
+  async editEmbed(embed, options = {}) {
+    options.embeds = [embed];
+    return this.editReply(embed);
+  }
+
+  /**
    * Deletes the initial reply to this interaction.
    * @see Webhook#deleteMessage
    * @returns {Promise<void>}

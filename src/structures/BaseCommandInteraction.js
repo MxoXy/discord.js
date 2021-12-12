@@ -181,6 +181,7 @@ class BaseCommandInteraction extends Interaction {
   replyEmbed() {}
   fetchReply() {}
   editReply() {}
+  editEmbed() {}
   deleteReply() {}
   followUp() {}
   embed() {}
