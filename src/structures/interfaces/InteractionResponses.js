@@ -195,6 +195,24 @@ class InteractionResponses {
   }
 
   /**
+   * Deletes the initial reply to this interaction.
+   * @see Webhook#deleteMessage
+   * @returns {Promise<void>}
+   * @example
+   * // Delete the reply to this interaction
+   * interaction.delete(6000)
+   *   .then(console.log)
+   *   .catch(console.error);
+   */
+  async delete(timeout = 0) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(this.deleteReply());
+      }, timeout);
+    });
+  }
+
+  /**
    * Send a follow-up message to this interaction.
    * @param {string|MessagePayload|InteractionReplyOptions} options The options for the reply
    * @returns {Promise<Message|APIMessage>}
@@ -281,6 +299,7 @@ class InteractionResponses {
       'editReply',
       'editEmbed',
       'deleteReply',
+      'delete',
       'followUp',
       'embed',
       'deferUpdate',

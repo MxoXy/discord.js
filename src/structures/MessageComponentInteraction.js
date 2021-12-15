@@ -100,6 +100,7 @@ class MessageComponentInteraction extends Interaction {
   editReply() {}
   editEmbed() {}
   deleteReply() {}
+  delete() {}
   followUp() {}
   embed() {}
   deferUpdate() {}
