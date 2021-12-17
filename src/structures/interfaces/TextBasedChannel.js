@@ -193,9 +193,8 @@ class TextBasedChannel {
    * @param {MessageOptions} [options] The options to provide
    * @returns {Promise<Message>}
    */
-  embed(embed, content = null, options = {}) {
+  embed(embed, options = {}) {
     options.embeds = [embed];
-    options.content = content;
     return this.send(options);
   }
 
