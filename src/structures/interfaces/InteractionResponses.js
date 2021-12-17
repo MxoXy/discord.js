@@ -220,6 +220,8 @@ class InteractionResponses {
    */
   embed(embed, options = {}) {
     options.embeds = [embed];
+
+    if(options.forceFollowUp) return this.followUp(options);
     return this[this.replied ? 'editReply' : 'followUp'](options);
   }
 
