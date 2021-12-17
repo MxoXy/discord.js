@@ -206,7 +206,10 @@ class InteractionResponses {
    * @returns {Promise<Message|APIMessage>}
    */
   followUp(options) {
-    return this.webhook.send(options);
+    const data = this.webhook.send(options);
+    this.replied = true;
+
+    return data;
   }
 
   /**
