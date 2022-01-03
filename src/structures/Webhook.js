@@ -1,5 +1,6 @@
 'use strict';
 
+const process = require('node:process');
 const MessagePayload = require('./MessagePayload');
 const { Error } = require('../errors');
 const { WebhookTypes } = require('../util/Constants');
@@ -379,7 +380,7 @@ class Webhook {
    * @readonly
    */
   get createdTimestamp() {
-    return SnowflakeUtil.deconstruct(this.id).timestamp;
+    return SnowflakeUtil.timestampFrom(this.id);
   }
 
   /**
@@ -415,7 +416,7 @@ class Webhook {
    * @returns {boolean}
    */
   isChannelFollower() {
-    return this.type === WebhookTypes['Channel Follower'];
+    return this.type === 'Channel Follower';
   }
 
   /**
@@ -423,7 +424,7 @@ class Webhook {
    * @returns {boolean}
    */
   isIncoming() {
-    return this.type === WebhookTypes.Incoming;
+    return this.type === 'Incoming';
   }
 
   static applyToClass(structure, ignore = []) {

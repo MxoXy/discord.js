@@ -206,6 +206,7 @@ class InteractionResponses {
    * @returns {Promise<Message|APIMessage>}
    */
   followUp(options) {
+    if (!this.deferred && !this.replied) return Promise.reject(new Error('INTERACTION_NOT_REPLIED'));
     const data = this.webhook.send(options);
     this.replied = true;
 

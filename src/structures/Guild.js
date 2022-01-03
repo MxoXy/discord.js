@@ -1,5 +1,6 @@
 'use strict';
 
+const process = require('node:process');
 const { Collection } = require('@discordjs/collection');
 const AnonymousGuild = require('./AnonymousGuild');
 const GuildAuditLogs = require('./GuildAuditLogs');
@@ -15,6 +16,7 @@ const GuildChannelManager = require('../managers/GuildChannelManager');
 const GuildEmojiManager = require('../managers/GuildEmojiManager');
 const GuildInviteManager = require('../managers/GuildInviteManager');
 const GuildMemberManager = require('../managers/GuildMemberManager');
+const GuildScheduledEventManager = require('../managers/GuildScheduledEventManager');
 const GuildStickerManager = require('../managers/GuildStickerManager');
 const PresenceManager = require('../managers/PresenceManager');
 const RoleManager = require('../managers/RoleManager');
@@ -36,6 +38,14 @@ const Util = require('../util/Util');
 
 let deprecationEmittedForSetChannelPositions = false;
 let deprecationEmittedForSetRolePositions = false;
+let deprecationEmittedForDeleted = false;
+
+/**
+ * @type {WeakSet<Guild>}
+ * @private
+ * @internal
+ */
+const deletedGuilds = new WeakSet();
 
 /**
  * Represents a guild (or a server) on Discord.
@@ -102,10 +112,10 @@ class Guild extends AnonymousGuild {
     this.invites = new GuildInviteManager(this);
 
     /**
-     * Whether the bot has been removed from the guild
-     * @type {boolean}
+     * A manager of the scheduled events of this guild
+     * @type {GuildScheduledEventManager}
      */
-    this.deleted = false;
+    this.scheduledEvents = new GuildScheduledEventManager(this);
 
     if (!data) return;
     if (data.unavailable) {
@@ -124,6 +134,36 @@ class Guild extends AnonymousGuild {
      * @type {number}
      */
     this.shardId = data.shardId;
+  }
+
+  /**
+   * Whether or not the structure has been deleted
+   * @type {boolean}
+   * @deprecated This will be removed in the next major version, see https://github.com/discordjs/discord.js/issues/7091
+   */
+  get deleted() {
+    if (!deprecationEmittedForDeleted) {
+      deprecationEmittedForDeleted = true;
+      process.emitWarning(
+        'Guild#deleted is deprecated, see https://github.com/discordjs/discord.js/issues/7091.',
+        'DeprecationWarning',
+      );
+    }
+
+    return deletedGuilds.has(this);
+  }
+
+  set deleted(value) {
+    if (!deprecationEmittedForDeleted) {
+      deprecationEmittedForDeleted = true;
+      process.emitWarning(
+        'Guild#deleted is deprecated, see https://github.com/discordjs/discord.js/issues/7091.',
+        'DeprecationWarning',
+      );
+    }
+
+    if (value) deletedGuilds.add(this);
+    else deletedGuilds.delete(this);
   }
 
   /**
@@ -429,6 +469,13 @@ class Guild extends AnonymousGuild {
       }
     }
 
+    if (data.guild_scheduled_events) {
+      this.scheduledEvents.cache.clear();
+      for (const scheduledEvent of data.guild_scheduled_events) {
+        this.scheduledEvents._add(scheduledEvent);
+      }
+    }
+
     if (data.voice_states) {
       this.voiceStates.cache.clear();
       for (const voiceState of data.voice_states) {
@@ -466,30 +513,12 @@ class Guild extends AnonymousGuild {
   }
 
   /**
-   * The URL to this guild's banner.
-   * @param {StaticImageURLOptions} [options={}] Options for the Image URL
-   * @returns {?string}
-   */
-  bannerURL({ format, size } = {}) {
-    return this.banner && this.client.rest.cdn.Banner(this.id, this.banner, format, size);
-  }
-
-  /**
    * The time the client user joined the guild
    * @type {Date}
    * @readonly
    */
   get joinedAt() {
     return new Date(this.joinedTimestamp);
-  }
-
-  /**
-   * The URL to this guild's invite splash image.
-   * @param {StaticImageURLOptions} [options={}] Options for the Image URL
-   * @returns {?string}
-   */
-  splashURL({ format, size } = {}) {
-    return this.splash && this.client.rest.cdn.Splash(this.id, this.splash, format, size);
   }
 
   /**
@@ -1399,7 +1428,8 @@ class Guild extends AnonymousGuild {
   }
 }
 
-module.exports = Guild;
+exports.Guild = Guild;
+exports.deletedGuilds = deletedGuilds;
 
 /**
  * @external APIGuild
