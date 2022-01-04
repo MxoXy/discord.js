@@ -2,29 +2,8 @@
 
 /**
  * An extendable structure:
- * * **`GuildEmoji`**
- * * **`DMChannel`**
- * * **`TextChannel`**
- * * **`VoiceChannel`**
- * * **`CategoryChannel`**
- * * **`NewsChannel`**
- * * **`StoreChannel`**
- * * **`StageChannel`**
- * * **`ThreadChannel`**
- * * **`GuildMember`**
- * * **`ThreadMember`**
  * * **`Guild`**
  * * **`Message`**
- * * **`MessageReaction`**
- * * **`Presence`**
- * * **`ClientPresence`**
- * * **`VoiceState`**
- * * **`Role`**
- * * **`User`**
- * * **`CommandInteraction`**
- * * **`ButtonInteraction`**
- * * **`StageInstance`**
- * * **`SelectMenuInteraction`**
  * @typedef {string} ExtendableStructure
  */
 
@@ -94,8 +73,8 @@ class Structures extends null {
 }
 
 const structures = {
-  Guild: require('../structures/Guild'),
-  Message: require('../structures/Message'),
+  Guild: require('../structures/Guild').Guild,
+  Message: require('../structures/Message').Message,
 };
 
 module.exports = Structures;
