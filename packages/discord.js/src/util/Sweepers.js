@@ -1,6 +1,6 @@
 'use strict';
 
-const { setInterval, clearInterval } = require('node:timers');
+const { setInterval } = require('node:timers');
 const { Events, ThreadChannelTypes, SweeperKeys } = require('./Constants');
 const { TypeError } = require('../errors/DJSError.js');
 
@@ -136,7 +136,7 @@ class Sweepers {
     let messages = 0;
 
     for (const channel of this.client.channels.cache.values()) {
-      if (!channel.isTextBased()) continue;
+      if (!channel.isText()) continue;
 
       channels++;
       messages += channel.messages.cache.sweep(filter);
@@ -168,7 +168,7 @@ class Sweepers {
     let reactions = 0;
 
     for (const channel of this.client.channels.cache.values()) {
-      if (!channel.isTextBased()) continue;
+      if (!channel.isText()) continue;
       channels++;
 
       for (const message of channel.messages.cache.values()) {
@@ -190,15 +190,6 @@ class Sweepers {
    */
   sweepStageInstances(filter) {
     return this._sweepGuildDirectProp('stageInstances', filter, { outputName: 'stage instances' }).items;
-  }
-
-  /**
-   * Sweeps all guild stickers and removes the ones which are indicated by the filter.
-   * @param {Function} filter The function used to determine which stickers will be removed from the caches.
-   * @returns {number} Amount of stickers that were removed from the caches
-   */
-  sweepStickers(filter) {
-    return this._sweepGuildDirectProp('stickers', filter).items;
   }
 
   /**
@@ -384,11 +375,11 @@ class Sweepers {
    * Sweep a direct sub property of all guilds
    * @param {string} key The name of the property
    * @param {Function} filter Filter function passed to sweep
-   * @param {SweepEventOptions} [eventOptions={}] Options for the Client event emitted here
+   * @param {SweepEventOptions} [eventOptions] Options for the Client event emitted here
    * @returns {Object} Object containing the number of guilds swept and the number of items swept
    * @private
    */
-  _sweepGuildDirectProp(key, filter, { emit = true, outputName } = {}) {
+  _sweepGuildDirectProp(key, filter, { emit = true, outputName }) {
     if (typeof filter !== 'function') {
       throw new TypeError('INVALID_TYPE', 'filter', 'function');
     }

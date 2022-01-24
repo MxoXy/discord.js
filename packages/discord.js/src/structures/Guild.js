@@ -1,7 +1,7 @@
 'use strict';
 
+const process = require('node:process');
 const { Collection } = require('@discordjs/collection');
-const { GuildPremiumTier, ChannelType } = require('discord-api-types/v9');
 const AnonymousGuild = require('./AnonymousGuild');
 const GuildAuditLogs = require('./GuildAuditLogs');
 const GuildPreview = require('./GuildPreview');
@@ -22,10 +22,30 @@ const PresenceManager = require('../managers/PresenceManager');
 const RoleManager = require('../managers/RoleManager');
 const StageInstanceManager = require('../managers/StageInstanceManager');
 const VoiceStateManager = require('../managers/VoiceStateManager');
-const { PartialTypes, Status } = require('../util/Constants');
+const {
+  ChannelTypes,
+  DefaultMessageNotificationLevels,
+  PartialTypes,
+  VerificationLevels,
+  ExplicitContentFilterLevels,
+  Status,
+  MFALevels,
+  PremiumTiers,
+} = require('../util/Constants');
 const DataResolver = require('../util/DataResolver');
 const SystemChannelFlags = require('../util/SystemChannelFlags');
 const Util = require('../util/Util');
+
+let deprecationEmittedForSetChannelPositions = false;
+let deprecationEmittedForSetRolePositions = false;
+let deprecationEmittedForDeleted = false;
+
+/**
+ * @type {WeakSet<Guild>}
+ * @private
+ * @internal
+ */
+const deletedGuilds = new WeakSet();
 
 /**
  * Represents a guild (or a server) on Discord.
@@ -114,6 +134,36 @@ class Guild extends AnonymousGuild {
      * @type {number}
      */
     this.shardId = data.shardId;
+  }
+
+  /**
+   * Whether or not the structure has been deleted
+   * @type {boolean}
+   * @deprecated This will be removed in the next major version, see https://github.com/discordjs/discord.js/issues/7091
+   */
+  get deleted() {
+    if (!deprecationEmittedForDeleted) {
+      deprecationEmittedForDeleted = true;
+      process.emitWarning(
+        'Guild#deleted is deprecated, see https://github.com/discordjs/discord.js/issues/7091.',
+        'DeprecationWarning',
+      );
+    }
+
+    return deletedGuilds.has(this);
+  }
+
+  set deleted(value) {
+    if (!deprecationEmittedForDeleted) {
+      deprecationEmittedForDeleted = true;
+      process.emitWarning(
+        'Guild#deleted is deprecated, see https://github.com/discordjs/discord.js/issues/7091.',
+        'DeprecationWarning',
+      );
+    }
+
+    if (value) deletedGuilds.add(this);
+    else deletedGuilds.delete(this);
   }
 
   /**
@@ -231,9 +281,9 @@ class Guild extends AnonymousGuild {
     if ('premium_tier' in data) {
       /**
        * The premium tier of this guild
-       * @type {GuildPremiumTier}
+       * @type {PremiumTier}
        */
-      this.premiumTier = data.premium_tier;
+      this.premiumTier = PremiumTiers[data.premium_tier];
     }
 
     if ('premium_subscription_count' in data) {
@@ -263,9 +313,9 @@ class Guild extends AnonymousGuild {
     if ('explicit_content_filter' in data) {
       /**
        * The explicit content filter level of the guild
-       * @type {GuildExplicitContentFilter}
+       * @type {ExplicitContentFilterLevel}
        */
-      this.explicitContentFilter = data.explicit_content_filter;
+      this.explicitContentFilter = ExplicitContentFilterLevels[data.explicit_content_filter];
     }
 
     if ('mfa_level' in data) {
@@ -273,7 +323,7 @@ class Guild extends AnonymousGuild {
        * The required MFA level for this guild
        * @type {MFALevel}
        */
-      this.mfaLevel = data.mfa_level;
+      this.mfaLevel = MFALevels[data.mfa_level];
     }
 
     if ('joined_at' in data) {
@@ -281,15 +331,15 @@ class Guild extends AnonymousGuild {
        * The timestamp the client user joined the guild at
        * @type {number}
        */
-      this.joinedTimestamp = Date.parse(data.joined_at);
+      this.joinedTimestamp = new Date(data.joined_at).getTime();
     }
 
     if ('default_message_notifications' in data) {
       /**
        * The default message notification level of the guild
-       * @type {GuildDefaultMessageNotifications}
+       * @type {DefaultMessageNotificationLevel}
        */
-      this.defaultMessageNotifications = data.default_message_notifications;
+      this.defaultMessageNotifications = DefaultMessageNotificationLevels[data.default_message_notifications];
     }
 
     if ('system_channel_flags' in data) {
@@ -473,11 +523,11 @@ class Guild extends AnonymousGuild {
 
   /**
    * The URL to this guild's discovery splash image.
-   * @param {ImageURLOptions} [options={}] Options for the image URL
+   * @param {StaticImageURLOptions} [options={}] Options for the Image URL
    * @returns {?string}
    */
-  discoverySplashURL(options = {}) {
-    return this.discoverySplash && this.client.rest.cdn.DiscoverySplash(this.id, this.discoverySplash, options);
+  discoverySplashURL({ format, size } = {}) {
+    return this.discoverySplash && this.client.rest.cdn.DiscoverySplash(this.id, this.discoverySplash, format, size);
   }
 
   /**
@@ -559,12 +609,12 @@ class Guild extends AnonymousGuild {
       return 384_000;
     }
 
-    switch (this.premiumTier) {
-      case GuildPremiumTier.Tier1:
+    switch (PremiumTiers[this.premiumTier]) {
+      case PremiumTiers.TIER_1:
         return 128_000;
-      case GuildPremiumTier.Tier2:
+      case PremiumTiers.TIER_2:
         return 256_000;
-      case GuildPremiumTier.Tier3:
+      case PremiumTiers.TIER_3:
         return 384_000;
       default:
         return 96_000;
@@ -741,6 +791,7 @@ class Guild extends AnonymousGuild {
    */
   async fetchAuditLogs(options = {}) {
     if (options.before && options.before instanceof GuildAuditLogs.Entry) options.before = options.before.id;
+    if (typeof options.type === 'string') options.type = GuildAuditLogs.Actions[options.type];
 
     const data = await this.client.api.guilds(this.id)['audit-logs'].get({
       query: {
@@ -809,7 +860,10 @@ class Guild extends AnonymousGuild {
     const _data = {};
     if (data.name) _data.name = data.name;
     if (typeof data.verificationLevel !== 'undefined') {
-      _data.verification_level = data.verificationLevel;
+      _data.verification_level =
+        typeof data.verificationLevel === 'number'
+          ? data.verificationLevel
+          : VerificationLevels[data.verificationLevel];
     }
     if (typeof data.afkChannel !== 'undefined') {
       _data.afk_channel_id = this.client.channels.resolveId(data.afkChannel);
@@ -826,10 +880,16 @@ class Guild extends AnonymousGuild {
     }
     if (typeof data.banner !== 'undefined') _data.banner = await DataResolver.resolveImage(data.banner);
     if (typeof data.explicitContentFilter !== 'undefined') {
-      _data.explicit_content_filter = data.explicitContentFilter;
+      _data.explicit_content_filter =
+        typeof data.explicitContentFilter === 'number'
+          ? data.explicitContentFilter
+          : ExplicitContentFilterLevels[data.explicitContentFilter];
     }
     if (typeof data.defaultMessageNotifications !== 'undefined') {
-      _data.default_message_notifications = data.defaultMessageNotifications;
+      _data.default_message_notifications =
+        typeof data.defaultMessageNotifications === 'number'
+          ? data.defaultMessageNotifications
+          : DefaultMessageNotificationLevels[data.defaultMessageNotifications];
     }
     if (typeof data.systemChannelFlags !== 'undefined') {
       _data.system_channel_flags = SystemChannelFlags.resolve(data.systemChannelFlags);
@@ -1160,6 +1220,76 @@ class Guild extends AnonymousGuild {
   }
 
   /**
+   * Data that can be resolved to give a Category Channel object. This can be:
+   * * A CategoryChannel object
+   * * A Snowflake
+   * @typedef {CategoryChannel|Snowflake} CategoryChannelResolvable
+   */
+
+  /**
+   * The data needed for updating a channel's position.
+   * @typedef {Object} ChannelPosition
+   * @property {GuildChannel|Snowflake} channel Channel to update
+   * @property {number} [position] New position for the channel
+   * @property {CategoryChannelResolvable} [parent] Parent channel for this channel
+   * @property {boolean} [lockPermissions] If the overwrites should be locked to the parents overwrites
+   */
+
+  /**
+   * Batch-updates the guild's channels' positions.
+   * <info>Only one channel's parent can be changed at a time</info>
+   * @param {ChannelPosition[]} channelPositions Channel positions to update
+   * @returns {Promise<Guild>}
+   * @deprecated Use {@link GuildChannelManager#setPositions} instead
+   * @example
+   * guild.setChannelPositions([{ channel: channelId, position: newChannelIndex }])
+   *   .then(guild => console.log(`Updated channel positions for ${guild}`))
+   *   .catch(console.error);
+   */
+  setChannelPositions(channelPositions) {
+    if (!deprecationEmittedForSetChannelPositions) {
+      process.emitWarning(
+        'The Guild#setChannelPositions method is deprecated. Use GuildChannelManager#setPositions instead.',
+        'DeprecationWarning',
+      );
+
+      deprecationEmittedForSetChannelPositions = true;
+    }
+
+    return this.channels.setPositions(channelPositions);
+  }
+
+  /**
+   * The data needed for updating a guild role's position
+   * @typedef {Object} GuildRolePosition
+   * @property {RoleResolvable} role The role's id
+   * @property {number} position The position to update
+   */
+
+  /**
+   * Batch-updates the guild's role positions
+   * @param {GuildRolePosition[]} rolePositions Role positions to update
+   * @returns {Promise<Guild>}
+   * @deprecated Use {@link RoleManager#setPositions} instead
+   * @example
+   * guild.setRolePositions([{ role: roleId, position: updatedRoleIndex }])
+   *  .then(guild => console.log(`Role positions updated for ${guild}`))
+   *  .catch(console.error);
+   */
+  setRolePositions(rolePositions) {
+    if (!deprecationEmittedForSetRolePositions) {
+      process.emitWarning(
+        'The Guild#setRolePositions method is deprecated. Use RoleManager#setPositions instead.',
+        'DeprecationWarning',
+      );
+
+      deprecationEmittedForSetRolePositions = true;
+    }
+
+    return this.roles.setPositions(rolePositions);
+  }
+
+  /**
    * Edits the guild's widget settings.
    * @param {GuildWidgetSettingsData} settings The widget settings for the guild
    * @param {string} [reason] Reason for changing the guild's widget settings
@@ -1188,7 +1318,7 @@ class Guild extends AnonymousGuild {
   async leave() {
     if (this.ownerId === this.client.user.id) throw new Error('GUILD_OWNED');
     await this.client.api.users('@me').guilds(this.id).delete();
-    return this;
+    return this.client.actions.GuildDelete.handle({ id: this.id }).guild;
   }
 
   /**
@@ -1202,7 +1332,7 @@ class Guild extends AnonymousGuild {
    */
   async delete() {
     await this.client.api.guilds(this.id).delete();
-    return this;
+    return this.client.actions.GuildDelete.handle({ id: this.id }).guild;
   }
 
   /**
@@ -1285,12 +1415,13 @@ class Guild extends AnonymousGuild {
    * @private
    */
   _sortedChannels(channel) {
-    const category = channel.type === ChannelType.GuildCategory;
-    const channelTypes = [ChannelType.GuildText, ChannelType.GuildNews, ChannelType.GuildStore];
+    const category = channel.type === ChannelTypes.GUILD_CATEGORY;
     return Util.discordSort(
       this.channels.cache.filter(
         c =>
-          (channelTypes.includes(channel.type) ? channelTypes.includes(c.type) : c.type === channel.type) &&
+          (['GUILD_TEXT', 'GUILD_NEWS', 'GUILD_STORE'].includes(channel.type)
+            ? ['GUILD_TEXT', 'GUILD_NEWS', 'GUILD_STORE'].includes(c.type)
+            : c.type === channel.type) &&
           (category || c.parent === channel.parent),
       ),
     );
@@ -1298,6 +1429,7 @@ class Guild extends AnonymousGuild {
 }
 
 exports.Guild = Guild;
+exports.deletedGuilds = deletedGuilds;
 
 /**
  * @external APIGuild

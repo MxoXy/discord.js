@@ -1,10 +1,10 @@
 'use strict';
 
 const { Collection } = require('@discordjs/collection');
-const { ChannelType } = require('discord-api-types/v9');
 const CachedManager = require('./CachedManager');
 const { TypeError } = require('../errors');
 const ThreadChannel = require('../structures/ThreadChannel');
+const { ChannelTypes } = require('../util/Constants');
 
 /**
  * Manages API methods for {@link ThreadChannel} objects and stores their cache.
@@ -92,7 +92,7 @@ class ThreadManager extends CachedManager {
    *   .create({
    *      name: 'mod-talk',
    *      autoArchiveDuration: 60,
-   *      type: ChannelType.GuildPrivateThread,
+   *      type: 'GUILD_PRIVATE_THREAD',
    *      reason: 'Needed a separate thread for moderation',
    *    })
    *   .then(threadChannel => console.log(threadChannel))
@@ -112,13 +112,13 @@ class ThreadManager extends CachedManager {
       throw new TypeError('INVALID_TYPE', 'type', 'ThreadChannelType or Number');
     }
     let resolvedType =
-      this.channel.type === ChannelType.GuildNews ? ChannelType.GuildNewsThread : ChannelType.GuildPublicThread;
+      this.channel.type === 'GUILD_NEWS' ? ChannelTypes.GUILD_NEWS_THREAD : ChannelTypes.GUILD_PUBLIC_THREAD;
     if (startMessage) {
       const startMessageId = this.channel.messages.resolveId(startMessage);
       if (!startMessageId) throw new TypeError('INVALID_TYPE', 'startMessage', 'MessageResolvable');
       path = path.messages(startMessageId);
-    } else if (this.channel.type !== ChannelType.GuildNews) {
-      resolvedType = type ?? resolvedType;
+    } else if (this.channel.type !== 'GUILD_NEWS') {
+      resolvedType = typeof type === 'string' ? ChannelTypes[type] : type ?? resolvedType;
     }
     if (autoArchiveDuration === 'MAX') {
       autoArchiveDuration = 1440;
@@ -134,7 +134,7 @@ class ThreadManager extends CachedManager {
         name,
         auto_archive_duration: autoArchiveDuration,
         type: resolvedType,
-        invitable: resolvedType === ChannelType.GuildPrivateThread ? invitable : undefined,
+        invitable: resolvedType === ChannelTypes.GUILD_PRIVATE_THREAD ? invitable : undefined,
         rate_limit_per_user: rateLimitPerUser,
       },
       reason,

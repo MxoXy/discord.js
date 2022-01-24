@@ -1,14 +1,14 @@
 'use strict';
 
-const { DiscordSnowflake } = require('@sapphire/snowflake');
-const {
-  GuildScheduledEventPrivacyLevel,
-  GuildScheduledEventStatus,
-  GuildScheduledEventEntityType,
-} = require('discord-api-types/v9');
 const Base = require('./Base');
 const { Error } = require('../errors');
-const { Endpoints } = require('../util/Constants');
+const {
+  GuildScheduledEventEntityTypes,
+  GuildScheduledEventStatuses,
+  GuildScheduledEventPrivacyLevels,
+  Endpoints,
+} = require('../util/Constants');
+const SnowflakeUtil = require('../util/SnowflakeUtil');
 
 /**
  * Represents a scheduled event in a {@link Guild}.
@@ -88,19 +88,19 @@ class GuildScheduledEvent extends Base {
      * The privacy level of the guild scheduled event
      * @type {PrivacyLevel}
      */
-    this.privacyLevel = GuildScheduledEventPrivacyLevel[data.privacy_level];
+    this.privacyLevel = GuildScheduledEventPrivacyLevels[data.privacy_level];
 
     /**
      * The status of the guild scheduled event
      * @type {GuildScheduledEventStatus}
      */
-    this.status = GuildScheduledEventStatus[data.status];
+    this.status = GuildScheduledEventStatuses[data.status];
 
     /**
      * The type of hosting entity associated with the scheduled event
      * @type {GuildScheduledEventEntityType}
      */
-    this.entityType = GuildScheduledEventEntityType[data.entity_type];
+    this.entityType = GuildScheduledEventEntityTypes[data.entity_type];
 
     if ('entity_id' in data) {
       /**
@@ -164,7 +164,7 @@ class GuildScheduledEvent extends Base {
    * @readonly
    */
   get createdTimestamp() {
-    return DiscordSnowflake.timestampFrom(this.id);
+    return SnowflakeUtil.timestampFrom(this.id);
   }
 
   /**
@@ -236,7 +236,7 @@ class GuildScheduledEvent extends Base {
    */
   async createInviteURL(options) {
     let channelId = this.channelId;
-    if (this.entityType === GuildScheduledEventEntityType.External) {
+    if (this.entityType === 'EXTERNAL') {
       if (!options?.channel) throw new Error('INVITE_OPTIONS_MISSING_CHANNEL');
       channelId = this.guild.channels.resolveId(options.channel);
       if (!channelId) throw new Error('GUILD_CHANNEL_RESOLVE');
@@ -343,7 +343,7 @@ class GuildScheduledEvent extends Base {
    * @returns {Promise<GuildScheduledEvent>}
    * @example
    * // Set status of a guild scheduled event
-   * guildScheduledEvent.setStatus(GuildScheduledEventStatus.Active)
+   * guildScheduledEvent.setStatus('ACTIVE')
    *  .then(guildScheduledEvent => console.log(`Set the status to: ${guildScheduledEvent.status}`))
    *  .catch(console.error);
    */
@@ -391,7 +391,7 @@ class GuildScheduledEvent extends Base {
    * @returns {boolean}
    */
   isActive() {
-    return GuildScheduledEventStatus[this.status] === GuildScheduledEventStatus.Active;
+    return GuildScheduledEventStatuses[this.status] === GuildScheduledEventStatuses.ACTIVE;
   }
 
   /**
@@ -399,7 +399,7 @@ class GuildScheduledEvent extends Base {
    * @returns {boolean}
    */
   isCanceled() {
-    return GuildScheduledEventStatus[this.status] === GuildScheduledEventStatus.Canceled;
+    return GuildScheduledEventStatuses[this.status] === GuildScheduledEventStatuses.CANCELED;
   }
 
   /**
@@ -407,7 +407,7 @@ class GuildScheduledEvent extends Base {
    * @returns {boolean}
    */
   isCompleted() {
-    return GuildScheduledEventStatus[this.status] === GuildScheduledEventStatus.Completed;
+    return GuildScheduledEventStatuses[this.status] === GuildScheduledEventStatuses.COMPLETED;
   }
 
   /**
@@ -415,7 +415,7 @@ class GuildScheduledEvent extends Base {
    * @returns {boolean}
    */
   isScheduled() {
-    return GuildScheduledEventStatus[this.status] === GuildScheduledEventStatus.Scheduled;
+    return GuildScheduledEventStatuses[this.status] === GuildScheduledEventStatuses.SCHEDULED;
   }
 }
 

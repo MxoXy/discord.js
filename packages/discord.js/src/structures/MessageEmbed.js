@@ -87,9 +87,7 @@ class MessageEmbed {
      * The timestamp of this embed
      * @type {?number}
      */
-    // Date.parse() cannot be used here because data.timestamp might be a number
-    // eslint-disable-next-line eqeqeq
-    this.timestamp = data.timestamp != null ? new Date(data.timestamp).getTime() : null;
+    this.timestamp = 'timestamp' in data ? new Date(data.timestamp).getTime() : null;
 
     /**
      * Represents a field of a MessageEmbed
@@ -242,7 +240,7 @@ class MessageEmbed {
    * @readonly
    */
   get createdAt() {
-    return typeof this.timestamp === 'number' ? new Date(this.timestamp) : null;
+    return this.timestamp ? new Date(this.timestamp) : null;
   }
 
   /**
@@ -516,7 +514,7 @@ class MessageEmbed {
       type: 'rich',
       description: this.description,
       url: this.url,
-      timestamp: this.createdAt?.toISOString(),
+      timestamp: this.timestamp && new Date(this.timestamp),
       color: this.color,
       fields: this.fields,
       thumbnail: this.thumbnail,

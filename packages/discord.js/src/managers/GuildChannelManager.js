@@ -2,14 +2,13 @@
 
 const process = require('node:process');
 const { Collection } = require('@discordjs/collection');
-const { ChannelType } = require('discord-api-types/v9');
 const CachedManager = require('./CachedManager');
 const ThreadManager = require('./ThreadManager');
 const { Error } = require('../errors');
 const GuildChannel = require('../structures/GuildChannel');
 const PermissionOverwrites = require('../structures/PermissionOverwrites');
 const ThreadChannel = require('../structures/ThreadChannel');
-const { ThreadChannelTypes } = require('../util/Constants');
+const { ChannelTypes, ThreadChannelTypes } = require('../util/Constants');
 
 let cacheWarningEmitted = false;
 let storeChannelDeprecationEmitted = false;
@@ -23,8 +22,8 @@ class GuildChannelManager extends CachedManager {
     super(guild.client, GuildChannel, iterable);
     const defaultCaching =
       this._cache.constructor.name === 'Collection' ||
-      this._cache.maxSize === undefined ||
-      this._cache.maxSize === Infinity;
+      ((this._cache.maxSize === undefined || this._cache.maxSize === Infinity) &&
+        (this._cache.sweepFilter === undefined || this._cache.sweepFilter.isDefault));
     if (!cacheWarningEmitted && !defaultCaching) {
       cacheWarningEmitted = true;
       process.emitWarning(
@@ -113,7 +112,7 @@ class GuildChannelManager extends CachedManager {
    * @example
    * // Create a new channel with permission overwrites
    * guild.channels.create('new-voice', {
-   *   type: ChannelType.GuildVoice,
+   *   type: 'GUILD_VOICE',
    *   permissionOverwrites: [
    *      {
    *        id: message.author.id,
@@ -140,8 +139,9 @@ class GuildChannelManager extends CachedManager {
   ) {
     parent &&= this.client.channels.resolveId(parent);
     permissionOverwrites &&= permissionOverwrites.map(o => PermissionOverwrites.resolve(o, this.guild));
+    const intType = typeof type === 'number' ? type : ChannelTypes[type] ?? ChannelTypes.GUILD_TEXT;
 
-    if (type === ChannelType.GuildStore && !storeChannelDeprecationEmitted) {
+    if (intType === ChannelTypes.GUILD_STORE && !storeChannelDeprecationEmitted) {
       storeChannelDeprecationEmitted = true;
       process.emitWarning(
         // eslint-disable-next-line max-len
@@ -154,7 +154,7 @@ class GuildChannelManager extends CachedManager {
       data: {
         name,
         topic,
-        type,
+        type: intType,
         nsfw,
         bitrate,
         user_limit: userLimit,
@@ -203,22 +203,6 @@ class GuildChannelManager extends CachedManager {
     for (const channel of data) channels.set(channel.id, this.client.channels._add(channel, this.guild, { cache }));
     return channels;
   }
-
-  /**
-   * Data that can be resolved to give a Category Channel object. This can be:
-   * * A CategoryChannel object
-   * * A Snowflake
-   * @typedef {CategoryChannel|Snowflake} CategoryChannelResolvable
-   */
-
-  /**
-   * The data needed for updating a channel's position.
-   * @typedef {Object} ChannelPosition
-   * @property {GuildChannel|Snowflake} channel Channel to update
-   * @property {number} [position] New position for the channel
-   * @property {CategoryChannelResolvable} [parent] Parent channel for this channel
-   * @property {boolean} [lockPermissions] If the overwrites should be locked to the parents overwrites
-   */
 
   /**
    * Batch-updates the guild's channels' positions.

@@ -1,12 +1,13 @@
 'use strict';
 
-const { Collection } = require('@discordjs/collection');
-const { DiscordSnowflake } = require('@sapphire/snowflake');
-const { InteractionType } = require('discord-api-types/v9');
-const { TypeError, Error } = require('../../errors');
-const InteractionCollector = require('../InteractionCollector');
+/* eslint-disable import/order */
 const MessageCollector = require('../MessageCollector');
 const MessagePayload = require('../MessagePayload');
+const SnowflakeUtil = require('../../util/SnowflakeUtil');
+const { Collection } = require('@discordjs/collection');
+const { InteractionTypes } = require('../../util/Constants');
+const { TypeError, Error } = require('../../errors');
+const InteractionCollector = require('../InteractionCollector');
 
 /**
  * Interface for classes that have text-channel-like features.
@@ -48,7 +49,16 @@ class TextBasedChannel {
    * @readonly
    */
   get lastPinAt() {
-    return this.lastPinTimestamp && new Date(this.lastPinTimestamp);
+    return this.lastPinTimestamp ? new Date(this.lastPinTimestamp) : null;
+  }
+
+  /**
+   * Has the permissions to send embeds in the channel
+   * @type {boolean}
+   * @readonly
+   */
+  get embedable() {
+    return this.permissionsFor(this.guild.me)?.has(['VIEW_CHANNEL', 'SEND_MESSAGES', 'EMBED_LINKS']) ?? false;
   }
 
   /**
@@ -127,7 +137,7 @@ class TextBasedChannel {
    * channel.send({
    *   files: [{
    *     attachment: 'entire/path/to/file.jpg',
-   *     name: 'file.jpg',
+   *     name: 'file.jpg'
    *     description: 'A description of the file'
    *   }]
    * })
@@ -146,7 +156,7 @@ class TextBasedChannel {
    *   ],
    *   files: [{
    *     attachment: 'entire/path/to/file.jpg',
-   *     name: 'file.jpg',
+   *     name: 'file.jpg'
    *     description: 'A description of the file'
    *   }]
    * })
@@ -174,6 +184,18 @@ class TextBasedChannel {
     const d = await this.client.api.channels[this.id].messages.post({ data, files });
 
     return this.messages.cache.get(d.id) ?? this.messages._add(d);
+  }
+
+  /**
+   * Responds with an embed
+   * @param {RichEmbed|Object} embed - Embed to send
+   * @param {string} [content] - Content for the message
+   * @param {MessageOptions} [options] The options to provide
+   * @returns {Promise<Message>}
+   */
+  embed(embed, options = {}) {
+    options.embeds = [embed];
+    return this.send(options);
   }
 
   /**
@@ -235,7 +257,7 @@ class TextBasedChannel {
   }
 
   /**
-   * Creates a component interaction collector.
+   * Creates a button interaction collector.
    * @param {MessageComponentCollectorOptions} [options={}] Options to send to the collector
    * @returns {InteractionCollector}
    * @example
@@ -248,7 +270,7 @@ class TextBasedChannel {
   createMessageComponentCollector(options = {}) {
     return new InteractionCollector(this.client, {
       ...options,
-      interactionType: InteractionType.MessageComponent,
+      interactionType: InteractionTypes.MESSAGE_COMPONENT,
       channel: this,
     });
   }
@@ -293,7 +315,7 @@ class TextBasedChannel {
     if (Array.isArray(messages) || messages instanceof Collection) {
       let messageIds = messages instanceof Collection ? [...messages.keys()] : messages.map(m => m.id ?? m);
       if (filterOld) {
-        messageIds = messageIds.filter(id => Date.now() - DiscordSnowflake.timestampFrom(id) < 1_209_600_000);
+        messageIds = messageIds.filter(id => Date.now() - SnowflakeUtil.timestampFrom(id) < 1_209_600_000);
       }
       if (messageIds.length === 0) return new Collection();
       if (messageIds.length === 1) {
@@ -329,11 +351,12 @@ class TextBasedChannel {
   }
 
   static applyToClass(structure, full = false, ignore = []) {
-    const props = ['send'];
+    const props = ['send', 'embed'];
     if (full) {
       props.push(
         'lastMessage',
         'lastPinAt',
+        'embedable',
         'bulkDelete',
         'sendTyping',
         'createMessageCollector',
@@ -356,5 +379,4 @@ class TextBasedChannel {
 module.exports = TextBasedChannel;
 
 // Fixes Circular
-// eslint-disable-next-line import/order
 const MessageManager = require('../../managers/MessageManager');

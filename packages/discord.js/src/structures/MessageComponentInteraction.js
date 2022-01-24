@@ -3,6 +3,7 @@
 const Interaction = require('./Interaction');
 const InteractionWebhook = require('./InteractionWebhook');
 const InteractionResponses = require('./interfaces/InteractionResponses');
+const { MessageComponentTypes } = require('../util/Constants');
 
 /**
  * Represents a message component interaction.
@@ -33,9 +34,9 @@ class MessageComponentInteraction extends Interaction {
 
     /**
      * The type of component which was interacted with
-     * @type {ComponentType}
+     * @type {string}
      */
-    this.componentType = data.data.component_type;
+    this.componentType = MessageComponentInteraction.resolveType(data.data.component_type);
 
     /**
      * Whether the reply to this interaction has been deferred
@@ -80,14 +81,26 @@ class MessageComponentInteraction extends Interaction {
       .find(component => (component.customId ?? component.custom_id) === this.customId);
   }
 
+  /**
+   * Resolves the type of a MessageComponent
+   * @param {MessageComponentTypeResolvable} type The type to resolve
+   * @returns {MessageComponentType}
+   * @private
+   */
+  static resolveType(type) {
+    return typeof type === 'string' ? type : MessageComponentTypes[type];
+  }
+
   // These are here only for documentation purposes - they are implemented by InteractionResponses
   /* eslint-disable no-empty-function */
   deferReply() {}
   reply() {}
+  replyEmbed() {}
   fetchReply() {}
-  editReply() {}
   deleteReply() {}
+  delete() {}
   followUp() {}
+  embed() {}
   deferUpdate() {}
   update() {}
 }

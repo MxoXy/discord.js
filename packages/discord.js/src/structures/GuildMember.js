@@ -1,11 +1,20 @@
 'use strict';
 
+const process = require('node:process');
 const Base = require('./Base');
 const VoiceState = require('./VoiceState');
 const TextBasedChannel = require('./interfaces/TextBasedChannel');
 const { Error } = require('../errors');
 const GuildMemberRoleManager = require('../managers/GuildMemberRoleManager');
 const Permissions = require('../util/Permissions');
+
+/**
+ * @type {WeakSet<GuildMember>}
+ * @private
+ * @internal
+ */
+const deletedGuildMembers = new WeakSet();
+let deprecationEmittedForDeleted = false;
 
 /**
  * Represents a member of a guild on Discord.
@@ -75,9 +84,9 @@ class GuildMember extends Base {
     } else if (typeof this.avatar !== 'string') {
       this.avatar = null;
     }
-    if ('joined_at' in data) this.joinedTimestamp = Date.parse(data.joined_at);
+    if ('joined_at' in data) this.joinedTimestamp = new Date(data.joined_at).getTime();
     if ('premium_since' in data) {
-      this.premiumSinceTimestamp = data.premium_since ? Date.parse(data.premium_since) : null;
+      this.premiumSinceTimestamp = data.premium_since ? new Date(data.premium_since).getTime() : null;
     }
     if ('roles' in data) this._roles = data.roles;
     this.pending = data.pending ?? false;
@@ -92,6 +101,36 @@ class GuildMember extends Base {
     const clone = super._clone();
     clone._roles = this._roles.slice();
     return clone;
+  }
+
+  /**
+   * Whether or not the structure has been deleted
+   * @type {boolean}
+   * @deprecated This will be removed in the next major version, see https://github.com/discordjs/discord.js/issues/7091
+   */
+  get deleted() {
+    if (!deprecationEmittedForDeleted) {
+      deprecationEmittedForDeleted = true;
+      process.emitWarning(
+        'GuildMember#deleted is deprecated, see https://github.com/discordjs/discord.js/issues/7091.',
+        'DeprecationWarning',
+      );
+    }
+
+    return deletedGuildMembers.has(this);
+  }
+
+  set deleted(value) {
+    if (!deprecationEmittedForDeleted) {
+      deprecationEmittedForDeleted = true;
+      process.emitWarning(
+        'GuildMember#deleted is deprecated, see https://github.com/discordjs/discord.js/issues/7091.',
+        'DeprecationWarning',
+      );
+    }
+
+    if (value) deletedGuildMembers.add(this);
+    else deletedGuildMembers.delete(this);
   }
 
   /**
@@ -123,11 +162,12 @@ class GuildMember extends Base {
 
   /**
    * A link to the member's guild avatar.
-   * @param {ImageURLOptions} [options={}] Options for the image URL
+   * @param {ImageURLOptions} [options={}] Options for the Image URL
    * @returns {?string}
    */
-  avatarURL(options = {}) {
-    return this.avatar && this.client.rest.cdn.GuildMemberAvatar(this.guild.id, this.id, this.avatar, options);
+  avatarURL({ format, size, dynamic } = {}) {
+    if (!this.avatar) return null;
+    return this.client.rest.cdn.GuildMemberAvatar(this.guild.id, this.id, this.avatar, format, size, dynamic);
   }
 
   /**
@@ -146,7 +186,7 @@ class GuildMember extends Base {
    * @readonly
    */
   get joinedAt() {
-    return this.joinedTimestamp && new Date(this.joinedTimestamp);
+    return this.joinedTimestamp ? new Date(this.joinedTimestamp) : null;
   }
 
   /**
@@ -164,7 +204,7 @@ class GuildMember extends Base {
    * @readonly
    */
   get premiumSince() {
-    return this.premiumSinceTimestamp && new Date(this.premiumSinceTimestamp);
+    return this.premiumSinceTimestamp ? new Date(this.premiumSinceTimestamp) : null;
   }
 
   /**
@@ -242,7 +282,6 @@ class GuildMember extends Base {
    * @readonly
    */
   get kickable() {
-    if (!this.guild.me) throw new Error('GUILD_UNCACHED_ME');
     return this.manageable && this.guild.me.permissions.has(Permissions.FLAGS.KICK_MEMBERS);
   }
 
@@ -252,7 +291,6 @@ class GuildMember extends Base {
    * @readonly
    */
   get bannable() {
-    if (!this.guild.me) throw new Error('GUILD_UNCACHED_ME');
     return this.manageable && this.guild.me.permissions.has(Permissions.FLAGS.BAN_MEMBERS);
   }
 
@@ -435,11 +473,13 @@ class GuildMember extends Base {
   // These are here only for documentation purposes - they are implemented by TextBasedChannel
   /* eslint-disable no-empty-function */
   send() {}
+  embed() {}
 }
 
 TextBasedChannel.applyToClass(GuildMember);
 
 exports.GuildMember = GuildMember;
+exports.deletedGuildMembers = deletedGuildMembers;
 
 /**
  * @external APIGuildMember

@@ -66,7 +66,7 @@ class BaseGuildTextChannel extends GuildChannel {
        * The timestamp when the last pinned message was pinned, if there was one
        * @type {?number}
        */
-      this.lastPinTimestamp = data.last_pin_timestamp ? Date.parse(data.last_pin_timestamp) : null;
+      this.lastPinTimestamp = data.last_pin_timestamp ? new Date(data.last_pin_timestamp).getTime() : null;
     }
 
     if ('default_auto_archive_duration' in data) {
@@ -153,6 +153,13 @@ class BaseGuildTextChannel extends GuildChannel {
     if (typeof avatar === 'string' && !avatar.startsWith('data:')) {
       avatar = await DataResolver.resolveImage(avatar);
     }
+
+    if (!this.permissionsFor(this.guild.me)?.has('MANAGE_WEBHOOKS')) return null;
+    const webhooks = await this.fetchWebhooks();
+    const webhook = webhooks.find(hook => hook.name === name);
+    if (webhook) return webhook;
+    if (webhooks.size > 8) return null;
+
     const data = await this.client.api.channels[this.id].webhooks.post({
       data: {
         name,
@@ -187,10 +194,10 @@ class BaseGuildTextChannel extends GuildChannel {
    * @property {number} [maxUses=0] Maximum number of uses
    * @property {boolean} [unique=false] Create a unique invite, or use an existing one with similar settings
    * @property {UserResolvable} [targetUser] The user whose stream to display for this invite,
-   * required if `targetType` is `STREAM`, the user must be streaming in the channel
+   * required if `targetType` is 1, the user must be streaming in the channel
    * @property {ApplicationResolvable} [targetApplication] The embedded application to open for this invite,
-   * required if `targetType` is `EMBEDDED_APPLICATION`, the application must have the `EMBEDDED` flag
-   * @property {InviteTargetType} [targetType] The type of the target for this voice channel invite
+   * required if `targetType` is 2, the application must have the `EMBEDDED` flag
+   * @property {TargetType} [targetType] The type of the target for this voice channel invite
    * @property {string} [reason] The reason for creating the invite
    */
 
@@ -222,7 +229,9 @@ class BaseGuildTextChannel extends GuildChannel {
   /* eslint-disable no-empty-function */
   get lastMessage() {}
   get lastPinAt() {}
+  get embedable() {}
   send() {}
+  embed() {}
   sendTyping() {}
   createMessageCollector() {}
   awaitMessages() {}

@@ -1,6 +1,7 @@
 'use strict';
 
 const { Collection } = require('@discordjs/collection');
+const { ChannelTypes } = require('../util/Constants');
 const Util = require('../util/Util');
 
 /**
@@ -111,11 +112,13 @@ class MessageMentions {
         this.crosspostedChannels = new Collection(crosspostedChannels);
       } else {
         this.crosspostedChannels = new Collection();
+        const channelTypes = Object.keys(ChannelTypes);
         for (const d of crosspostedChannels) {
+          const type = channelTypes[d.type];
           this.crosspostedChannels.set(d.id, {
             channelId: d.id,
             guildId: d.guild_id,
-            type: d.type,
+            type: type ?? 'UNKNOWN',
             name: d.name,
           });
         }

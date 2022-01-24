@@ -36,7 +36,7 @@ class ShardingManager extends EventEmitter {
    * @property {boolean} [respawn=true] Whether shards should automatically respawn upon exiting
    * @property {string[]} [shardArgs=[]] Arguments to pass to the shard script when spawning
    * (only available when mode is set to 'process')
-   * @property {string[]} [execArgv=[]] Arguments to pass to the shard script executable when spawning
+   * @property {string} [execArgv=[]] Arguments to pass to the shard script executable when spawning
    * (only available when mode is set to 'process')
    * @property {string} [token] Token to use for automatic shard count and passing to shards
    */
@@ -228,10 +228,11 @@ class ShardingManager extends EventEmitter {
    * @param {*} message Message to be sent to the shards
    * @returns {Promise<Shard[]>}
    */
-  broadcast(message) {
+  async broadcast(message) {
     const promises = [];
     for (const shard of this.shards.values()) promises.push(shard.send(message));
-    return Promise.all(promises);
+    const responses = await Promise.allSettled(promises);
+    return responses.filter(r => r.status === 'fulfilled').map(res => res.value);
   }
 
   /**
@@ -274,7 +275,7 @@ class ShardingManager extends EventEmitter {
    * @returns {Promise<*|Array<*>>} Results of the method execution
    * @private
    */
-  _performOnShards(method, args, shard) {
+  async _performOnShards(method, args, shard) {
     if (this.shards.size === 0) return Promise.reject(new Error('SHARDING_NO_SHARDS'));
 
     if (typeof shard === 'number') {
@@ -286,7 +287,8 @@ class ShardingManager extends EventEmitter {
 
     const promises = [];
     for (const sh of this.shards.values()) promises.push(sh[method](...args));
-    return Promise.all(promises);
+    const responses = await Promise.allSettled(promises);
+    return responses.filter(r => r.status === 'fulfilled').map(res => res.value);
   }
 
   /**

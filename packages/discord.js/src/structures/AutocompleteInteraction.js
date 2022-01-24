@@ -1,8 +1,8 @@
 'use strict';
 
-const { InteractionResponseType } = require('discord-api-types/v9');
 const CommandInteractionOptionResolver = require('./CommandInteractionOptionResolver');
 const Interaction = require('./Interaction');
+const { InteractionResponseTypes, ApplicationCommandOptionTypes } = require('../util/Constants');
 
 /**
  * Represents an autocomplete interaction.
@@ -40,7 +40,10 @@ class AutocompleteInteraction extends Interaction {
      * The options passed to the command
      * @type {CommandInteractionOptionResolver}
      */
-    this.options = new CommandInteractionOptionResolver(this.client, data.data.options ?? []);
+    this.options = new CommandInteractionOptionResolver(
+      this.client,
+      data.data.options?.map(option => this.transformOption(option, data.data.resolved)) ?? [],
+    );
   }
 
   /**
@@ -50,6 +53,25 @@ class AutocompleteInteraction extends Interaction {
   get command() {
     const id = this.commandId;
     return this.guild?.commands.cache.get(id) ?? this.client.application.commands.cache.get(id) ?? null;
+  }
+
+  /**
+   * Transforms an option received from the API.
+   * @param {APIApplicationCommandOption} option The received option
+   * @returns {CommandInteractionOption}
+   * @private
+   */
+  transformOption(option) {
+    const result = {
+      name: option.name,
+      type: ApplicationCommandOptionTypes[option.type],
+    };
+
+    if ('value' in option) result.value = option.value;
+    if ('options' in option) result.options = option.options.map(opt => this.transformOption(opt));
+    if ('focused' in option) result.focused = option.focused;
+
+    return result;
   }
 
   /**
@@ -72,7 +94,7 @@ class AutocompleteInteraction extends Interaction {
 
     await this.client.api.interactions(this.id, this.token).callback.post({
       data: {
-        type: InteractionResponseType.ApplicationCommandAutocompleteResult,
+        type: InteractionResponseTypes.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT,
         data: {
           choices: options,
         },

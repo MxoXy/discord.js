@@ -1,15 +1,15 @@
 'use strict';
 
 const { Buffer } = require('node:buffer');
-const { setTimeout, clearTimeout } = require('node:timers');
+const { setTimeout } = require('node:timers');
 const { Collection } = require('@discordjs/collection');
-const { DiscordSnowflake } = require('@sapphire/snowflake');
 const CachedManager = require('./CachedManager');
 const { Error, TypeError, RangeError } = require('../errors');
 const BaseGuildVoiceChannel = require('../structures/BaseGuildVoiceChannel');
 const { GuildMember } = require('../structures/GuildMember');
 const { Role } = require('../structures/Role');
 const { Events, Opcodes } = require('../util/Constants');
+const SnowflakeUtil = require('../util/SnowflakeUtil');
 
 /**
  * Manages API methods for GuildMembers and stores their cache.
@@ -266,10 +266,7 @@ class GuildMemberManager extends CachedManager {
     _data.roles &&= _data.roles.map(role => (role instanceof Role ? role.id : role));
 
     _data.communication_disabled_until =
-      // eslint-disable-next-line eqeqeq
-      _data.communicationDisabledUntil != null
-        ? new Date(_data.communicationDisabledUntil).toISOString()
-        : _data.communicationDisabledUntil;
+      _data.communicationDisabledUntil && new Date(_data.communicationDisabledUntil).toISOString();
 
     let endpoint = this.client.api.guilds(this.guild.id);
     if (id === this.client.user.id) {
@@ -356,7 +353,7 @@ class GuildMemberManager extends CachedManager {
    * @example
    * // Kick a user by id (or with a user/guild member object)
    * guild.members.kick('84484653687267328')
-   *   .then(kickInfo => console.log(`Kicked ${kickInfo.user?.tag ?? kickInfo.tag ?? kickInfo}`))
+   *   .then(banInfo => console.log(`Kicked ${banInfo.user?.tag ?? banInfo.tag ?? banInfo}`))
    *   .catch(console.error);
    */
   async kick(user, reason) {
@@ -379,7 +376,7 @@ class GuildMemberManager extends CachedManager {
    * @example
    * // Ban a user by id (or with a user/guild member object)
    * guild.members.ban('84484653687267328')
-   *   .then(banInfo => console.log(`Banned ${banInfo.user?.tag ?? banInfo.tag ?? banInfo}`))
+   *   .then(kickInfo => console.log(`Banned ${kickInfo.user?.tag ?? kickInfo.tag ?? kickInfo}`))
    *   .catch(console.error);
    */
   ban(user, options = { days: 0 }) {
@@ -417,7 +414,7 @@ class GuildMemberManager extends CachedManager {
     user: user_ids,
     query,
     time = 120e3,
-    nonce = DiscordSnowflake.generate().toString(),
+    nonce = SnowflakeUtil.generate(),
   } = {}) {
     return new Promise((resolve, reject) => {
       if (!query && !user_ids) query = '';

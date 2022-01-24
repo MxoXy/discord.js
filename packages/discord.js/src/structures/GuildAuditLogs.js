@@ -1,15 +1,14 @@
 'use strict';
 
 const { Collection } = require('@discordjs/collection');
-const { DiscordSnowflake } = require('@sapphire/snowflake');
-const { OverwriteType, AuditLogEvent } = require('discord-api-types/v9');
 const { GuildScheduledEvent } = require('./GuildScheduledEvent');
 const Integration = require('./Integration');
 const Invite = require('./Invite');
 const { StageInstance } = require('./StageInstance');
 const { Sticker } = require('./Sticker');
 const Webhook = require('./Webhook');
-const { PartialTypes } = require('../util/Constants');
+const { OverwriteTypes, PartialTypes } = require('../util/Constants');
+const SnowflakeUtil = require('../util/SnowflakeUtil');
 const Util = require('../util/Util');
 
 /**
@@ -51,6 +50,116 @@ const Targets = {
   STICKER: 'STICKER',
   THREAD: 'THREAD',
   UNKNOWN: 'UNKNOWN',
+};
+
+/**
+ * The action of an entry. Here are the available actions:
+ * * ALL: null
+ * * GUILD_UPDATE: 1
+ * * CHANNEL_CREATE: 10
+ * * CHANNEL_UPDATE: 11
+ * * CHANNEL_DELETE: 12
+ * * CHANNEL_OVERWRITE_CREATE: 13
+ * * CHANNEL_OVERWRITE_UPDATE: 14
+ * * CHANNEL_OVERWRITE_DELETE: 15
+ * * MEMBER_KICK: 20
+ * * MEMBER_PRUNE: 21
+ * * MEMBER_BAN_ADD: 22
+ * * MEMBER_BAN_REMOVE: 23
+ * * MEMBER_UPDATE: 24
+ * * MEMBER_ROLE_UPDATE: 25
+ * * MEMBER_MOVE: 26
+ * * MEMBER_DISCONNECT: 27
+ * * BOT_ADD: 28,
+ * * ROLE_CREATE: 30
+ * * ROLE_UPDATE: 31
+ * * ROLE_DELETE: 32
+ * * INVITE_CREATE: 40
+ * * INVITE_UPDATE: 41
+ * * INVITE_DELETE: 42
+ * * WEBHOOK_CREATE: 50
+ * * WEBHOOK_UPDATE: 51
+ * * WEBHOOK_DELETE: 52
+ * * EMOJI_CREATE: 60
+ * * EMOJI_UPDATE: 61
+ * * EMOJI_DELETE: 62
+ * * MESSAGE_DELETE: 72
+ * * MESSAGE_BULK_DELETE: 73
+ * * MESSAGE_PIN: 74
+ * * MESSAGE_UNPIN: 75
+ * * INTEGRATION_CREATE: 80
+ * * INTEGRATION_UPDATE: 81
+ * * INTEGRATION_DELETE: 82
+ * * STAGE_INSTANCE_CREATE: 83
+ * * STAGE_INSTANCE_UPDATE: 84
+ * * STAGE_INSTANCE_DELETE: 85
+ * * STICKER_CREATE: 90
+ * * STICKER_UPDATE: 91
+ * * STICKER_DELETE: 92
+ * * GUILD_SCHEDULED_EVENT_CREATE: 100
+ * * GUILD_SCHEDULED_EVENT_UPDATE: 101
+ * * GUILD_SCHEDULED_EVENT_DELETE: 102
+ * * THREAD_CREATE: 110
+ * * THREAD_UPDATE: 111
+ * * THREAD_DELETE: 112
+ * @typedef {?(number|string)} AuditLogAction
+ * @see {@link https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object-audit-log-events}
+ */
+
+/**
+ * All available actions keyed under their names to their numeric values.
+ * @name GuildAuditLogs.Actions
+ * @type {Object<string, number>}
+ */
+const Actions = {
+  ALL: null,
+  GUILD_UPDATE: 1,
+  CHANNEL_CREATE: 10,
+  CHANNEL_UPDATE: 11,
+  CHANNEL_DELETE: 12,
+  CHANNEL_OVERWRITE_CREATE: 13,
+  CHANNEL_OVERWRITE_UPDATE: 14,
+  CHANNEL_OVERWRITE_DELETE: 15,
+  MEMBER_KICK: 20,
+  MEMBER_PRUNE: 21,
+  MEMBER_BAN_ADD: 22,
+  MEMBER_BAN_REMOVE: 23,
+  MEMBER_UPDATE: 24,
+  MEMBER_ROLE_UPDATE: 25,
+  MEMBER_MOVE: 26,
+  MEMBER_DISCONNECT: 27,
+  BOT_ADD: 28,
+  ROLE_CREATE: 30,
+  ROLE_UPDATE: 31,
+  ROLE_DELETE: 32,
+  INVITE_CREATE: 40,
+  INVITE_UPDATE: 41,
+  INVITE_DELETE: 42,
+  WEBHOOK_CREATE: 50,
+  WEBHOOK_UPDATE: 51,
+  WEBHOOK_DELETE: 52,
+  EMOJI_CREATE: 60,
+  EMOJI_UPDATE: 61,
+  EMOJI_DELETE: 62,
+  MESSAGE_DELETE: 72,
+  MESSAGE_BULK_DELETE: 73,
+  MESSAGE_PIN: 74,
+  MESSAGE_UNPIN: 75,
+  INTEGRATION_CREATE: 80,
+  INTEGRATION_UPDATE: 81,
+  INTEGRATION_DELETE: 82,
+  STAGE_INSTANCE_CREATE: 83,
+  STAGE_INSTANCE_UPDATE: 84,
+  STAGE_INSTANCE_DELETE: 85,
+  STICKER_CREATE: 90,
+  STICKER_UPDATE: 91,
+  STICKER_DELETE: 92,
+  GUILD_SCHEDULED_EVENT_CREATE: 100,
+  GUILD_SCHEDULED_EVENT_UPDATE: 101,
+  GUILD_SCHEDULED_EVENT_DELETE: 102,
+  THREAD_CREATE: 110,
+  THREAD_UPDATE: 111,
+  THREAD_DELETE: 112,
 };
 
 /**
@@ -165,20 +274,20 @@ class GuildAuditLogs {
   static actionType(action) {
     if (
       [
-        AuditLogEvent.ChannelCreate,
-        AuditLogEvent.ChannelOverwriteCreate,
-        AuditLogEvent.MemberBanRemove,
-        AuditLogEvent.BotAdd,
-        AuditLogEvent.RoleCreate,
-        AuditLogEvent.InviteCreate,
-        AuditLogEvent.WebhookCreate,
-        AuditLogEvent.EmojiCreate,
-        AuditLogEvent.MessagePin,
-        AuditLogEvent.IntegrationCreate,
-        AuditLogEvent.StageInstanceCreate,
-        AuditLogEvent.StickerCreate,
-        AuditLogEvent.GuildScheduledEventCreate,
-        AuditLogEvent.ThreadCreate,
+        Actions.CHANNEL_CREATE,
+        Actions.CHANNEL_OVERWRITE_CREATE,
+        Actions.MEMBER_BAN_REMOVE,
+        Actions.BOT_ADD,
+        Actions.ROLE_CREATE,
+        Actions.INVITE_CREATE,
+        Actions.WEBHOOK_CREATE,
+        Actions.EMOJI_CREATE,
+        Actions.MESSAGE_PIN,
+        Actions.INTEGRATION_CREATE,
+        Actions.STAGE_INSTANCE_CREATE,
+        Actions.STICKER_CREATE,
+        Actions.GUILD_SCHEDULED_EVENT_CREATE,
+        Actions.THREAD_CREATE,
       ].includes(action)
     ) {
       return 'CREATE';
@@ -186,24 +295,24 @@ class GuildAuditLogs {
 
     if (
       [
-        AuditLogEvent.ChannelDelete,
-        AuditLogEvent.ChannelOverwriteDelete,
-        AuditLogEvent.MemberKick,
-        AuditLogEvent.MemberPrune,
-        AuditLogEvent.MemberBanAdd,
-        AuditLogEvent.MemberDisconnect,
-        AuditLogEvent.RoleDelete,
-        AuditLogEvent.InviteDelete,
-        AuditLogEvent.WebhookDelete,
-        AuditLogEvent.EmojiDelete,
-        AuditLogEvent.MessageDelete,
-        AuditLogEvent.MessageBulkDelete,
-        AuditLogEvent.MessageUnpin,
-        AuditLogEvent.IntegrationDelete,
-        AuditLogEvent.StageInstanceDelete,
-        AuditLogEvent.StickerDelete,
-        AuditLogEvent.GuildScheduledEventDelete,
-        AuditLogEvent.ThreadDelete,
+        Actions.CHANNEL_DELETE,
+        Actions.CHANNEL_OVERWRITE_DELETE,
+        Actions.MEMBER_KICK,
+        Actions.MEMBER_PRUNE,
+        Actions.MEMBER_BAN_ADD,
+        Actions.MEMBER_DISCONNECT,
+        Actions.ROLE_DELETE,
+        Actions.INVITE_DELETE,
+        Actions.WEBHOOK_DELETE,
+        Actions.EMOJI_DELETE,
+        Actions.MESSAGE_DELETE,
+        Actions.MESSAGE_BULK_DELETE,
+        Actions.MESSAGE_UNPIN,
+        Actions.INTEGRATION_DELETE,
+        Actions.STAGE_INSTANCE_DELETE,
+        Actions.STICKER_DELETE,
+        Actions.GUILD_SCHEDULED_EVENT_DELETE,
+        Actions.THREAD_DELETE,
       ].includes(action)
     ) {
       return 'DELETE';
@@ -211,21 +320,21 @@ class GuildAuditLogs {
 
     if (
       [
-        AuditLogEvent.GuildUpdate,
-        AuditLogEvent.ChannelUpdate,
-        AuditLogEvent.ChannelOverwriteUpdate,
-        AuditLogEvent.MemberUpdate,
-        AuditLogEvent.MemberRoleUpdate,
-        AuditLogEvent.MemberMove,
-        AuditLogEvent.RoleUpdate,
-        AuditLogEvent.InviteUpdate,
-        AuditLogEvent.WebhookUpdate,
-        AuditLogEvent.EmojiUpdate,
-        AuditLogEvent.IntegrationUpdate,
-        AuditLogEvent.StageInstanceUpdate,
-        AuditLogEvent.StickerUpdate,
-        AuditLogEvent.GuildScheduledEventUpdate,
-        AuditLogEvent.ThreadUpdate,
+        Actions.GUILD_UPDATE,
+        Actions.CHANNEL_UPDATE,
+        Actions.CHANNEL_OVERWRITE_UPDATE,
+        Actions.MEMBER_UPDATE,
+        Actions.MEMBER_ROLE_UPDATE,
+        Actions.MEMBER_MOVE,
+        Actions.ROLE_UPDATE,
+        Actions.INVITE_UPDATE,
+        Actions.WEBHOOK_UPDATE,
+        Actions.EMOJI_UPDATE,
+        Actions.INTEGRATION_UPDATE,
+        Actions.STAGE_INSTANCE_UPDATE,
+        Actions.STICKER_UPDATE,
+        Actions.GUILD_SCHEDULED_EVENT_UPDATE,
+        Actions.THREAD_UPDATE,
       ].includes(action)
     ) {
       return 'UPDATE';
@@ -261,7 +370,7 @@ class GuildAuditLogsEntry {
      * Specific action type of this entry in its string presentation
      * @type {AuditLogAction}
      */
-    this.action = Object.keys(AuditLogEvent).find(k => AuditLogEvent[k] === data.action_type);
+    this.action = Object.keys(Actions).find(k => Actions[k] === data.action_type);
 
     /**
      * The reason of this entry
@@ -305,52 +414,52 @@ class GuildAuditLogsEntry {
      */
     this.extra = null;
     switch (data.action_type) {
-      case AuditLogEvent.MemberPrune:
+      case Actions.MEMBER_PRUNE:
         this.extra = {
           removed: Number(data.options.members_removed),
           days: Number(data.options.delete_member_days),
         };
         break;
 
-      case AuditLogEvent.MemberMove:
-      case AuditLogEvent.MessageDelete:
-      case AuditLogEvent.MessageBulkDelete:
+      case Actions.MEMBER_MOVE:
+      case Actions.MESSAGE_DELETE:
+      case Actions.MESSAGE_BULK_DELETE:
         this.extra = {
           channel: guild.channels.cache.get(data.options.channel_id) ?? { id: data.options.channel_id },
           count: Number(data.options.count),
         };
         break;
 
-      case AuditLogEvent.MessagePin:
-      case AuditLogEvent.MessageUnpin:
+      case Actions.MESSAGE_PIN:
+      case Actions.MESSAGE_UNPIN:
         this.extra = {
           channel: guild.client.channels.cache.get(data.options.channel_id) ?? { id: data.options.channel_id },
           messageId: data.options.message_id,
         };
         break;
 
-      case AuditLogEvent.MemberDisconnect:
+      case Actions.MEMBER_DISCONNECT:
         this.extra = {
           count: Number(data.options.count),
         };
         break;
 
-      case AuditLogEvent.ChannelOverwriteCreate:
-      case AuditLogEvent.ChannelOverwriteUpdate:
-      case AuditLogEvent.ChannelOverwriteDelete:
-        switch (data.options.type) {
-          case OverwriteType.Role:
+      case Actions.CHANNEL_OVERWRITE_CREATE:
+      case Actions.CHANNEL_OVERWRITE_UPDATE:
+      case Actions.CHANNEL_OVERWRITE_DELETE:
+        switch (Number(data.options.type)) {
+          case OverwriteTypes.role:
             this.extra = guild.roles.cache.get(data.options.id) ?? {
               id: data.options.id,
               name: data.options.role_name,
-              type: OverwriteType.Role,
+              type: OverwriteTypes[OverwriteTypes.role],
             };
             break;
 
-          case OverwriteType.Member:
+          case OverwriteTypes.member:
             this.extra = guild.members.cache.get(data.options.id) ?? {
               id: data.options.id,
-              type: OverwriteType.Member,
+              type: OverwriteTypes[OverwriteTypes.member],
             };
             break;
 
@@ -359,9 +468,9 @@ class GuildAuditLogsEntry {
         }
         break;
 
-      case AuditLogEvent.StageInstanceCreate:
-      case AuditLogEvent.StageInstanceDelete:
-      case AuditLogEvent.StageInstanceUpdate:
+      case Actions.STAGE_INSTANCE_CREATE:
+      case Actions.STAGE_INSTANCE_DELETE:
+      case Actions.STAGE_INSTANCE_UPDATE:
         this.extra = {
           channel: guild.client.channels.cache.get(data.options?.channel_id) ?? { id: data.options?.channel_id },
         };
@@ -424,7 +533,7 @@ class GuildAuditLogsEntry {
     } else if (targetType === Targets.MESSAGE) {
       // Discord sends a channel id for the MESSAGE_BULK_DELETE action type.
       this.target =
-        data.action_type === AuditLogEvent.MessageBulkDelete
+        data.action_type === Actions.MESSAGE_BULK_DELETE
           ? guild.channels.cache.get(data.target_id) ?? { id: data.target_id }
           : guild.client.users.cache.get(data.target_id);
     } else if (targetType === Targets.INTEGRATION) {
@@ -505,7 +614,7 @@ class GuildAuditLogsEntry {
    * @readonly
    */
   get createdTimestamp() {
-    return DiscordSnowflake.timestampFrom(this.id);
+    return SnowflakeUtil.timestampFrom(this.id);
   }
 
   /**
@@ -522,6 +631,7 @@ class GuildAuditLogsEntry {
   }
 }
 
+GuildAuditLogs.Actions = Actions;
 GuildAuditLogs.Targets = Targets;
 GuildAuditLogs.Entry = GuildAuditLogsEntry;
 

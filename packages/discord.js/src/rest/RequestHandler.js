@@ -16,7 +16,7 @@ function parseResponse(res) {
 }
 
 function getAPIOffset(serverDate) {
-  return Date.parse(serverDate) - Date.now();
+  return new Date(serverDate).getTime() - Date.now();
 }
 
 function calculateReset(reset, resetAfter, serverDate) {
@@ -24,7 +24,7 @@ function calculateReset(reset, resetAfter, serverDate) {
   if (resetAfter) {
     return Date.now() + Number(resetAfter) * 1_000;
   }
-  return Number(reset) * 1_000 - getAPIOffset(serverDate);
+  return new Date(Number(reset) * 1_000).getTime() - getAPIOffset(serverDate);
 }
 
 /* Invalid request limiting is done on a per-IP basis, not a per-token basis.
@@ -242,7 +242,7 @@ class RequestHandler {
 
       // https://github.com/discord/discord-api-docs/issues/182
       if (!resetAfter && request.route.includes('reactions')) {
-        this.reset = Date.parse(serverDate) - getAPIOffset(serverDate) + 250;
+        this.reset = new Date(serverDate).getTime() - getAPIOffset(serverDate) + 250;
       }
 
       // Handle retryAfter, which means we have actually hit a rate limit
@@ -280,7 +280,7 @@ class RequestHandler {
         /**
          * @typedef {Object} InvalidRequestWarningData
          * @property {number} count Number of invalid requests that have been made in the window
-         * @property {number} remainingTime Time in milliseconds remaining before the count resets
+         * @property {number} remainingTime Time in ms remaining before the count resets
          */
 
         /**
@@ -337,6 +337,20 @@ class RequestHandler {
           await sleep(sublimitTimeout);
         }
         return this.execute(request);
+      }
+
+      if (res.status === 403) {
+        console.warn(
+          `[FORBIDDEN] ${request.method.toUpperCase()} ${request.route}`,
+          JSON.stringify(request.options.data),
+        );
+      }
+
+      if (res.status === 404) {
+        console.warn(
+          `[NOT FOUND] ${request.method.toUpperCase()} ${request.path}`,
+          JSON.stringify(request.options.data),
+        );
       }
 
       // Handle possible malformed requests

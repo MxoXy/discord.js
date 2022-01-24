@@ -1,7 +1,7 @@
 'use strict';
 
 const { Buffer } = require('node:buffer');
-const { createComponent } = require('@discordjs/builders');
+const BaseMessageComponent = require('./BaseMessageComponent');
 const MessageEmbed = require('./MessageEmbed');
 const { RangeError } = require('../errors');
 const DataResolver = require('../util/DataResolver');
@@ -138,7 +138,7 @@ class MessagePayload {
       }
     }
 
-    const components = this.options.components?.map(c => createComponent(c).toJSON());
+    const components = this.options.components?.map(c => BaseMessageComponent.create(c).toJSON());
 
     let username;
     let avatarURL;
@@ -192,9 +192,7 @@ class MessagePayload {
       content,
       tts,
       nonce,
-      embeds: this.options.embeds?.map(embed =>
-        (embed instanceof MessageEmbed ? embed : new MessageEmbed(embed)).toJSON(),
-      ),
+      embeds: this.options.embeds?.map(embed => new MessageEmbed(embed).toJSON()),
       components,
       username,
       avatar_url: avatarURL,

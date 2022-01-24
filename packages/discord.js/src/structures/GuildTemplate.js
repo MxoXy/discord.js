@@ -1,6 +1,6 @@
 'use strict';
 
-const { setTimeout, clearTimeout } = require('node:timers');
+const { setTimeout } = require('node:timers');
 const Base = require('./Base');
 const { Events } = require('../util/Constants');
 const DataResolver = require('../util/DataResolver');
@@ -66,18 +66,18 @@ class GuildTemplate extends Base {
 
     if ('created_at' in data) {
       /**
-       * The timestamp of when this template was created at
-       * @type {number}
+       * The time when this template was created at
+       * @type {Date}
        */
-      this.createdTimestamp = Date.parse(data.created_at);
+      this.createdAt = new Date(data.created_at);
     }
 
     if ('updated_at' in data) {
       /**
-       * The timestamp of when this template was last synced to the guild
-       * @type {number}
+       * The time when this template was last synced to the guild
+       * @type {Date}
        */
-      this.updatedTimestamp = Date.parse(data.updated_at);
+      this.updatedAt = new Date(data.updated_at);
     }
 
     if ('source_guild_id' in data) {
@@ -180,21 +180,21 @@ class GuildTemplate extends Base {
   }
 
   /**
-   * The time when this template was created at
-   * @type {Date}
+   * The timestamp of when this template was created at
+   * @type {number}
    * @readonly
    */
-  get createdAt() {
-    return new Date(this.createdTimestamp);
+  get createdTimestamp() {
+    return this.createdAt.getTime();
   }
 
   /**
-   * The time when this template was last synced to the guild
-   * @type {Date}
+   * The timestamp of when this template was last synced to the guild
+   * @type {number}
    * @readonly
    */
-  get updatedAt() {
-    return new Date(this.updatedTimestamp);
+  get updatedTimestamp() {
+    return this.updatedAt.getTime();
   }
 
   /**

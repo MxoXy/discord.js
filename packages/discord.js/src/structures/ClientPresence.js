@@ -2,7 +2,7 @@
 
 const { Presence } = require('./Presence');
 const { TypeError } = require('../errors');
-const { Opcodes } = require('../util/Constants');
+const { ActivityTypes, Opcodes } = require('../util/Constants');
 
 /**
  * Represents the client's presence.
@@ -52,7 +52,7 @@ class ClientPresence extends Presence {
         activity.type ??= 0;
 
         data.activities.push({
-          type: activity.type,
+          type: typeof activity.type === 'number' ? activity.type : ActivityTypes[activity.type],
           name: activity.name,
           url: activity.url,
         });
@@ -61,7 +61,7 @@ class ClientPresence extends Presence {
       data.activities.push(
         ...this.activities.map(a => ({
           name: a.name,
-          type: a.type,
+          type: ActivityTypes[a.type],
           url: a.url ?? undefined,
         })),
       );

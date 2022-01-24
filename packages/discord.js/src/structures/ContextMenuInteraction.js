@@ -1,14 +1,14 @@
 'use strict';
 
-const { ApplicationCommandOptionType } = require('discord-api-types/v9');
-const CommandInteraction = require('./CommandInteraction');
+const BaseCommandInteraction = require('./BaseCommandInteraction');
 const CommandInteractionOptionResolver = require('./CommandInteractionOptionResolver');
+const { ApplicationCommandOptionTypes, ApplicationCommandTypes } = require('../util/Constants');
 
 /**
  * Represents a context menu interaction.
- * @extends {CommandInteraction}
+ * @extends {BaseCommandInteraction}
  */
-class ContextMenuCommandInteraction extends CommandInteraction {
+class ContextMenuInteraction extends BaseCommandInteraction {
   constructor(client, data) {
     super(client, data);
     /**
@@ -28,10 +28,10 @@ class ContextMenuCommandInteraction extends CommandInteraction {
     this.targetId = data.data.target_id;
 
     /**
-     * The type of the target of the interaction; either `.User` or `.Message`
-     * @type {ApplicationCommandType.User|ApplicationCommandType.Message}
+     * The type of the target of the interaction; either USER or MESSAGE
+     * @type {ApplicationCommandType}
      */
-    this.targetType = data.data.type;
+    this.targetType = ApplicationCommandTypes[data.data.type];
   }
 
   /**
@@ -45,7 +45,7 @@ class ContextMenuCommandInteraction extends CommandInteraction {
 
     if (resolved.users?.[target_id]) {
       result.push(
-        this.transformOption({ name: 'user', type: ApplicationCommandOptionType.User, value: target_id }, resolved),
+        this.transformOption({ name: 'user', type: ApplicationCommandOptionTypes.USER, value: target_id }, resolved),
       );
     }
 
@@ -62,4 +62,4 @@ class ContextMenuCommandInteraction extends CommandInteraction {
   }
 }
 
-module.exports = ContextMenuCommandInteraction;
+module.exports = ContextMenuInteraction;

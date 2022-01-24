@@ -1,6 +1,7 @@
 'use strict';
 
 const process = require('node:process');
+const { setInterval } = require('node:timers');
 const { Collection } = require('@discordjs/collection');
 const BaseClient = require('./BaseClient');
 const ActionsManager = require('./actions/ActionsManager');
@@ -73,6 +74,20 @@ class Client extends BaseClient {
     }
 
     this._validateOptions();
+
+    /**
+     * Functions called when a cache is garbage collected or the Client is destroyed
+     * @type {Set<Function>}
+     * @private
+     */
+    this._cleanups = new Set();
+
+    /**
+     * The finalizers used to cleanup items.
+     * @type {FinalizationRegistry}
+     * @private
+     */
+    this._finalizers = new FinalizationRegistry(this._finalize.bind(this));
 
     /**
      * The WebSocket manager of the client
@@ -162,10 +177,22 @@ class Client extends BaseClient {
     this.application = null;
 
     /**
-     * Timestamp of the time the client was last `READY` at
-     * @type {?number}
+     * Time at which the client was last regarded as being in the `READY` state
+     * (each time the client disconnects and successfully reconnects, this will be overwritten)
+     * @type {?Date}
      */
-    this.readyTimestamp = null;
+    this.readyAt = null;
+
+    if (this.options.messageSweepInterval > 0) {
+      process.emitWarning(
+        'The message sweeping client options are deprecated, use the global sweepers instead.',
+        'DeprecationWarning',
+      );
+      this.sweepMessageInterval = setInterval(
+        this.sweepMessages.bind(this),
+        this.options.messageSweepInterval * 1_000,
+      ).unref();
+    }
   }
 
   /**
@@ -182,13 +209,12 @@ class Client extends BaseClient {
   }
 
   /**
-   * Time at which the client was last regarded as being in the `READY` state
-   * (each time the client disconnects and successfully reconnects, this will be overwritten)
-   * @type {?Date}
+   * Timestamp of the time the client was last `READY` at
+   * @type {?number}
    * @readonly
    */
-  get readyAt() {
-    return this.readyTimestamp && new Date(this.readyTimestamp);
+  get readyTimestamp() {
+    return this.readyAt?.getTime() ?? null;
   }
 
   /**
@@ -197,7 +223,7 @@ class Client extends BaseClient {
    * @readonly
    */
   get uptime() {
-    return this.readyTimestamp && Date.now() - this.readyTimestamp;
+    return this.readyAt ? Date.now() - this.readyAt : null;
   }
 
   /**
@@ -248,6 +274,11 @@ class Client extends BaseClient {
    */
   destroy() {
     super.destroy();
+
+    for (const fn of this._cleanups) fn();
+    this._cleanups.clear();
+
+    if (this.sweepMessageInterval) clearInterval(this.sweepMessageInterval);
 
     this.sweepers.destroy();
     this.ws.destroy();
@@ -349,6 +380,50 @@ class Client extends BaseClient {
   async fetchPremiumStickerPacks() {
     const data = await this.api('sticker-packs').get();
     return new Collection(data.sticker_packs.map(p => [p.id, new StickerPack(this, p)]));
+  }
+  /**
+   * A last ditch cleanup function for garbage collection.
+   * @param {Function} options.cleanup The function called to GC
+   * @param {string} [options.message] The message to send after a successful GC
+   * @param {string} [options.name] The name of the item being GCed
+   * @private
+   */
+  _finalize({ cleanup, message, name }) {
+    try {
+      cleanup();
+      this._cleanups.delete(cleanup);
+      if (message) {
+        this.emit(Events.DEBUG, message);
+      }
+    } catch {
+      this.emit(Events.DEBUG, `Garbage collection failed on ${name ?? 'an unknown item'}.`);
+    }
+  }
+
+  /**
+   * Sweeps all text-based channels' messages and removes the ones older than the max message lifetime.
+   * If the message has been edited, the time of the edit is used rather than the time of the original message.
+   * @param {number} [lifetime=this.options.messageCacheLifetime] Messages that are older than this (in seconds)
+   * will be removed from the caches. The default is based on {@link ClientOptions#messageCacheLifetime}
+   * @returns {number} Amount of messages that were removed from the caches,
+   * or -1 if the message cache lifetime is unlimited
+   * @example
+   * // Remove all messages older than 1800 seconds from the messages cache
+   * const amount = client.sweepMessages(1800);
+   * console.log(`Successfully removed ${amount} messages from the cache.`);
+   */
+  sweepMessages(lifetime = this.options.messageCacheLifetime) {
+    if (typeof lifetime !== 'number' || isNaN(lifetime)) {
+      throw new TypeError('INVALID_TYPE', 'lifetime', 'number');
+    }
+    if (lifetime <= 0) {
+      this.emit(Events.DEBUG, "Didn't sweep messages - lifetime is unlimited");
+      return -1;
+    }
+
+    const messages = this.sweepers.sweepMessages(Sweepers.outdatedMessageSweepFilter(lifetime)());
+    this.emit(Events.DEBUG, `Swept ${messages} messages older than ${lifetime} seconds`);
+    return messages;
   }
 
   /**
@@ -484,6 +559,12 @@ class Client extends BaseClient {
     if (typeof options.makeCache !== 'function') {
       throw new TypeError('CLIENT_INVALID_OPTION', 'makeCache', 'a function');
     }
+    if (typeof options.messageCacheLifetime !== 'number' || isNaN(options.messageCacheLifetime)) {
+      throw new TypeError('CLIENT_INVALID_OPTION', 'The messageCacheLifetime', 'a number');
+    }
+    if (typeof options.messageSweepInterval !== 'number' || isNaN(options.messageSweepInterval)) {
+      throw new TypeError('CLIENT_INVALID_OPTION', 'messageSweepInterval', 'a number');
+    }
     if (typeof options.sweepers !== 'object' || options.sweepers === null) {
       throw new TypeError('CLIENT_INVALID_OPTION', 'sweepers', 'an object');
     }
@@ -495,6 +576,9 @@ class Client extends BaseClient {
     }
     if (typeof options.waitGuildTimeout !== 'number' || isNaN(options.waitGuildTimeout)) {
       throw new TypeError('CLIENT_INVALID_OPTION', 'waitGuildTimeout', 'a number');
+    }
+    if (typeof options.restWsBridgeTimeout !== 'number' || isNaN(options.restWsBridgeTimeout)) {
+      throw new TypeError('CLIENT_INVALID_OPTION', 'restWsBridgeTimeout', 'a number');
     }
     if (typeof options.restRequestTimeout !== 'number' || isNaN(options.restRequestTimeout)) {
       throw new TypeError('CLIENT_INVALID_OPTION', 'restRequestTimeout', 'a number');
@@ -524,19 +608,6 @@ class Client extends BaseClient {
 }
 
 module.exports = Client;
-
-/**
- * A {@link https://developer.twitter.com/en/docs/twitter-ids Twitter snowflake},
- * except the epoch is 2015-01-01T00:00:00.000Z.
- *
- * If we have a snowflake '266241948824764416' we can represent it as binary:
- * ```
- * 64                                          22     17     12          0
- *  000000111011000111100001101001000101000000  00001  00000  000000000000
- *  number of milliseconds since Discord epoch  worker  pid    increment
- * ```
- * @typedef {string} Snowflake
- */
 
 /**
  * Emitted for general warnings.

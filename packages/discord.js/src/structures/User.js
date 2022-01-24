@@ -1,8 +1,9 @@
 'use strict';
 
-const { DiscordSnowflake } = require('@sapphire/snowflake');
 const Base = require('./Base');
 const TextBasedChannel = require('./interfaces/TextBasedChannel');
+const { Error } = require('../errors');
+const SnowflakeUtil = require('../util/SnowflakeUtil');
 const UserFlags = require('../util/UserFlags');
 
 /**
@@ -126,7 +127,7 @@ class User extends Base {
    * @readonly
    */
   get createdTimestamp() {
-    return DiscordSnowflake.timestampFrom(this.id);
+    return SnowflakeUtil.timestampFrom(this.id);
   }
 
   /**
@@ -140,11 +141,12 @@ class User extends Base {
 
   /**
    * A link to the user's avatar.
-   * @param {ImageURLOptions} [options={}] Options for the image URL
+   * @param {ImageURLOptions} [options={}] Options for the Image URL
    * @returns {?string}
    */
-  avatarURL(options = {}) {
-    return this.avatar && this.client.rest.cdn.Avatar(this.id, this.avatar, options);
+  avatarURL({ format, size, dynamic } = {}) {
+    if (!this.avatar) return null;
+    return this.client.rest.cdn.Avatar(this.id, this.avatar, format, size, dynamic);
   }
 
   /**
@@ -178,12 +180,16 @@ class User extends Base {
   }
 
   /**
-   * A link to the user's banner. See {@link User#banner} for more info
-   * @param {ImageURLOptions} [options={}] Options for the image URL
+   * A link to the user's banner.
+   * <info>This method will throw an error if called before the user is force fetched.
+   * See {@link User#banner} for more info</info>
+   * @param {ImageURLOptions} [options={}] Options for the Image URL
    * @returns {?string}
    */
-  bannerURL(options = {}) {
-    return this.banner && this.client.rest.cdn.Banner(this.id, this.banner, options);
+  bannerURL({ format, size, dynamic } = {}) {
+    if (typeof this.banner === 'undefined') throw new Error('USER_BANNER_NOT_FETCHED');
+    if (!this.banner) return null;
+    return this.client.rest.cdn.Banner(this.id, this.banner, format, size, dynamic);
   }
 
   /**
@@ -308,6 +314,7 @@ class User extends Base {
   // These are here only for documentation purposes - they are implemented by TextBasedChannel
   /* eslint-disable no-empty-function */
   send() {}
+  embed() {}
 }
 
 TextBasedChannel.applyToClass(User);

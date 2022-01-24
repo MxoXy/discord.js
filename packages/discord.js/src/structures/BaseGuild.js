@@ -1,7 +1,7 @@
 'use strict';
 
-const { DiscordSnowflake } = require('@sapphire/snowflake');
 const Base = require('./Base');
+const SnowflakeUtil = require('../util/SnowflakeUtil');
 
 /**
  * The base class for {@link Guild}, {@link OAuth2Guild} and {@link InviteGuild}.
@@ -43,7 +43,7 @@ class BaseGuild extends Base {
    * @readonly
    */
   get createdTimestamp() {
-    return DiscordSnowflake.timestampFrom(this.id);
+    return SnowflakeUtil.timestampFrom(this.id);
   }
 
   /**
@@ -87,11 +87,12 @@ class BaseGuild extends Base {
 
   /**
    * The URL to this guild's icon.
-   * @param {ImageURLOptions} [options={}] Options for the image URL
+   * @param {ImageURLOptions} [options={}] Options for the Image URL
    * @returns {?string}
    */
-  iconURL(options = {}) {
-    return this.icon && this.client.rest.cdn.Icon(this.id, this.icon, options);
+  iconURL({ format, size, dynamic } = {}) {
+    if (!this.icon) return null;
+    return this.client.rest.cdn.Icon(this.id, this.icon, format, size, dynamic);
   }
 
   /**

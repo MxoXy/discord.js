@@ -5,6 +5,7 @@ const ApplicationCommandPermissionsManager = require('./ApplicationCommandPermis
 const CachedManager = require('./CachedManager');
 const { TypeError } = require('../errors');
 const ApplicationCommand = require('../structures/ApplicationCommand');
+const { ApplicationCommandTypes } = require('../util/Constants');
 
 /**
  * Manages API methods for application commands and stores their cache.
@@ -206,7 +207,7 @@ class ApplicationCommandManager extends CachedManager {
     return {
       name: command.name,
       description: command.description,
-      type: command.type,
+      type: typeof command.type === 'number' ? command.type : ApplicationCommandTypes[command.type],
       options: command.options?.map(o => ApplicationCommand.transformOption(o)),
       default_permission: command.defaultPermission ?? command.default_permission,
     };

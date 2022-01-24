@@ -108,6 +108,8 @@ class DataResolver extends null {
    */
   static async resolveFile(resource) {
     if (Buffer.isBuffer(resource) || resource instanceof stream.Readable) return resource;
+    if (resource instanceof Object) return Buffer.from(resource);
+
     if (typeof resource === 'string') {
       if (/^https?:\/\//.test(resource)) {
         const res = await fetch(resource);

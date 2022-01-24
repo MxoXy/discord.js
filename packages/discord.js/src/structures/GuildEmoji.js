@@ -104,8 +104,21 @@ class GuildEmoji extends BaseGuildEmoji {
    *   .then(e => console.log(`Edited emoji ${e}`))
    *   .catch(console.error);
    */
-  edit(data, reason) {
-    return this.guild.emojis.edit(this.id, data, reason);
+  async edit(data, reason) {
+    const roles = data.roles?.map(r => r.id ?? r);
+    const newData = await this.client.api
+      .guilds(this.guild.id)
+      .emojis(this.id)
+      .patch({
+        data: {
+          name: data.name,
+          roles,
+        },
+        reason,
+      });
+    const clone = this._clone();
+    clone._patch(newData);
+    return clone;
   }
 
   /**
@@ -124,7 +137,7 @@ class GuildEmoji extends BaseGuildEmoji {
    * @returns {Promise<GuildEmoji>}
    */
   async delete(reason) {
-    await this.guild.emojis.delete(this.id, reason);
+    await this.client.api.guilds(this.guild.id).emojis(this.id).delete({ reason });
     return this;
   }
 
