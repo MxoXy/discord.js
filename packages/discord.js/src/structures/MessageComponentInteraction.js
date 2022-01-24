@@ -95,10 +95,12 @@ class MessageComponentInteraction extends Interaction {
   /* eslint-disable no-empty-function */
   deferReply() {}
   reply() {}
+  replyEmbed() {}
   fetchReply() {}
-  editReply() {}
   deleteReply() {}
+  delete() {}
   followUp() {}
+  embed() {}
   deferUpdate() {}
   update() {}
 }

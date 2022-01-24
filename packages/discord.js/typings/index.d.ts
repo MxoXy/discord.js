@@ -354,6 +354,14 @@ export abstract class BaseCommandInteraction<Cached extends CacheType = CacheTyp
   public followUp(options: string | MessagePayload | InteractionReplyOptions): Promise<GuildCacheMessage<Cached>>;
   public reply(options: InteractionReplyOptions & { fetchReply: true }): Promise<GuildCacheMessage<Cached>>;
   public reply(options: string | MessagePayload | InteractionReplyOptions): Promise<void>;
+  public replyEmbed(
+    embed: MessageEmbed | MessageEmbedOptions,
+    options?: Omit<MessagePayload | InteractionReplyOptions, 'embeds'>,
+  ): Promise<GuildCacheMessage<Cached>>;
+  public embed(
+    embed: MessageEmbed | MessageEmbedOptions,
+    options?: Omit<MessagePayload | InteractionReplyOptions, 'embeds'>,
+  ): Promise<GuildCacheMessage<Cached>>;
   private transformOption(
     option: APIApplicationCommandOption,
     resolved: APIApplicationCommandInteractionData['resolved'],
@@ -469,9 +477,10 @@ export type KeyedEnum<K, T> = {
   [Key in keyof K]: T | string;
 };
 
-export type EnumValueMapped<E extends KeyedEnum<T, number>, T extends Partial<Record<keyof E, unknown>>> = T & {
-  [Key in keyof T as E[Key]]: T[Key];
-};
+export type EnumValueMapped<E extends KeyedEnum<T, number>, T extends Partial<Record<keyof E, unknown>>> = T &
+  {
+    [Key in keyof T as E[Key]]: T[Key];
+  };
 
 export type MappedChannelCategoryTypes = EnumValueMapped<
   typeof ChannelTypes,
@@ -1531,8 +1540,19 @@ export class Message<Cached extends boolean = boolean> extends Base {
   public createMessageComponentCollector<T extends MessageComponentTypeResolvable = 'ACTION_ROW'>(
     options?: MessageCollectorOptionsParams<T, Cached>,
   ): InteractionCollector<MappedInteractionTypes<Cached>[T]>;
-  public delete(): Promise<Message>;
+  public delete(timeout?: number): Promise<Message>;
   public edit(content: string | MessageEditOptions | MessagePayload): Promise<Message>;
+  public embed(embed: MessageEmbed | MessageEmbedOptions, options?: Omit<MessageOptions, 'embeds'>): Promise<Message>;
+  public send(content: string, options: MessagePayload | Omit<MessageOptions, 'content'>): Promise<Message>;
+  public replyMention(content: string, options: MessagePayload | Omit<MessageOptions, 'content'>): Promise<Message>;
+  public directEmbed(
+    embed: MessageEmbed | MessageEmbedOptions,
+    options?: Omit<MessageOptions, 'embeds'>,
+  ): Promise<Message>;
+  public replyEmbed(
+    embed: MessageEmbed | MessageEmbedOptions,
+    options?: Omit<MessageOptions, 'embeds'>,
+  ): Promise<Message>;
   public equals(message: Message, rawData: unknown): boolean;
   public fetchReference(): Promise<Message>;
   public fetchWebhook(): Promise<Webhook>;
@@ -1654,6 +1674,14 @@ export class MessageComponentInteraction<Cached extends CacheType = CacheType> e
   public followUp(options: string | MessagePayload | InteractionReplyOptions): Promise<GuildCacheMessage<Cached>>;
   public reply(options: InteractionReplyOptions & { fetchReply: true }): Promise<GuildCacheMessage<Cached>>;
   public reply(options: string | MessagePayload | InteractionReplyOptions): Promise<void>;
+  public replyEmbed(
+    embed: MessageEmbed | MessageEmbedOptions,
+    options?: Omit<MessagePayload | InteractionReplyOptions, 'embeds'>,
+  ): Promise<GuildCacheMessage<Cached>>;
+  public embed(
+    embed: MessageEmbed | MessageEmbedOptions,
+    options?: Omit<MessagePayload | InteractionReplyOptions, 'embeds'>,
+  ): Promise<GuildCacheMessage<Cached>>;
   public update(options: InteractionUpdateOptions & { fetchReply: true }): Promise<GuildCacheMessage<Cached>>;
   public update(options: string | MessagePayload | InteractionUpdateOptions): Promise<void>;
 
@@ -2184,6 +2212,20 @@ export class StoreChannel extends GuildChannel {
   public clone(options?: GuildChannelCloneOptions): Promise<this>;
   public nsfw: boolean;
   public type: 'GUILD_STORE';
+}
+
+export class Structures extends null {
+  private constructor();
+  public static get<K extends keyof Extendable>(structure: K): Extendable[K];
+  public static get(structure: string): (...args: any[]) => void;
+  public static extend<K extends keyof Extendable, T extends Extendable[K]>(
+    structure: K,
+    extender: (baseClass: Extendable[K]) => T,
+  ): T;
+  public static extend<T extends (...args: any[]) => void>(
+    structure: string,
+    extender: (baseClass: typeof Function) => T,
+  ): T;
 }
 
 export class Sweepers {
@@ -3283,6 +3325,7 @@ export function TextBasedChannelMixin<T, I extends keyof TextBasedChannelFields 
 
 export interface PartialTextBasedChannelFields {
   send(options: string | MessagePayload | MessageOptions): Promise<Message>;
+  embed(embed: MessageEmbed | MessageEmbedOptions, content?: string, options?: MessageOptions): Promise<Message>;
 }
 
 export interface TextBasedChannelFields extends PartialTextBasedChannelFields {
@@ -4349,6 +4392,13 @@ export interface EscapeMarkdownOptions {
 
 export type ExplicitContentFilterLevel = keyof typeof ExplicitContentFilterLevels;
 
+interface Extendable {
+  TextChannel: typeof TextChannel;
+  NewsChannel: typeof NewsChannel;
+  Guild: typeof Guild;
+  Message: typeof Message;
+}
+
 export interface FetchApplicationCommandOptions extends BaseFetchOptions {
   guildId?: Snowflake;
 }
@@ -5276,9 +5326,7 @@ export type PermissionString =
   | 'USE_APPLICATION_COMMANDS'
   | 'REQUEST_TO_SPEAK'
   | 'MANAGE_THREADS'
-  | 'USE_PUBLIC_THREADS'
   | 'CREATE_PUBLIC_THREADS'
-  | 'USE_PRIVATE_THREADS'
   | 'CREATE_PRIVATE_THREADS'
   | 'USE_EXTERNAL_STICKERS'
   | 'SEND_MESSAGES_IN_THREADS'

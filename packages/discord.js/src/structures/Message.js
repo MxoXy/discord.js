@@ -780,6 +780,7 @@ class Message extends Base {
 
   /**
    * Deletes the message.
+   * @param {number} [timeout=0] How long to wait to delete the message in milliseconds
    * @returns {Promise<Message>}
    * @example
    * // Delete a message
@@ -787,9 +788,17 @@ class Message extends Base {
    *   .then(msg => console.log(`Deleted message from ${msg.author.username}`))
    *   .catch(console.error);
    */
-  async delete() {
-    if (!this.channel) throw new Error('CHANNEL_NOT_CACHED');
-    await this.channel.messages.delete(this.id);
+  async delete(timeout = 0) {
+    if (timeout <= 0) {
+      if (!this.deletable) return this;
+      await this.channel.messages.delete(this.id);
+    } else {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve(this.delete());
+        }, timeout);
+      });
+    }
     return this;
   }
 
@@ -862,6 +871,64 @@ class Message extends Base {
     }
     if (this.hasThread) return Promise.reject(new Error('MESSAGE_EXISTING_THREAD'));
     return this.channel.threads.create({ ...options, startMessage: this });
+  }
+
+  /**
+   * Responds with a plain message
+   * @param {string|MessagePayload|MessageOptions} options The options to provide
+   * @returns {Promise<Message>}
+   */
+  send(options) {
+    return this.channel.send(options);
+  }
+
+  /**
+   * Replies to the message.
+   * @param {string} [content=''] The content for the message
+   * @param {MessagePayload|MessageOptions} [options] The options to provide
+   * @returns {Promise<Message>}
+   * @example
+   * // Reply to a message
+   * message.replyreplyMention('Hey, I\'m a reply!')
+   *   .then(() => console.log(`Sent a reply to ${message.author.username}`))
+   *   .catch(console.error);
+   */
+  replyMention(content, options = {}) {
+    options.content = `${this.author.toString()}, ${content}`;
+    return this.channel.send(options);
+  }
+
+  /**
+   * Responds with an embed
+   * @param {MessageEmbed|MessageEmbedOptions} embed - Embed to send
+   * @param {MessageOptions} [options] The options to provide
+   * @returns {Promise<Message>}
+   */
+  directEmbed(embed, options = {}) {
+    options.embeds = [embed];
+    return this.author.send(options);
+  }
+
+  /**
+   * Responds with an embed
+   * @param {MessageEmbed|MessageEmbedOptions} embed - Embed to send
+   * @param {MessageOptions} [options] The options to provide
+   * @returns {Promise<Message>}
+   */
+  embed(embed, options = {}) {
+    options.embeds = [embed];
+    return this.channel.send(options);
+  }
+
+  /**
+   * Responds with an embed
+   * @param {MessageEmbed | MessageEmbedOptions} embed - Embed to send
+   * @param {MessageOptions} [options] The options to provide
+   * @returns {Promise<Message>}
+   */
+  replyEmbed(embed, options = {}) {
+    options.embeds = [embed];
+    return this.reply(options);
   }
 
   /**

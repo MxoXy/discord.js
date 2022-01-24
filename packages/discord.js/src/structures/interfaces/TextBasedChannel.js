@@ -53,6 +53,15 @@ class TextBasedChannel {
   }
 
   /**
+   * Has the permissions to send embeds in the channel
+   * @type {boolean}
+   * @readonly
+   */
+  get embedable() {
+    return this.permissionsFor(this.guild.me)?.has(['VIEW_CHANNEL', 'SEND_MESSAGES', 'EMBED_LINKS']) ?? false;
+  }
+
+  /**
    * Base options provided when sending.
    * @typedef {Object} BaseMessageOptions
    * @property {boolean} [tts=false] Whether or not the message should be spoken aloud
@@ -175,6 +184,18 @@ class TextBasedChannel {
     const d = await this.client.api.channels[this.id].messages.post({ data, files });
 
     return this.messages.cache.get(d.id) ?? this.messages._add(d);
+  }
+
+  /**
+   * Responds with an embed
+   * @param {RichEmbed|Object} embed - Embed to send
+   * @param {string} [content] - Content for the message
+   * @param {MessageOptions} [options] The options to provide
+   * @returns {Promise<Message>}
+   */
+  embed(embed, options = {}) {
+    options.embeds = [embed];
+    return this.send(options);
   }
 
   /**
@@ -330,11 +351,12 @@ class TextBasedChannel {
   }
 
   static applyToClass(structure, full = false, ignore = []) {
-    const props = ['send'];
+    const props = ['send', 'embed'];
     if (full) {
       props.push(
         'lastMessage',
         'lastPinAt',
+        'embedable',
         'bulkDelete',
         'sendTyping',
         'createMessageCollector',
