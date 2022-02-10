@@ -38,7 +38,7 @@ export class VoiceWebSocket extends TypedEmitter<VoiceWebSocketEvents> {
 	 * The time (milliseconds since UNIX epoch) that the last heartbeat was sent. This is set to 0 if a heartbeat
 	 * hasn't been sent yet.
 	 */
-	private lastHeatbeatSend: number;
+	private lastHeartbeatSend: number;
 
 	/**
 	 * The number of consecutively missed heartbeats.
@@ -75,7 +75,7 @@ export class VoiceWebSocket extends TypedEmitter<VoiceWebSocketEvents> {
 		this.ws.onclose = (e) => this.emit('close', e);
 
 		this.lastHeartbeatAck = 0;
-		this.lastHeatbeatSend = 0;
+		this.lastHeartbeatSend = 0;
 
 		this.debug = debug ? (message: string) => this.emit('debug', message) : null;
 	}
@@ -107,6 +107,7 @@ export class VoiceWebSocket extends TypedEmitter<VoiceWebSocketEvents> {
 
 		let packet: any;
 		try {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			packet = JSON.parse(event.data);
 		} catch (error) {
 			const e = error as Error;
@@ -114,10 +115,11 @@ export class VoiceWebSocket extends TypedEmitter<VoiceWebSocketEvents> {
 			return;
 		}
 
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		if (packet.op === VoiceOpcodes.HeartbeatAck) {
 			this.lastHeartbeatAck = Date.now();
 			this.missedHeartbeats = 0;
-			this.ping = this.lastHeartbeatAck - this.lastHeatbeatSend;
+			this.ping = this.lastHeartbeatAck - this.lastHeartbeatSend;
 		}
 
 		/**
@@ -149,9 +151,9 @@ export class VoiceWebSocket extends TypedEmitter<VoiceWebSocketEvents> {
 	 * Sends a heartbeat over the WebSocket.
 	 */
 	private sendHeartbeat() {
-		this.lastHeatbeatSend = Date.now();
+		this.lastHeartbeatSend = Date.now();
 		this.missedHeartbeats++;
-		const nonce = this.lastHeatbeatSend;
+		const nonce = this.lastHeartbeatSend;
 		return this.sendPacket({
 			op: VoiceOpcodes.Heartbeat,
 			d: nonce,
@@ -167,7 +169,7 @@ export class VoiceWebSocket extends TypedEmitter<VoiceWebSocketEvents> {
 		if (typeof this.heartbeatInterval !== 'undefined') clearInterval(this.heartbeatInterval);
 		if (ms > 0) {
 			this.heartbeatInterval = setInterval(() => {
-				if (this.lastHeatbeatSend !== 0 && this.missedHeartbeats >= 3) {
+				if (this.lastHeartbeatSend !== 0 && this.missedHeartbeats >= 3) {
 					// Missed too many heartbeats - disconnect
 					this.ws.close();
 					this.setHeartbeatInterval(-1);

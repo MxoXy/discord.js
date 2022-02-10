@@ -6,11 +6,12 @@ on:
       - 'stable'
       - '!docs'
     tags:
-      - '*'
+      - '**'
 jobs:
   build:
     name: Build documentation
     runs-on: ubuntu-latest
+    if: github.repository_owner == 'discordjs'
     outputs:
       BRANCH_NAME: ${{ steps.env.outputs.BRANCH_NAME }}
       BRANCH_OR_TAG: ${{ steps.env.outputs.BRANCH_OR_TAG }}
@@ -58,9 +59,10 @@ jobs:
     name: Upload Documentation
     needs: build
     strategy:
+      max-parallel: 1
       fail-fast: false
       matrix:
-        package: ['builders', 'collection', 'discord.js', 'voice']
+        package: ['builders', 'collection', 'discord.js', 'rest', 'voice']
     runs-on: ubuntu-latest
     env:
       BRANCH_NAME: ${{ needs.build.outputs.BRANCH_NAME }}

@@ -2,33 +2,32 @@ import Collection from '@discordjs/collection';
 import FormData from 'form-data';
 import { DiscordSnowflake } from '@sapphire/snowflake';
 import { EventEmitter } from 'node:events';
-import { Agent } from 'node:https';
+import { Agent as httpsAgent } from 'node:https';
+import { Agent as httpAgent } from 'node:http';
 import type { RequestInit, BodyInit } from 'node-fetch';
 import type { IHandler } from './handlers/IHandler';
 import { SequentialHandler } from './handlers/SequentialHandler';
 import type { RESTOptions, RestEvents } from './REST';
-import { DefaultRestOptions, DefaultUserAgent } from './utils/constants';
-
-let agent: Agent | null = null;
+import { DefaultRestOptions, DefaultUserAgent, RESTEvents } from './utils/constants';
 
 /**
- * Represents an attachment to be added to the request
+ * Represents a file to be added to the request
  */
-export interface RawAttachment {
+export interface RawFile {
 	/**
 	 * The name of the file
 	 */
-	fileName: string;
+	name: string;
 	/**
-	 * An explicit key to use for key of the formdata field for this attachment.
-	 * When not provided, the index of the file in the attachments array is used in the form `files[${index}]`.
+	 * An explicit key to use for key of the formdata field for this file.
+	 * When not provided, the index of the file in the files array is used in the form `files[${index}]`.
 	 * If you wish to alter the placeholder snowflake, you must provide this property in the same form (`files[${placeholder}]`)
 	 */
 	key?: string;
 	/**
-	 * The actual data for the attachment
+	 * The actual data for the file
 	 */
-	rawBuffer: Buffer;
+	data: string | number | boolean | Buffer;
 }
 
 /**
@@ -36,13 +35,9 @@ export interface RawAttachment {
  */
 export interface RequestData {
 	/**
-	 * Whether to append JSON data to form data instead of `payload_json` when sending attachments
+	 * Whether to append JSON data to form data instead of `payload_json` when sending files
 	 */
 	appendToFormData?: boolean;
-	/**
-	 * Files to be attached to this request
-	 */
-	attachments?: RawAttachment[] | undefined;
 	/**
 	 * If this request needs the `Authorization` header
 	 * @default true
@@ -59,12 +54,16 @@ export interface RequestData {
 	 */
 	body?: BodyInit | unknown;
 	/**
+	 * Files to be attached to this request
+	 */
+	files?: RawFile[] | undefined;
+	/**
 	 * Additional headers to add to this request
 	 */
 	headers?: Record<string, string>;
 	/**
 	 * Whether to pass-through the body property directly to `fetch()`.
-	 * <warn>This only applies when attachments is NOT present</warn>
+	 * <warn>This only applies when files is NOT present</warn>
 	 */
 	passThroughBody?: boolean;
 	/**
@@ -125,21 +124,31 @@ export interface RouteData {
 	original: RouteLike;
 }
 
+/**
+ * Represents a hash and its associated fields
+ *
+ * @internal
+ */
+export interface HashData {
+	value: string;
+	lastAccess: number;
+}
+
 export interface RequestManager {
-	on<K extends keyof RestEvents>(event: K, listener: (...args: RestEvents[K]) => void): this;
-	on<S extends string | symbol>(event: Exclude<S, keyof RestEvents>, listener: (...args: any[]) => void): this;
+	on: (<K extends keyof RestEvents>(event: K, listener: (...args: RestEvents[K]) => void) => this) &
+		(<S extends string | symbol>(event: Exclude<S, keyof RestEvents>, listener: (...args: any[]) => void) => this);
 
-	once<K extends keyof RestEvents>(event: K, listener: (...args: RestEvents[K]) => void): this;
-	once<S extends string | symbol>(event: Exclude<S, keyof RestEvents>, listener: (...args: any[]) => void): this;
+	once: (<K extends keyof RestEvents>(event: K, listener: (...args: RestEvents[K]) => void) => this) &
+		(<S extends string | symbol>(event: Exclude<S, keyof RestEvents>, listener: (...args: any[]) => void) => this);
 
-	emit<K extends keyof RestEvents>(event: K, ...args: RestEvents[K]): boolean;
-	emit<S extends string | symbol>(event: Exclude<S, keyof RestEvents>, ...args: any[]): boolean;
+	emit: (<K extends keyof RestEvents>(event: K, ...args: RestEvents[K]) => boolean) &
+		(<S extends string | symbol>(event: Exclude<S, keyof RestEvents>, ...args: any[]) => boolean);
 
-	off<K extends keyof RestEvents>(event: K, listener: (...args: RestEvents[K]) => void): this;
-	off<S extends string | symbol>(event: Exclude<S, keyof RestEvents>, listener: (...args: any[]) => void): this;
+	off: (<K extends keyof RestEvents>(event: K, listener: (...args: RestEvents[K]) => void) => this) &
+		(<S extends string | symbol>(event: Exclude<S, keyof RestEvents>, listener: (...args: any[]) => void) => this);
 
-	removeAllListeners<K extends keyof RestEvents>(event?: K): this;
-	removeAllListeners<S extends string | symbol>(event?: Exclude<S, keyof RestEvents>): this;
+	removeAllListeners: (<K extends keyof RestEvents>(event?: K) => this) &
+		(<S extends string | symbol>(event?: Exclude<S, keyof RestEvents>) => this);
 }
 
 /**
@@ -164,7 +173,7 @@ export class RequestManager extends EventEmitter {
 	/**
 	 * API bucket hashes that are cached from provided routes
 	 */
-	public readonly hashes = new Collection<string, string>();
+	public readonly hashes = new Collection<string, HashData>();
 
 	/**
 	 * Request handlers created from the bucket hash and the major parameters
@@ -174,6 +183,10 @@ export class RequestManager extends EventEmitter {
 	// eslint-disable-next-line @typescript-eslint/explicit-member-accessibility
 	#token: string | null = null;
 
+	private hashTimer!: NodeJS.Timer;
+	private handlerTimer!: NodeJS.Timer;
+	private agent: httpsAgent | httpAgent | null = null;
+
 	public readonly options: RESTOptions;
 
 	public constructor(options: Partial<RESTOptions>) {
@@ -181,6 +194,71 @@ export class RequestManager extends EventEmitter {
 		this.options = { ...DefaultRestOptions, ...options };
 		this.options.offset = Math.max(0, this.options.offset);
 		this.globalRemaining = this.options.globalRequestsPerSecond;
+
+		// Start sweepers
+		this.setupSweepers();
+	}
+
+	private setupSweepers() {
+		const validateMaxInterval = (interval: number) => {
+			if (interval > 14_400_000) {
+				throw new Error('Cannot set an interval greater than 4 hours');
+			}
+		};
+
+		if (this.options.hashSweepInterval !== 0 && this.options.hashSweepInterval !== Infinity) {
+			validateMaxInterval(this.options.hashSweepInterval);
+			this.hashTimer = setInterval(() => {
+				const sweptHashes = new Collection<string, HashData>();
+				const currentDate = Date.now();
+
+				// Begin sweeping hash based on lifetimes
+				this.hashes.sweep((v, k) => {
+					// `-1` indicates a global hash
+					if (v.lastAccess === -1) return false;
+
+					// Check if lifetime has been exceeded
+					const shouldSweep = Math.floor(currentDate - v.lastAccess) > this.options.hashLifetime;
+
+					// Add hash to collection of swept hashes
+					if (shouldSweep) {
+						// Add to swept hashes
+						sweptHashes.set(k, v);
+					}
+
+					// Emit debug information
+					this.emit(RESTEvents.Debug, `Hash ${v.value} for ${k} swept due to lifetime being exceeded`);
+
+					return shouldSweep;
+				});
+
+				// Fire event
+				this.emit(RESTEvents.HashSweep, sweptHashes);
+			}, this.options.hashSweepInterval).unref();
+		}
+
+		if (this.options.handlerSweepInterval !== 0 && this.options.handlerSweepInterval !== Infinity) {
+			validateMaxInterval(this.options.handlerSweepInterval);
+			this.handlerTimer = setInterval(() => {
+				const sweptHandlers = new Collection<string, IHandler>();
+
+				// Begin sweeping handlers based on activity
+				this.handlers.sweep((v, k) => {
+					const { inactive } = v;
+
+					// Collect inactive handlers
+					if (inactive) {
+						sweptHandlers.set(k, v);
+					}
+
+					this.emit(RESTEvents.Debug, `Handler ${v.id} for ${k} swept due to being inactive`);
+					return inactive;
+				});
+
+				// Fire event
+				this.emit(RESTEvents.HandlerSweep, sweptHandlers);
+			}, this.options.handlerSweepInterval).unref();
+		}
 	}
 
 	/**
@@ -201,18 +279,21 @@ export class RequestManager extends EventEmitter {
 		// Generalize the endpoint to its route data
 		const routeId = RequestManager.generateRouteData(request.fullRoute, request.method);
 		// Get the bucket hash for the generic route, or point to a global route otherwise
-		const hash =
-			this.hashes.get(`${request.method}:${routeId.bucketRoute}`) ?? `Global(${request.method}:${routeId.bucketRoute})`;
+		const hash = this.hashes.get(`${request.method}:${routeId.bucketRoute}`) ?? {
+			value: `Global(${request.method}:${routeId.bucketRoute})`,
+			lastAccess: -1,
+		};
 
 		// Get the request handler for the obtained hash, with its major parameter
 		const handler =
-			this.handlers.get(`${hash}:${routeId.majorParameter}`) ?? this.createHandler(hash, routeId.majorParameter);
+			this.handlers.get(`${hash.value}:${routeId.majorParameter}`) ??
+			this.createHandler(hash.value, routeId.majorParameter);
 
 		// Resolve the request into usable fetch/node-fetch options
 		const { url, fetchOptions } = this.resolveRequest(request);
 
 		// Queue the request
-		return handler.queueRequest(routeId, url, fetchOptions, { body: request.body, attachments: request.attachments });
+		return handler.queueRequest(routeId, url, fetchOptions, { body: request.body, files: request.files });
 	}
 
 	/**
@@ -237,13 +318,18 @@ export class RequestManager extends EventEmitter {
 	private resolveRequest(request: InternalRequest): { url: string; fetchOptions: RequestInit } {
 		const { options } = this;
 
-		agent ??= new Agent({ ...options.agent, keepAlive: true });
+		this.agent ??= options.api.startsWith('https')
+			? new httpsAgent({ ...options.agent, keepAlive: true })
+			: new httpAgent({ ...options.agent, keepAlive: true });
 
 		let query = '';
 
 		// If a query option is passed, use it
 		if (request.query) {
-			query = `?${request.query.toString()}`;
+			const resolvedQuery = request.query.toString();
+			if (resolvedQuery !== '') {
+				query = `?${resolvedQuery}`;
+			}
 		}
 
 		// Create the required headers
@@ -275,12 +361,12 @@ export class RequestManager extends EventEmitter {
 		let finalBody: RequestInit['body'];
 		let additionalHeaders: Record<string, string> = {};
 
-		if (request.attachments?.length) {
+		if (request.files?.length) {
 			const formData = new FormData();
 
 			// Attach all files to the request
-			for (const [index, attachment] of request.attachments.entries()) {
-				formData.append(attachment.key ?? `files[${index}]`, attachment.rawBuffer, attachment.fileName);
+			for (const [index, file] of request.files.entries()) {
+				formData.append(file.key ?? `files[${index}]`, file.data, file.name);
 			}
 
 			// If a JSON body was added as well, attach it to the form data, using payload_json unless otherwise specified
@@ -313,7 +399,7 @@ export class RequestManager extends EventEmitter {
 		}
 
 		const fetchOptions = {
-			agent,
+			agent: this.agent,
 			body: finalBody,
 			// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 			headers: { ...(request.headers ?? {}), ...additionalHeaders, ...headers } as Record<string, string>,
@@ -321,6 +407,20 @@ export class RequestManager extends EventEmitter {
 		};
 
 		return { url, fetchOptions };
+	}
+
+	/**
+	 * Stops the hash sweeping interval
+	 */
+	public clearHashSweeper() {
+		clearInterval(this.hashTimer);
+	}
+
+	/**
+	 * Stops the request handler sweeping interval
+	 */
+	public clearHandlerSweeper() {
+		clearInterval(this.handlerTimer);
 	}
 
 	/**

@@ -10,6 +10,12 @@ export interface CollectionConstructor {
 }
 
 /**
+ * Represents an immutable version of a collection
+ */
+export type ReadonlyCollection<K, V> = ReadonlyMap<K, V> &
+	Omit<Collection<K, V>, 'forEach' | 'ensure' | 'reverse' | 'sweep' | 'sort' | 'get' | 'set' | 'delete'>;
+
+/**
  * Separate interface for the constructor so that emitted js does not have a constructor that overwrites itself
  *
  * @internal
@@ -73,10 +79,12 @@ export class Collection<K, V> extends Map<K, V> {
 	public first(): V | undefined;
 	public first(amount: number): V[];
 	public first(amount?: number): V | V[] | undefined {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		if (typeof amount === 'undefined') return this.values().next().value;
 		if (amount < 0) return this.last(amount * -1);
 		amount = Math.min(this.size, amount);
 		const iter = this.values();
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return Array.from({ length: amount }, (): V => iter.next().value);
 	}
 
@@ -91,10 +99,12 @@ export class Collection<K, V> extends Map<K, V> {
 	public firstKey(): K | undefined;
 	public firstKey(amount: number): K[];
 	public firstKey(amount?: number): K | K[] | undefined {
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		if (typeof amount === 'undefined') return this.keys().next().value;
 		if (amount < 0) return this.lastKey(amount * -1);
 		amount = Math.min(this.size, amount);
 		const iter = this.keys();
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 		return Array.from({ length: amount }, (): K => iter.next().value);
 	}
 
@@ -398,6 +408,7 @@ export class Collection<K, V> extends Map<K, V> {
 		if (typeof thisArg !== 'undefined') fn = fn.bind(thisArg);
 		const iter = this.entries();
 		return Array.from({ length: this.size }, (): T => {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			const [key, value] = iter.next().value;
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 			return fn(value, key, this);
@@ -557,7 +568,7 @@ export class Collection<K, V> extends Map<K, V> {
 	 * @example
 	 * const newColl = someColl.clone();
 	 */
-	public clone() {
+	public clone(): Collection<K, V> {
 		return new this.constructor[Symbol.species](this);
 	}
 
@@ -569,7 +580,7 @@ export class Collection<K, V> extends Map<K, V> {
 	 * @example
 	 * const newColl = someColl.concat(someOtherColl, anotherColl, ohBoyAColl);
 	 */
-	public concat(...collections: Collection<K, V>[]) {
+	public concat(...collections: ReadonlyCollection<K, V>[]) {
 		const newColl = this.clone();
 		for (const coll of collections) {
 			for (const [key, val] of coll) newColl.set(key, val);
@@ -586,7 +597,7 @@ export class Collection<K, V> extends Map<K, V> {
 	 *
 	 * @returns Whether the collections have identical contents
 	 */
-	public equals(collection: Collection<K, V>) {
+	public equals(collection: ReadonlyCollection<K, V>) {
 		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 		if (!collection) return false; // runtime check
 		if (this === collection) return true;
@@ -625,14 +636,16 @@ export class Collection<K, V> extends Map<K, V> {
 	}
 
 	/**
-	 * The intersect method returns a new structure containing items where the keys are present in both original structures.
+	 * The intersect method returns a new structure containing items where the keys and values are present in both original structures.
 	 *
 	 * @param other The other Collection to filter against
 	 */
-	public intersect(other: Collection<K, V>) {
-		const coll = new this.constructor[Symbol.species]<K, V>();
+	public intersect<T>(other: ReadonlyCollection<K, T>): Collection<K, T> {
+		const coll = new this.constructor[Symbol.species]<K, T>();
 		for (const [k, v] of other) {
-			if (this.has(k)) coll.set(k, v);
+			if (this.has(k) && Object.is(v, this.get(k))) {
+				coll.set(k, v);
+			}
 		}
 		return coll;
 	}
@@ -642,13 +655,64 @@ export class Collection<K, V> extends Map<K, V> {
 	 *
 	 * @param other The other Collection to filter against
 	 */
-	public difference(other: Collection<K, V>) {
-		const coll = new this.constructor[Symbol.species]<K, V>();
+	public difference<T>(other: ReadonlyCollection<K, T>): Collection<K, V | T> {
+		const coll = new this.constructor[Symbol.species]<K, V | T>();
 		for (const [k, v] of other) {
 			if (!this.has(k)) coll.set(k, v);
 		}
 		for (const [k, v] of this) {
 			if (!other.has(k)) coll.set(k, v);
+		}
+		return coll;
+	}
+
+	/**
+	 * Merges two Collections together into a new Collection.
+	 * @param other The other Collection to merge with
+	 * @param whenInSelf Function getting the result if the entry only exists in this Collection
+	 * @param whenInOther Function getting the result if the entry only exists in the other Collection
+	 * @param whenInBoth Function getting the result if the entry exists in both Collections
+	 *
+	 * @example
+	 * // Sums up the entries in two collections.
+	 * coll.merge(
+	 *  other,
+	 *  x => ({ keep: true, value: x }),
+	 *  y => ({ keep: true, value: y }),
+	 *  (x, y) => ({ keep: true, value: x + y }),
+	 * );
+	 *
+	 * @example
+	 * // Intersects two collections in a left-biased manner.
+	 * coll.merge(
+	 *  other,
+	 *  x => ({ keep: false }),
+	 *  y => ({ keep: false }),
+	 *  (x, _) => ({ keep: true, value: x }),
+	 * );
+	 */
+	public merge<T, R>(
+		other: ReadonlyCollection<K, T>,
+		whenInSelf: (value: V, key: K) => Keep<R>,
+		whenInOther: (valueOther: T, key: K) => Keep<R>,
+		whenInBoth: (value: V, valueOther: T, key: K) => Keep<R>,
+	): Collection<K, R> {
+		const coll = new this.constructor[Symbol.species]<K, R>();
+		const keys = new Set([...this.keys(), ...other.keys()]);
+		for (const k of keys) {
+			const hasInSelf = this.has(k);
+			const hasInOther = other.has(k);
+
+			if (hasInSelf && hasInOther) {
+				const r = whenInBoth(this.get(k)!, other.get(k)!, k);
+				if (r.keep) coll.set(k, r.value);
+			} else if (hasInSelf) {
+				const r = whenInSelf(this.get(k)!, k);
+				if (r.keep) coll.set(k, r.value);
+			} else if (hasInOther) {
+				const r = whenInOther(other.get(k)!, k);
+				if (r.keep) coll.set(k, r.value);
+			}
 		}
 		return coll;
 	}
@@ -677,7 +741,36 @@ export class Collection<K, V> extends Map<K, V> {
 	private static defaultSort<V>(firstValue: V, secondValue: V): number {
 		return Number(firstValue > secondValue) || Number(firstValue === secondValue) - 1;
 	}
+
+	/**
+	 * Creates a Collection from a list of entries.
+	 * @param entries The list of entries
+	 * @param combine Function to combine an existing entry with a new one
+	 *
+	 * @example
+	 * Collection.combineEntries([["a", 1], ["b", 2], ["a", 2]], (x, y) => x + y);
+	 * // returns Collection { "a" => 3, "b" => 2 }
+	 */
+	public static combineEntries<K, V>(
+		entries: Iterable<[K, V]>,
+		combine: (firstValue: V, secondValue: V, key: K) => V,
+	): Collection<K, V> {
+		const coll = new Collection<K, V>();
+		for (const [k, v] of entries) {
+			if (coll.has(k)) {
+				coll.set(k, combine(coll.get(k)!, v, k));
+			} else {
+				coll.set(k, v);
+			}
+		}
+		return coll;
+	}
 }
+
+/**
+ * @internal
+ */
+export type Keep<V> = { keep: true; value: V } | { keep: false };
 
 /**
  * @internal

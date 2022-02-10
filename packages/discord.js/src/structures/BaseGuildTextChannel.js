@@ -1,12 +1,9 @@
 'use strict';
 
-const { Collection } = require('@discordjs/collection');
 const GuildChannel = require('./GuildChannel');
-const Webhook = require('./Webhook');
 const TextBasedChannel = require('./interfaces/TextBasedChannel');
 const MessageManager = require('../managers/MessageManager');
 const ThreadManager = require('../managers/ThreadManager');
-const DataResolver = require('../util/DataResolver');
 
 /**
  * Represents a text-based guild channel on Discord.
@@ -66,7 +63,7 @@ class BaseGuildTextChannel extends GuildChannel {
        * The timestamp when the last pinned message was pinned, if there was one
        * @type {?number}
        */
-      this.lastPinTimestamp = data.last_pin_timestamp ? new Date(data.last_pin_timestamp).getTime() : null;
+      this.lastPinTimestamp = data.last_pin_timestamp ? Date.parse(data.last_pin_timestamp) : null;
     }
 
     if ('default_auto_archive_duration' in data) {
@@ -121,11 +118,8 @@ class BaseGuildTextChannel extends GuildChannel {
    *   .then(hooks => console.log(`This channel has ${hooks.size} hooks`))
    *   .catch(console.error);
    */
-  async fetchWebhooks() {
-    const data = await this.client.api.channels[this.id].webhooks.get();
-    const hooks = new Collection();
-    for (const hook of data) hooks.set(hook.id, new Webhook(this.client, hook));
-    return hooks;
+  fetchWebhooks() {
+    return this.guild.channels.fetchWebhooks(this.id);
   }
 
   /**
@@ -149,25 +143,8 @@ class BaseGuildTextChannel extends GuildChannel {
    *   .then(console.log)
    *   .catch(console.error)
    */
-  async createWebhook(name, { avatar, reason } = {}) {
-    if (typeof avatar === 'string' && !avatar.startsWith('data:')) {
-      avatar = await DataResolver.resolveImage(avatar);
-    }
-
-    if (!this.permissionsFor(this.guild.me)?.has('MANAGE_WEBHOOKS')) return null;
-    const webhooks = await this.fetchWebhooks();
-    const webhook = webhooks.find(hook => hook.name === name);
-    if (webhook) return webhook;
-    if (webhooks.size > 8) return null;
-
-    const data = await this.client.api.channels[this.id].webhooks.post({
-      data: {
-        name,
-        avatar,
-      },
-      reason,
-    });
-    return new Webhook(this.client, data);
+  createWebhook(name, options = {}) {
+    return this.guild.channels.createWebhook(this.id, name, options);
   }
 
   /**
@@ -186,6 +163,14 @@ class BaseGuildTextChannel extends GuildChannel {
   }
 
   /**
+   * Data that can be resolved to an Application. This can be:
+   * * An Application
+   * * An Activity with associated Application
+   * * A Snowflake
+   * @typedef {Application|Snowflake} ApplicationResolvable
+   */
+
+  /**
    * Options used to create an invite to a guild channel.
    * @typedef {Object} CreateInviteOptions
    * @property {boolean} [temporary=false] Whether members that joined via the invite should be automatically
@@ -194,10 +179,11 @@ class BaseGuildTextChannel extends GuildChannel {
    * @property {number} [maxUses=0] Maximum number of uses
    * @property {boolean} [unique=false] Create a unique invite, or use an existing one with similar settings
    * @property {UserResolvable} [targetUser] The user whose stream to display for this invite,
-   * required if `targetType` is 1, the user must be streaming in the channel
+   * required if `targetType` is {@link InviteTargetType.Stream}, the user must be streaming in the channel
    * @property {ApplicationResolvable} [targetApplication] The embedded application to open for this invite,
-   * required if `targetType` is 2, the application must have the `EMBEDDED` flag
-   * @property {TargetType} [targetType] The type of the target for this voice channel invite
+   * required if `targetType` is {@link InviteTargetType.Stream}, the application must have the
+   * {@link InviteTargetType.EmbeddedApplication} flag
+   * @property {InviteTargetType} [targetType] The type of the target for this voice channel invite
    * @property {string} [reason] The reason for creating the invite
    */
 
