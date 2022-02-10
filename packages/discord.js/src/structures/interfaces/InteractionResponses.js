@@ -1,8 +1,8 @@
 'use strict';
 
+const { InteractionResponseType, MessageFlags, Routes } = require('discord-api-types/v9');
+const { setTimeout } = require('node:timers');
 const { Error } = require('../../errors');
-const { InteractionResponseTypes } = require('../../util/Constants');
-const MessageFlags = require('../../util/MessageFlags');
 const MessagePayload = require('../MessagePayload');
 
 /**
@@ -28,6 +28,8 @@ class InteractionResponses {
    * @typedef {BaseMessageOptions} InteractionReplyOptions
    * @property {boolean} [ephemeral] Whether the reply should be ephemeral
    * @property {boolean} [fetchReply] Whether to fetch the reply
+   * @property {MessageFlags} [flags] Which flags to set for the message.
+   * Only `MessageFlags.SuppressEmbeds` and `MessageFlags.Ephemeral` can be set.
    */
 
   /**
@@ -54,11 +56,11 @@ class InteractionResponses {
   async deferReply(options = {}) {
     if (this.deferred || this.replied) throw new Error('INTERACTION_ALREADY_REPLIED');
     this.ephemeral = options.ephemeral ?? false;
-    await this.client.api.interactions(this.id, this.token).callback.post({
-      data: {
-        type: InteractionResponseTypes.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+    await this.client.rest.post(Routes.interactionCallback(this.id, this.token), {
+      body: {
+        type: InteractionResponseType.DeferredChannelMessageWithSource,
         data: {
-          flags: options.ephemeral ? MessageFlags.FLAGS.EPHEMERAL : undefined,
+          flags: options.ephemeral ? MessageFlags.Ephemeral : undefined,
         },
       },
       auth: false,
@@ -80,7 +82,7 @@ class InteractionResponses {
    *   .catch(console.error);
    * @example
    * // Create an ephemeral reply with an embed
-   * const embed = new MessageEmbed().setDescription('Pong!');
+   * const embed = new Embed().setDescription('Pong!');
    *
    * interaction.reply({ embeds: [embed], ephemeral: true })
    *   .then(() => console.log('Reply sent.'))
@@ -94,11 +96,11 @@ class InteractionResponses {
     if (options instanceof MessagePayload) messagePayload = options;
     else messagePayload = MessagePayload.create(this, options);
 
-    const { data, files } = await messagePayload.resolveData().resolveFiles();
+    const { body: data, files } = await messagePayload.resolveBody().resolveFiles();
 
-    await this.client.api.interactions(this.id, this.token).callback.post({
-      data: {
-        type: InteractionResponseTypes.CHANNEL_MESSAGE_WITH_SOURCE,
+    await this.client.rest.post(Routes.interactionCallback(this.id, this.token), {
+      body: {
+        type: InteractionResponseType.ChannelMessageWithSource,
         data,
       },
       files,
@@ -185,19 +187,18 @@ class InteractionResponses {
   /**
    * Deletes the initial reply to this interaction.
    * @see Webhook#deleteMessage
-   * @returns {Promise<void>}
+   * @param {number} timeout Timeout
+   * @returns {void}
    * @example
    * // Delete the reply to this interaction
    * interaction.delete(6000)
    *   .then(console.log)
    *   .catch(console.error);
    */
-  async delete(timeout = 0) {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve(this.deleteReply());
-      }, timeout);
-    });
+  delete(timeout = 0) {
+    setTimeout(() => {
+      this.deleteReply();
+    }, timeout);
   }
 
   /**
@@ -222,7 +223,7 @@ class InteractionResponses {
   embed(embed, options = {}) {
     options.embeds = [embed];
 
-    if(options.forceFollowUp) return this.followUp(options);
+    if (options.forceFollowUp) return this.followUp(options);
     return this[this.replied ? 'editReply' : 'followUp'](options);
   }
 
@@ -238,9 +239,9 @@ class InteractionResponses {
    */
   async deferUpdate(options = {}) {
     if (this.deferred || this.replied) throw new Error('INTERACTION_ALREADY_REPLIED');
-    await this.client.api.interactions(this.id, this.token).callback.post({
-      data: {
-        type: InteractionResponseTypes.DEFERRED_MESSAGE_UPDATE,
+    await this.client.rest.post(Routes.interactionCallback(this.id, this.token), {
+      body: {
+        type: InteractionResponseType.DeferredMessageUpdate,
       },
       auth: false,
     });
@@ -269,11 +270,11 @@ class InteractionResponses {
     if (options instanceof MessagePayload) messagePayload = options;
     else messagePayload = MessagePayload.create(this, options);
 
-    const { data, files } = await messagePayload.resolveData().resolveFiles();
+    const { body: data, files } = await messagePayload.resolveBody().resolveFiles();
 
-    await this.client.api.interactions(this.id, this.token).callback.post({
-      data: {
-        type: InteractionResponseTypes.UPDATE_MESSAGE,
+    await this.client.rest.post(Routes.interactionCallback(this.id, this.token), {
+      body: {
+        type: InteractionResponseType.UpdateMessage,
         data,
       },
       files,
