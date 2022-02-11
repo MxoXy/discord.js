@@ -985,20 +985,9 @@
     tar "^2.2.2"
     tar-stream "^2.1.4"
 
-"@discordjs/builders@^0.12.0":
-  version "0.12.0"
-  resolved "https://registry.yarnpkg.com/@discordjs/builders/-/builders-0.12.0.tgz#5f6d95d1b231fa975a7e28ca3f8098e517676887"
-  integrity sha512-Vx2MjUZd6QVo1uS2uWt708Fd6cHWGFblAvbpL5EBO+kLl0BADmPwwvts+YJ/VfSywed6Vsk6K2cEooR/Ytjhjw==
-  dependencies:
-    "@sindresorhus/is" "^4.3.0"
-    discord-api-types "^0.26.1"
-    ts-mixer "^6.0.0"
-    tslib "^2.3.1"
-    zod "^3.11.6"
-
-"@discordjs/builders@https://gitpkg.now.sh/DraftBot/discord.js/packages/builders?d668dbf47299d494e0a9f964ae2f8a4eb4dff3d6":
+"@discordjs/builders@https://gitpkg.now.sh/DraftBot/discord.js/packages/builders?208724c87bc514b7791dfd71575f185c4ebcf217":
   version "0.13.0-dev"
-  resolved "https://gitpkg.now.sh/DraftBot/discord.js/packages/builders?d668dbf47299d494e0a9f964ae2f8a4eb4dff3d6#e4021b72c24fa5895ced4096e94a6021227d9051"
+  resolved "https://gitpkg.now.sh/DraftBot/discord.js/packages/builders?208724c87bc514b7791dfd71575f185c4ebcf217#dd05eb94fc7ad10b39652ca106a6507a8f738148"
   dependencies:
     "@sindresorhus/is" "^4.4.0"
     discord-api-types "^0.26.1"
@@ -1006,31 +995,26 @@
     tslib "^2.3.1"
     zod "^3.11.6"
 
-"@discordjs/collection@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@discordjs/collection/-/collection-0.4.0.tgz#b6488286a1cc7b41b644d7e6086f25a1c1e6f837"
-  integrity sha512-zmjq+l/rV35kE6zRrwe8BHqV78JvIh2ybJeZavBi5NySjWXqN3hmmAKg7kYMMXSeiWtSsMoZ/+MQi0DiQWy2lw==
-
-"@discordjs/collection@^0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@discordjs/collection/-/collection-0.5.0.tgz#e1717661600891c9ca0735e76ec5bb64fe880f9c"
-  integrity sha512-3Vr3y4/Kl6ThOsD/cbXkK4JmjawQahbM3ojHpD6XyTEOG4fwZFMYH/NTWKFd5WZUw38iQsvGC4Kt4VkL++1hFQ==
+"@discordjs/collection@https://gitpkg.now.sh/DraftBot/discord.js/packages/collection?208724c87bc514b7791dfd71575f185c4ebcf217":
+  version "0.6.0-dev"
+  uid "921ca0d679f47f571c3149ff02efe696b6147feb"
+  resolved "https://gitpkg.now.sh/DraftBot/discord.js/packages/collection?208724c87bc514b7791dfd71575f185c4ebcf217#921ca0d679f47f571c3149ff02efe696b6147feb"
 
 "@discordjs/collection@https://gitpkg.now.sh/DraftBot/discord.js/packages/collection?d668dbf47299d494e0a9f964ae2f8a4eb4dff3d6":
   version "0.6.0-dev"
   resolved "https://gitpkg.now.sh/DraftBot/discord.js/packages/collection?d668dbf47299d494e0a9f964ae2f8a4eb4dff3d6#01480d211dfd2f41ce103e07859b72996e2f52c6"
 
-"@discordjs/rest@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@discordjs/rest/-/rest-0.3.0.tgz#89e06a42b168c91598891d6bf860353e28fba5d2"
-  integrity sha512-F9aeP3odlAlllM1ciBZLdd+adiAyBj4VaZBejj4UMj4afE2wfCkNTGvYYiRxrXUE9fN7e/BuDP2ePl0tVA2m7Q==
+"@discordjs/rest@https://gitpkg.now.sh/DraftBot/discord.js/packages/rest?208724c87bc514b7791dfd71575f185c4ebcf217":
+  version "0.3.0-dev"
+  resolved "https://gitpkg.now.sh/DraftBot/discord.js/packages/rest?208724c87bc514b7791dfd71575f185c4ebcf217#bad1bbda10832908df1446f8d810190094f3cefc"
   dependencies:
-    "@discordjs/collection" "^0.4.0"
-    "@sapphire/async-queue" "^1.1.9"
-    "@sapphire/snowflake" "^3.0.1"
+    "@discordjs/collection" "https://gitpkg.now.sh/DraftBot/discord.js/packages/collection?d668dbf47299d494e0a9f964ae2f8a4eb4dff3d6"
+    "@sapphire/async-queue" "^1.2.0"
+    "@sapphire/snowflake" "^3.1.0"
+    "@types/node-fetch" "^2.5.12"
     discord-api-types "^0.26.1"
     form-data "^4.0.0"
-    node-fetch "^2.6.5"
+    node-fetch "^2.6.7"
     tslib "^2.3.1"
 
 "@discordjs/ts-docgen@^0.3.2", "@discordjs/ts-docgen@^0.3.4":
@@ -1353,7 +1337,7 @@
   optionalDependencies:
     npmlog "2 || ^3.1.0 || ^4.0.0"
 
-"@sapphire/async-queue@^1.1.9", "@sapphire/async-queue@^1.2.0":
+"@sapphire/async-queue@^1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@sapphire/async-queue/-/async-queue-1.2.0.tgz#7a56afd318101d338433d7180ebd6af349243268"
   integrity sha512-O5ND5Ljpef86X5oy8zXorQ754TMjWALcPSAgPBu4+76HLtDTrNoDyzU2uGE2G4A8Wv51u0MXHzGQ0WZ4GMtpIw==
@@ -1365,7 +1349,7 @@
   dependencies:
     cross-fetch "^3.1.5"
 
-"@sapphire/snowflake@^3.0.1", "@sapphire/snowflake@^3.1.0":
+"@sapphire/snowflake@^3.1.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@sapphire/snowflake/-/snowflake-3.1.0.tgz#1c2d9781d3b1de0bcb02b7079898947ce754d394"
   integrity sha512-K+OiqXSx4clIaXcoaghrCV56zsm3bZZ5SBpgJkgvAKegFFdETMntHviUfypjt8xVleIuDaNyQA4APOIl3BMcxg==
@@ -1375,7 +1359,7 @@
   resolved "https://registry.yarnpkg.com/@sapphire/utilities/-/utilities-3.3.0.tgz#62ff0a52cd86bd6169a94b2f217d72da6772a3cd"
   integrity sha512-wWESfB03elALhci3GjcacRh8pnK89Qe5AEKCQplKyTCKabWl64SAFw52hQBth2fMmJStgK1fr87aGhRZAB8DNA==
 
-"@sindresorhus/is@^4.3.0", "@sindresorhus/is@^4.4.0":
+"@sindresorhus/is@^4.4.0":
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-4.4.0.tgz#e277e5bdbdf7cb1e20d320f02f5e2ed113cd3185"
   integrity sha512-QppPM/8l3Mawvh4rn9CNEYIU9bxpXUCRMaX9yUpvBk1nMKusLKpfXGDEKExKaPhLzcn3lzil7pR6rnJ11HgeRQ==
@@ -5022,7 +5006,7 @@ nock@^13.2.4:
     lodash.set "^4.3.2"
     propagate "^2.0.0"
 
-node-fetch@2.6.7, node-fetch@^2.6.5, node-fetch@^2.6.7:
+node-fetch@2.6.7, node-fetch@^2.6.7:
   version "2.6.7"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.7.tgz#24de9fba827e3b4ae44dc8b20256a379160052ad"
   integrity sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==

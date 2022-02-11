@@ -12,7 +12,6 @@ pids
 *.seed
 
 # Dist
-dist/
 typings/
 docs/**/*
 !docs/index.yml
