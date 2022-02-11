@@ -985,9 +985,9 @@
     tar "^2.2.2"
     tar-stream "^2.1.4"
 
-"@discordjs/builders@https://gitpkg.now.sh/DraftBot/discord.js/packages/builders?208724c87bc514b7791dfd71575f185c4ebcf217":
+"@discordjs/builders@https://gitpkg.now.sh/DraftBot/discord.js/packages/builders?08341b9b688f002dba4372e8c4ce93a729e87e60":
   version "0.13.0-dev"
-  resolved "https://gitpkg.now.sh/DraftBot/discord.js/packages/builders?208724c87bc514b7791dfd71575f185c4ebcf217#dd05eb94fc7ad10b39652ca106a6507a8f738148"
+  resolved "https://gitpkg.now.sh/DraftBot/discord.js/packages/builders?08341b9b688f002dba4372e8c4ce93a729e87e60#3a2ec6574f2af124e45a5bb905459f6888d4902a"
   dependencies:
     "@sindresorhus/is" "^4.4.0"
     discord-api-types "^0.26.1"
@@ -995,20 +995,21 @@
     tslib "^2.3.1"
     zod "^3.11.6"
 
+"@discordjs/collection@https://gitpkg.now.sh/DraftBot/discord.js/packages/collection?08341b9b688f002dba4372e8c4ce93a729e87e60":
+  version "0.6.0-dev"
+  uid "5cbb68d0481ede7458406f96e0dd13fdf7fd1255"
+  resolved "https://gitpkg.now.sh/DraftBot/discord.js/packages/collection?08341b9b688f002dba4372e8c4ce93a729e87e60#5cbb68d0481ede7458406f96e0dd13fdf7fd1255"
+
 "@discordjs/collection@https://gitpkg.now.sh/DraftBot/discord.js/packages/collection?208724c87bc514b7791dfd71575f185c4ebcf217":
   version "0.6.0-dev"
   uid "921ca0d679f47f571c3149ff02efe696b6147feb"
   resolved "https://gitpkg.now.sh/DraftBot/discord.js/packages/collection?208724c87bc514b7791dfd71575f185c4ebcf217#921ca0d679f47f571c3149ff02efe696b6147feb"
 
-"@discordjs/collection@https://gitpkg.now.sh/DraftBot/discord.js/packages/collection?d668dbf47299d494e0a9f964ae2f8a4eb4dff3d6":
-  version "0.6.0-dev"
-  resolved "https://gitpkg.now.sh/DraftBot/discord.js/packages/collection?d668dbf47299d494e0a9f964ae2f8a4eb4dff3d6#01480d211dfd2f41ce103e07859b72996e2f52c6"
-
-"@discordjs/rest@https://gitpkg.now.sh/DraftBot/discord.js/packages/rest?208724c87bc514b7791dfd71575f185c4ebcf217":
+"@discordjs/rest@https://gitpkg.now.sh/DraftBot/discord.js/packages/rest?08341b9b688f002dba4372e8c4ce93a729e87e60":
   version "0.3.0-dev"
-  resolved "https://gitpkg.now.sh/DraftBot/discord.js/packages/rest?208724c87bc514b7791dfd71575f185c4ebcf217#bad1bbda10832908df1446f8d810190094f3cefc"
+  resolved "https://gitpkg.now.sh/DraftBot/discord.js/packages/rest?08341b9b688f002dba4372e8c4ce93a729e87e60#cab2a589b6d4a6f123fee614f41af17e4d0da5ca"
   dependencies:
-    "@discordjs/collection" "https://gitpkg.now.sh/DraftBot/discord.js/packages/collection?d668dbf47299d494e0a9f964ae2f8a4eb4dff3d6"
+    "@discordjs/collection" "https://gitpkg.now.sh/DraftBot/discord.js/packages/collection?208724c87bc514b7791dfd71575f185c4ebcf217"
     "@sapphire/async-queue" "^1.2.0"
     "@sapphire/snowflake" "^3.1.0"
     "@types/node-fetch" "^2.5.12"
