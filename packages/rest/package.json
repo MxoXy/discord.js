@@ -49,7 +49,7 @@
 	},
 	"homepage": "https://discord.js.org",
 	"dependencies": {
-		"@discordjs/collection": "https://gitpkg.now.sh/DraftBot/discord.js/packages/collection?208724c87bc514b7791dfd71575f185c4ebcf217",
+		"@discordjs/collection": "https://gitpkg.now.sh/DraftBot/discord.js/packages/collection?08341b9b688f002dba4372e8c4ce93a729e87e60",
 		"@sapphire/async-queue": "^1.2.0",
 		"@sapphire/snowflake": "^3.1.0",
 		"@types/node-fetch": "^2.5.12",

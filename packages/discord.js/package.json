@@ -43,9 +43,9 @@
   },
   "homepage": "https://discord.js.org",
   "dependencies": {
-    "@discordjs/builders": "https://gitpkg.now.sh/DraftBot/discord.js/packages/builders?208724c87bc514b7791dfd71575f185c4ebcf217",
-    "@discordjs/collection": "https://gitpkg.now.sh/DraftBot/discord.js/packages/collection?208724c87bc514b7791dfd71575f185c4ebcf217",
-    "@discordjs/rest": "https://gitpkg.now.sh/DraftBot/discord.js/packages/rest?208724c87bc514b7791dfd71575f185c4ebcf217",
+    "@discordjs/builders": "https://gitpkg.now.sh/DraftBot/discord.js/packages/builders?08341b9b688f002dba4372e8c4ce93a729e87e60",
+    "@discordjs/collection": "https://gitpkg.now.sh/DraftBot/discord.js/packages/collection?08341b9b688f002dba4372e8c4ce93a729e87e60",
+    "@discordjs/rest": "https://gitpkg.now.sh/DraftBot/discord.js/packages/rest?08341b9b688f002dba4372e8c4ce93a729e87e60",
     "@sapphire/snowflake": "^3.1.0",
     "@types/ws": "^8.2.2",
     "discord-api-types": "^0.26.1",
