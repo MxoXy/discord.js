@@ -168,6 +168,21 @@ class InteractionResponses {
   }
 
   /**
+   * Edits the initial reply to this interaction.
+   * @see Webhook#editMessage
+   * @param {string|MessagePayload|WebhookEditMessageOptions} options The new options for the message
+   * @returns {Promise<Message|APIMessage>}
+   * @example
+   * // Edit the reply to this interaction
+   * interaction.edit('New content')
+   *   .then(console.log)
+   *   .catch(console.error);
+   */
+  async edit(options) {
+    return this.editReply(options);
+  }
+
+  /**
    * Deletes the initial reply to this interaction.
    * @see Webhook#deleteMessage
    * @returns {Promise<void>}
@@ -290,6 +305,7 @@ class InteractionResponses {
       'reply',
       'replyEmbed',
       'fetchReply',
+      'edit',
       'editReply',
       'deleteReply',
       'delete',
