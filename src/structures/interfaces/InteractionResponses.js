@@ -237,8 +237,8 @@ class InteractionResponses {
   embed(embed, options = {}) {
     options.embeds = [embed];
 
-    if(options.forceFollowUp || (!options.forceSend && this.deferred)) return this.followUp(options);
-    return this[this.replied ? 'editReply' : 'reply'](options);
+    if(options.forceFollowUp) return this.followUp(options);
+    return this[(this.replied || this.deferred) ? 'editReply' : 'reply'](options);
   }
 
   /**
