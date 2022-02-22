@@ -231,6 +231,7 @@ class BaseGuildTextChannel extends GuildChannel {
   get lastPinAt() {}
   get embedable() {}
   send() {}
+  followUp() {}
   embed() {}
   sendTyping() {}
   createMessageCollector() {}

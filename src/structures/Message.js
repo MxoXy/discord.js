@@ -883,6 +883,15 @@ class Message extends Base {
   }
 
   /**
+   * Responds with a plain message
+   * @param {string|MessagePayload|MessageOptions} options The options to provide
+   * @returns {Promise<Message>}
+   */
+  followUp(options) {
+    return this.channel.send(options);
+  }
+
+  /**
    * Replies to the message.
    * @param {string} [content=''] The content for the message
    * @param {MessagePayload|MessageOptions} [options] The options to provide
