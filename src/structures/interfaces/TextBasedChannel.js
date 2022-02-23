@@ -187,15 +187,6 @@ class TextBasedChannel {
   }
 
   /**
-   * Sends a message to this channel.
-   * @param {MessageOptions} [options] The options to provide
-   * @returns {Promise<Message>}
-   */
-  followUp(options) {
-    return this.send(options);
-  }
-
-  /**
    * Responds with an embed
    * @param {RichEmbed|Object} embed - Embed to send
    * @param {string} [content] - Content for the message
@@ -360,7 +351,7 @@ class TextBasedChannel {
   }
 
   static applyToClass(structure, full = false, ignore = []) {
-    const props = ['send', 'embed', 'followUp'];
+    const props = ['send', 'embed'];
     if (full) {
       props.push(
         'lastMessage',
