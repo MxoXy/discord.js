@@ -269,7 +269,7 @@ export abstract class Base {
 
 export class BaseClient extends EventEmitter {
   public constructor(options?: ClientOptions | WebhookClientOptions);
-  private readonly api: unknown;
+  public readonly api: unknown;
   private rest: unknown;
   private decrementMaxListeners(): void;
   private incrementMaxListeners(): void;
@@ -477,10 +477,9 @@ export type KeyedEnum<K, T> = {
   [Key in keyof K]: T | string;
 };
 
-export type EnumValueMapped<E extends KeyedEnum<T, number>, T extends Partial<Record<keyof E, unknown>>> = T &
-  {
-    [Key in keyof T as E[Key]]: T[Key];
-  };
+export type EnumValueMapped<E extends KeyedEnum<T, number>, T extends Partial<Record<keyof E, unknown>>> = T & {
+  [Key in keyof T as E[Key]]: T[Key];
+};
 
 export type MappedChannelCategoryTypes = EnumValueMapped<
   typeof ChannelTypes,
@@ -877,7 +876,7 @@ export class Emoji extends Base {
 }
 
 export class Guild extends AnonymousGuild {
-  private constructor(client: Client, data: RawGuildData);
+  constructor(client: Client, data: RawGuildData);
   private _sortedRoles(): Collection<Snowflake, Role>;
   private _sortedChannels(channel: NonThreadGuildBasedChannel): Collection<Snowflake, NonThreadGuildBasedChannel>;
 
@@ -1488,7 +1487,7 @@ export type MappedInteractionTypes<Cached extends boolean = boolean> = EnumValue
 
 export class Message<Cached extends boolean = boolean> extends Base {
   private readonly _cacheType: Cached;
-  private constructor(client: Client, data: RawMessageData);
+  constructor(client: Client, data: RawMessageData);
   private _patch(data: RawPartialMessageData | RawMessageData): void;
 
   public activity: MessageActivity | null;
