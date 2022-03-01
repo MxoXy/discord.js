@@ -1542,7 +1542,7 @@ export class Message<Cached extends boolean = boolean> extends Base {
   public delete(timeout?: number): Promise<Message>;
   public edit(content: string | MessageEditOptions | MessagePayload): Promise<Message>;
   public embed(embed: MessageEmbed | MessageEmbedOptions, options?: Omit<MessageOptions, 'embeds'>): Promise<Message>;
-  public send(content: string, options: MessagePayload | Omit<MessageOptions, 'content'>): Promise<Message>;
+  public send(options: string | MessagePayload | MessageOptions): Promise<Message>;
   public replyMention(content: string, options: MessagePayload | Omit<MessageOptions, 'content'>): Promise<Message>;
   public directEmbed(
     embed: MessageEmbed | MessageEmbedOptions,
