@@ -356,11 +356,11 @@ export abstract class BaseCommandInteraction<Cached extends CacheType = CacheTyp
   public reply(options: string | MessagePayload | InteractionReplyOptions): Promise<void>;
   public replyEmbed(
     embed: MessageEmbed | MessageEmbedOptions,
-    options?: Omit<MessagePayload | InteractionReplyOptions, 'embeds'>,
+    options?: Omit<InteractionReplyOptions, 'embeds'>,
   ): Promise<GuildCacheMessage<Cached>>;
   public embed(
     embed: MessageEmbed | MessageEmbedOptions,
-    options?: Omit<MessagePayload | InteractionReplyOptions, 'embeds'>,
+    options?: Omit<InteractionReplyOptions, 'embeds'>,
   ): Promise<GuildCacheMessage<Cached>>;
   private transformOption(
     option: APIApplicationCommandOption,
@@ -1675,11 +1675,11 @@ export class MessageComponentInteraction<Cached extends CacheType = CacheType> e
   public reply(options: string | MessagePayload | InteractionReplyOptions): Promise<void>;
   public replyEmbed(
     embed: MessageEmbed | MessageEmbedOptions,
-    options?: Omit<MessagePayload | InteractionReplyOptions, 'embeds'>,
+    options?: Omit<InteractionReplyOptions, 'embeds'>,
   ): Promise<GuildCacheMessage<Cached>>;
   public embed(
     embed: MessageEmbed | MessageEmbedOptions,
-    options?: Omit<MessagePayload | InteractionReplyOptions, 'embeds'>,
+    options?: Omit<InteractionReplyOptions, 'embeds'>,
   ): Promise<GuildCacheMessage<Cached>>;
   public update(options: InteractionUpdateOptions & { fetchReply: true }): Promise<GuildCacheMessage<Cached>>;
   public update(options: string | MessagePayload | InteractionUpdateOptions): Promise<void>;
