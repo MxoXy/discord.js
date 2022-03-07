@@ -58,6 +58,7 @@ class TextBasedChannel {
    * @readonly
    */
   get embedable() {
+    if (!this.guild.me) throw new Error('GUILD_UNCACHED_ME');
     return this.permissionsFor(this.guild.me)?.has(['VIEW_CHANNEL', 'SEND_MESSAGES', 'EMBED_LINKS']) ?? false;
   }
 
