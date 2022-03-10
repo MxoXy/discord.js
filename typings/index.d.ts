@@ -3324,7 +3324,7 @@ export function TextBasedChannelMixin<T, I extends keyof TextBasedChannelFields 
 
 export interface PartialTextBasedChannelFields {
   send(options: string | MessagePayload | MessageOptions): Promise<Message>;
-  embed(embed: MessageEmbed | MessageEmbedOptions, content?: string, options?: MessageOptions): Promise<Message>;
+  embed(embed: MessageEmbed | MessageEmbedOptions, options?: MessageOptions): Promise<Message>;
 }
 
 export interface TextBasedChannelFields extends PartialTextBasedChannelFields {

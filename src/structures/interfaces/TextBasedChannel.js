@@ -189,8 +189,7 @@ class TextBasedChannel {
 
   /**
    * Responds with an embed
-   * @param {RichEmbed|Object} embed - Embed to send
-   * @param {string} [content] - Content for the message
+   * @param {MessageEmbed|APIEmbed} embed - Embed to send
    * @param {MessageOptions} [options] The options to provide
    * @returns {Promise<Message>}
    */
