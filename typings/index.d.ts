@@ -4934,6 +4934,7 @@ export type InteractionDeferUpdateOptions = Omit<InteractionDeferReplyOptions, '
 export interface InteractionReplyOptions extends Omit<WebhookMessageOptions, 'username' | 'avatarURL'> {
   ephemeral?: boolean;
   fetchReply?: boolean;
+  forceFollowUp?: boolean;
 }
 
 export type InteractionResponseType = keyof typeof InteractionResponseTypes;

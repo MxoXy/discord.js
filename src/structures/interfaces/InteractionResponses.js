@@ -1,5 +1,6 @@
 'use strict';
 
+const { setTimeout } = require('node:timers');
 const { Error } = require('../../errors');
 const { InteractionResponseTypes } = require('../../util/Constants');
 const MessageFlags = require('../../util/MessageFlags');
@@ -28,6 +29,7 @@ class InteractionResponses {
    * @typedef {BaseMessageOptions} InteractionReplyOptions
    * @property {boolean} [ephemeral] Whether the reply should be ephemeral
    * @property {boolean} [fetchReply] Whether to fetch the reply
+   * @property {boolean} [forceFollowUp] Whether to force followUp
    */
 
   /**
@@ -178,7 +180,7 @@ class InteractionResponses {
    *   .then(console.log)
    *   .catch(console.error);
    */
-  async edit(options) {
+  edit(options) {
     return this.editReply(options);
   }
 
@@ -200,6 +202,7 @@ class InteractionResponses {
   /**
    * Deletes the initial reply to this interaction.
    * @see Webhook#deleteMessage
+   * @param {number} [timeout] Timeout delete
    * @returns {Promise<void>}
    * @example
    * // Delete the reply to this interaction
@@ -207,7 +210,7 @@ class InteractionResponses {
    *   .then(console.log)
    *   .catch(console.error);
    */
-  async delete(timeout = 0) {
+  delete(timeout = 0) {
     return new Promise(resolve => {
       setTimeout(() => {
         resolve(this.deleteReply());
@@ -237,8 +240,8 @@ class InteractionResponses {
   embed(embed, options = {}) {
     options.embeds = [embed];
 
-    if(options.forceFollowUp) return this.followUp(options);
-    return this[(this.replied || this.deferred) ? 'editReply' : 'reply'](options);
+    if (options.forceFollowUp) return this.followUp(options);
+    return this[this.replied || this.deferred ? 'editReply' : 'reply'](options);
   }
 
   /**
