@@ -154,12 +154,6 @@ class BaseGuildTextChannel extends GuildChannel {
       avatar = await DataResolver.resolveImage(avatar);
     }
 
-    if (!this.permissionsFor(this.guild.me)?.has('MANAGE_WEBHOOKS')) return null;
-    const webhooks = await this.fetchWebhooks();
-    const webhook = webhooks.find(hook => hook.name === name);
-    if (webhook) return webhook;
-    if (webhooks.size > 8) return null;
-
     const data = await this.client.api.channels[this.id].webhooks.post({
       data: {
         name,
