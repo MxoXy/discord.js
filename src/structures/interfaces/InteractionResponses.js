@@ -232,6 +232,16 @@ class InteractionResponses {
   }
 
   /**
+   * Send a follow-up message to this interaction.
+   * @param {string|MessagePayload|InteractionReplyOptions} [options] The options for the reply
+   * @returns {Promise<Message|APIMessage>}
+   */
+  send(options = {}) {
+    if (options.forceFollowUp) return this.followUp(options);
+    return this[this.replied || this.deferred ? 'editReply' : 'reply'](options);
+  }
+
+  /**
    * Send a follow-up embed message to this interaction.
    * @param {MessageEmbed|APIEmbed} embed The embed for the reply
    * @param {MessagePayload|InteractionReplyOptions} [options] The options for the reply
