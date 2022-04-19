@@ -1038,6 +1038,7 @@ exports.ApplicationCommandOptionTypes = createEnum([
   'CHANNEL',
   'ROLE',
   'MENTIONABLE',
+  'ATTACHMENT',
   'NUMBER',
 ]);
 
