@@ -164,7 +164,7 @@ class ApplicationCommand extends Base {
     return (this.guild ?? this.client.application).commands;
   }
 
- /**
+  /**
    * Data for creating or editing an application command.
    * @typedef {Object} ApplicationCommandData
    * @property {string} name The name of the command, must be in all lowercase if type is
@@ -467,7 +467,8 @@ class ApplicationCommand extends Base {
    * @returns {APIApplicationCommandOption}
    * @private
    */
-   static transformOption(option, received) {
+  static transformOption(option, received) {
+    const stringType = typeof option.type === 'string' ? option.type : ApplicationCommandOptionTypes[option.type];
     const channelTypesKey = received ? 'channelTypes' : 'channel_types';
     const minValueKey = received ? 'minValue' : 'min_value';
     const maxValueKey = received ? 'maxValue' : 'max_value';

@@ -3,10 +3,10 @@
 const { Collection } = require('@discordjs/collection');
 const Interaction = require('./Interaction');
 const InteractionWebhook = require('./InteractionWebhook');
-const InteractionResponses = require('./interfaces/InteractionResponses');
-const { ApplicationCommandOptionTypes } = require('../util/Constants');
 // TODO: MessageAttachment => Attachment in v14
 const MessageAttachment = require('./MessageAttachment');
+const InteractionResponses = require('./interfaces/InteractionResponses');
+const { ApplicationCommandOptionTypes } = require('../util/Constants');
 
 /**
  * Represents a command interaction.
