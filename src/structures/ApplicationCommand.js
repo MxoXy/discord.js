@@ -477,7 +477,7 @@ class ApplicationCommand extends Base {
     const descriptionLocalizationsKey = received ? 'descriptionLocalizations' : 'description_localizations';
     const descriptionLocalizedKey = received ? 'descriptionLocalized' : 'description_localized';
     return {
-      type: option.type,
+      type: typeof option.type === 'number' && !received ? option.type : ApplicationCommandOptionTypes[option.type],
       name: option.name,
       [nameLocalizationsKey]: option.nameLocalizations ?? option.name_localizations,
       [nameLocalizedKey]: option.nameLocalized ?? option.name_localized,
