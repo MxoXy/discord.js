@@ -146,6 +146,47 @@ import {
 
 //#region Classes
 
+// TODO: Remove that on v14 merge
+
+/**
+ * https://discord.com/developers/docs/reference#locales
+ */
+export enum Locale {
+  EnglishUS = 'en-US',
+  EnglishGB = 'en-GB',
+  Bulgarian = 'bg',
+  ChineseCN = 'zh-CN',
+  ChineseTW = 'zh-TW',
+  Croatian = 'hr',
+  Czech = 'cs',
+  Danish = 'da',
+  Dutch = 'nl',
+  Finnish = 'fi',
+  French = 'fr',
+  German = 'de',
+  Greek = 'el',
+  Hindi = 'hi',
+  Hungarian = 'hu',
+  Italian = 'it',
+  Japanese = 'ja',
+  Korean = 'ko',
+  Lithuanian = 'lt',
+  Norwegian = 'no',
+  Polish = 'pl',
+  PortugueseBR = 'pt-BR',
+  Romanian = 'ro',
+  Russian = 'ru',
+  SpanishES = 'es-ES',
+  Swedish = 'sv-SE',
+  Thai = 'th',
+  Turkish = 'tr',
+  Ukrainian = 'uk',
+  Vietnamese = 'vi',
+}
+
+export type LocaleString = `${Locale}`;
+export type LocalizationMap = Partial<Record<LocaleString, string | null>>;
+
 export class Activity {
   private constructor(presence: Presence, data?: RawActivityData);
   public applicationId: Snowflake | null;
@@ -214,12 +255,16 @@ export class ApplicationCommand<PermissionsFetchType = {}> extends Base {
   public readonly createdTimestamp: number;
   public defaultPermission: boolean;
   public description: string;
+  public descriptionLocalizations: LocalizationMap | null;
+  public descriptionLocalized: string | null;
   public guild: Guild | null;
   public guildId: Snowflake | null;
   public readonly manager: ApplicationCommandManager;
   public id: Snowflake;
   public name: string;
-  public options: ApplicationCommandOption[];
+  public nameLocalizations: LocalizationMap | null;
+  public nameLocalized: string | null;
+  public options: (ApplicationCommandOption & { nameLocalized?: string; descriptionLocalized?: string })[];
   public permissions: ApplicationCommandPermissionsManager<
     PermissionsFetchType,
     PermissionsFetchType,
@@ -232,7 +277,11 @@ export class ApplicationCommand<PermissionsFetchType = {}> extends Base {
   public delete(): Promise<ApplicationCommand<PermissionsFetchType>>;
   public edit(data: ApplicationCommandData): Promise<ApplicationCommand<PermissionsFetchType>>;
   public setName(name: string): Promise<ApplicationCommand<PermissionsFetchType>>;
+  public setNameLocalizations(nameLocalizations: LocalizationMap): Promise<ApplicationCommand<PermissionsFetchType>>;
   public setDescription(description: string): Promise<ApplicationCommand<PermissionsFetchType>>;
+  public setDescriptionLocalizations(
+    descriptionLocalizations: LocalizationMap,
+  ): Promise<ApplicationCommand<PermissionsFetchType>>;
   public setDefaultPermission(defaultPermission?: boolean): Promise<ApplicationCommand<PermissionsFetchType>>;
   public setOptions(options: ApplicationCommandOptionData[]): Promise<ApplicationCommand<PermissionsFetchType>>;
   public equals(
@@ -752,7 +801,7 @@ export class AutocompleteInteraction<Cached extends CacheType = CacheType> exten
   public inCachedGuild(): this is AutocompleteInteraction<'cached'>;
   public inRawGuild(): this is AutocompleteInteraction<'raw'>;
   private transformOption(option: APIApplicationCommandOption): CommandInteractionOption;
-  public respond(options: ApplicationCommandOptionChoice[]): Promise<void>;
+  public respond(options: ApplicationCommandOptionChoiceData[]): Promise<void>;
 }
 
 export class CommandInteractionOptionResolver<Cached extends CacheType = CacheType> {
@@ -809,7 +858,7 @@ export class CommandInteractionOptionResolver<Cached extends CacheType = CacheTy
   ): NonNullable<CommandInteractionOption<Cached>['member' | 'role' | 'user']> | null;
   public getMessage(name: string, required: true): NonNullable<CommandInteractionOption<Cached>['message']>;
   public getMessage(name: string, required?: boolean): NonNullable<CommandInteractionOption<Cached>['message']> | null;
-  public getFocused(getFull: true): ApplicationCommandOptionChoice;
+  public getFocused(getFull: true): ApplicationCommandOptionChoiceData;
   public getFocused(getFull?: boolean): string | number;
 }
 
@@ -3015,6 +3064,8 @@ export class ChannelManager extends CachedManager<Snowflake, AnyChannel, Channel
   public fetch(id: Snowflake, options?: FetchChannelOptions): Promise<AnyChannel | null>;
 }
 
+export type FetchGuildApplicationCommandFetchOptions = Omit<FetchApplicationCommandOptions, 'guildId'>;
+
 export class GuildApplicationCommandManager extends ApplicationCommandManager<ApplicationCommand, {}, Guild> {
   private constructor(guild: Guild, iterable?: Iterable<RawApplicationCommandData>);
   public guild: Guild;
@@ -3024,9 +3075,12 @@ export class GuildApplicationCommandManager extends ApplicationCommandManager<Ap
     command: ApplicationCommandResolvable,
     data: ApplicationCommandDataResolvable,
   ): Promise<ApplicationCommand>;
-  public fetch(id: Snowflake, options?: BaseFetchOptions): Promise<ApplicationCommand>;
-  public fetch(options: BaseFetchOptions): Promise<Collection<Snowflake, ApplicationCommand>>;
-  public fetch(id?: undefined, options?: BaseFetchOptions): Promise<Collection<Snowflake, ApplicationCommand>>;
+  public fetch(id: Snowflake, options?: FetchGuildApplicationCommandFetchOptions): Promise<ApplicationCommand>;
+  public fetch(options: FetchGuildApplicationCommandFetchOptions): Promise<Collection<Snowflake, ApplicationCommand>>;
+  public fetch(
+    id?: undefined,
+    options?: FetchGuildApplicationCommandFetchOptions,
+  ): Promise<Collection<Snowflake, ApplicationCommand>>;
   public set(commands: ApplicationCommandDataResolvable[]): Promise<Collection<Snowflake, ApplicationCommand>>;
 }
 
@@ -3591,6 +3645,7 @@ export interface ApplicationAsset {
 
 export interface BaseApplicationCommandData {
   name: string;
+  nameLocalizations?: LocalizationMap;
   defaultPermission?: boolean;
 }
 
@@ -3622,7 +3677,9 @@ export type CommandOptionNonChoiceResolvableType = Exclude<
 
 export interface BaseApplicationCommandOptionsData {
   name: string;
+  nameLocalizations?: LocalizationMap;
   description: string;
+  descriptionLocalizations?: LocalizationMap;
   required?: boolean;
   autocomplete?: never;
 }
@@ -3637,6 +3694,7 @@ export interface MessageApplicationCommandData extends BaseApplicationCommandDat
 
 export interface ChatInputApplicationCommandData extends BaseApplicationCommandData {
   description: string;
+  descriptionLocalizations?: LocalizationMap;
   type?: 'CHAT_INPUT' | ApplicationCommandTypes.CHAT_INPUT;
   options?: ApplicationCommandOptionData[];
 }
@@ -3674,13 +3732,13 @@ export interface ApplicationCommandAutocompleteOption extends Omit<BaseApplicati
 
 export interface ApplicationCommandChoicesData extends Omit<BaseApplicationCommandOptionsData, 'autocomplete'> {
   type: CommandOptionChoiceResolvableType;
-  choices?: ApplicationCommandOptionChoice[];
+  choices?: ApplicationCommandChoicesData[];
   autocomplete?: false;
 }
 
 export interface ApplicationCommandChoicesOption extends Omit<BaseApplicationCommandOptionsData, 'autocomplete'> {
   type: Exclude<CommandOptionChoiceResolvableType, ApplicationCommandOptionTypes>;
-  choices?: ApplicationCommandOptionChoice[];
+  choices?: ApplicationCommandChoicesData[];
   autocomplete?: false;
 }
 
@@ -3750,9 +3808,14 @@ export type ApplicationCommandOption =
   | ApplicationCommandAttachmentOption
   | ApplicationCommandSubCommand;
 
-export interface ApplicationCommandOptionChoice {
+export interface ApplicationCommandOptionChoiceData {
   name: string;
+  nameLocalizations?: LocalizationMap;
   value: string | number;
+}
+
+export interface ApplicationCommandOptionChoice extends ApplicationCommandOptionChoiceData {
+  nameLocalized?: string;
 }
 
 export type ApplicationCommandType = keyof typeof ApplicationCommandTypes;
@@ -4414,6 +4477,8 @@ interface Extendable {
 
 export interface FetchApplicationCommandOptions extends BaseFetchOptions {
   guildId?: Snowflake;
+  locale?: LocaleString;
+  withLocalizations?: boolean;
 }
 
 export interface FetchArchivedThreadOptions {

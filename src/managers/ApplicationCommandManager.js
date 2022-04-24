@@ -64,6 +64,8 @@ class ApplicationCommandManager extends CachedManager {
    * Options used to fetch Application Commands from Discord
    * @typedef {BaseFetchOptions} FetchApplicationCommandOptions
    * @property {Snowflake} [guildId] The guild's id to fetch commands for, for when the guild is not cached
+   * @property {LocaleString} [locale] The locale to use when fetching this command
+   * @property {boolean} [withLocalizations] Whether to fetch all localization data
    */
 
   /**
@@ -82,15 +84,26 @@ class ApplicationCommandManager extends CachedManager {
    *   .then(commands => console.log(`Fetched ${commands.size} commands`))
    *   .catch(console.error);
    */
-  async fetch(id, { guildId, cache = true, force = false } = {}) {
+  async fetch(id, { guildId, cache = true, force = false, locale, withLocalizations } = {}) {
     if (typeof id === 'object') {
-      ({ guildId, cache = true } = id);
+      ({ guildId, cache = true, locale, withLocalizations } = id);
     } else if (id) {
       if (!force) {
         const existing = this.cache.get(id);
         if (existing) return existing;
       }
-      const command = await this.commandPath({ id, guildId }).get();
+      const command = await this.commandPath(
+        { id, guildId },
+        {
+          headers: {
+            'X-Discord-Locale': locale,
+          },
+          query:
+            typeof withLocalizations === 'boolean'
+              ? new URLSearchParams({ with_localizations: withLocalizations })
+              : undefined,
+        },
+      ).get();
       return this._add(command, cache);
     }
 
