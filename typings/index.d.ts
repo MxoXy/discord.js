@@ -3732,13 +3732,13 @@ export interface ApplicationCommandAutocompleteOption extends Omit<BaseApplicati
 
 export interface ApplicationCommandChoicesData extends Omit<BaseApplicationCommandOptionsData, 'autocomplete'> {
   type: CommandOptionChoiceResolvableType;
-  choices?: ApplicationCommandChoicesData[];
+  choices?: ApplicationCommandOptionChoiceData[];
   autocomplete?: false;
 }
 
 export interface ApplicationCommandChoicesOption extends Omit<BaseApplicationCommandOptionsData, 'autocomplete'> {
   type: Exclude<CommandOptionChoiceResolvableType, ApplicationCommandOptionTypes>;
-  choices?: ApplicationCommandChoicesData[];
+  choices?: ApplicationCommandOptionChoiceData[];
   autocomplete?: false;
 }
 
