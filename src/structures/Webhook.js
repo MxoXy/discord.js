@@ -6,6 +6,9 @@ const { Error } = require('../errors');
 const { WebhookTypes } = require('../util/Constants');
 const DataResolver = require('../util/DataResolver');
 const SnowflakeUtil = require('../util/SnowflakeUtil');
+const { lazy } = require('../util/Util');
+
+const getMessage = lazy(() => require('./Message').Message);
 
 let deprecationEmittedForFetchMessage = false;
 
@@ -135,7 +138,7 @@ class Webhook {
   /**
    * Sends a message with this webhook.
    * @param {string|MessagePayload|WebhookMessageOptions} options The options to provide
-   * @returns {Promise<Message|APIMessage>}
+   * @returns {Promise<Message>}
    * @example
    * // Send a basic message
    * webhook.send('hello!')
@@ -198,7 +201,7 @@ class Webhook {
       query: { thread_id: messagePayload.options.threadId, wait: true },
       auth: false,
     });
-    return this.client.channels?.cache.get(d.channel_id)?.messages._add(d, false) ?? d;
+    return this.client.channels?.cache.get(d.channel_id)?.messages._add(d, false) ?? new (getMessage())(this.client, d);
   }
 
   /**
@@ -274,8 +277,7 @@ class Webhook {
    * @param {Snowflake|'@original'} message The id of the message to fetch
    * @param {WebhookFetchMessageOptions|boolean} [cacheOrOptions={}] The options to provide to fetch the message.
    * <warn>A **deprecated** boolean may be passed instead to specify whether to cache the message.</warn>
-   * @returns {Promise<Message|APIMessage>} Returns the raw message data if the webhook was instantiated as a
-   * {@link WebhookClient} or if the channel is uncached, otherwise a {@link Message} will be returned
+   * @returns {Promise<Message>} Returns the message sent by this webhook
    */
   async fetchMessage(message, cacheOrOptions = { cache: true }) {
     if (typeof cacheOrOptions === 'boolean') {
@@ -302,15 +304,17 @@ class Webhook {
         },
         auth: false,
       });
-    return this.client.channels?.cache.get(data.channel_id)?.messages._add(data, cacheOrOptions.cache) ?? data;
+    return (
+      this.client.channels?.cache.get(data.channel_id)?.messages._add(data, cacheOrOptions.cache) ??
+      new (getMessage())(this.client, data)
+    );
   }
 
   /**
    * Edits a message that was sent by this webhook.
    * @param {MessageResolvable|'@original'} message The message to edit
    * @param {string|MessagePayload|WebhookEditMessageOptions} options The options to provide
-   * @returns {Promise<Message|APIMessage>} Returns the raw message data if the webhook was instantiated as a
-   * {@link WebhookClient} or if the channel is uncached, otherwise a {@link Message} will be returned
+   * @returns {Promise<Message>} Returns the message edited by this webhook
    */
   async editMessage(message, options) {
     if (!this.token) throw new Error('WEBHOOK_TOKEN_UNAVAILABLE');
@@ -335,7 +339,7 @@ class Webhook {
       });
 
     const messageManager = this.client.channels?.cache.get(d.channel_id)?.messages;
-    if (!messageManager) return d;
+    if (!messageManager) return new (getMessage())(this.client, d);
 
     const existing = messageManager.cache.get(d.id);
     if (!existing) return messageManager._add(d);

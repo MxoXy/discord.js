@@ -593,6 +593,16 @@ class Util extends null {
   }
 
   /**
+   * Lazily evaluates a callback function
+   * @param {Function} cb The callback to lazily evaluate
+   * @returns {Function}
+   */
+  static lazy(cb) {
+    let defaultValue;
+    return () => (defaultValue ??= cb());
+  }
+
+  /**
    * Creates a sweep filter that sweeps archived threads
    * @param {number} [lifetime=14400] How long a thread has to be archived to be valid for sweeping
    * @deprecated When not using with `makeCache` use `Sweepers.archivedThreadSweepFilter` instead
