@@ -1,6 +1,7 @@
 'use strict';
 
 const process = require('node:process');
+const { setTimeout } = require('node:timers');
 const { Collection } = require('@discordjs/collection');
 const Base = require('./Base');
 const BaseMessageComponent = require('./BaseMessageComponent');
@@ -699,6 +700,10 @@ class Message extends Base {
    */
   edit(options) {
     if (!this.channel) return Promise.reject(new Error('CHANNEL_NOT_CACHED'));
+
+    options.embeds ??= [];
+    options.components ??= [];
+
     return this.channel.messages.edit(this, options);
   }
 
