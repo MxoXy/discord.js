@@ -701,9 +701,7 @@ class Message extends Base {
   edit(options) {
     if (!this.channel) return Promise.reject(new Error('CHANNEL_NOT_CACHED'));
 
-    options.embeds ??= [];
     options.components ??= [];
-
     return this.channel.messages.edit(this, options);
   }
 
