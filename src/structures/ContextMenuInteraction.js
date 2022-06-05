@@ -3,6 +3,9 @@
 const BaseCommandInteraction = require('./BaseCommandInteraction');
 const CommandInteractionOptionResolver = require('./CommandInteractionOptionResolver');
 const { ApplicationCommandOptionTypes, ApplicationCommandTypes } = require('../util/Constants');
+const { lazy } = require('../util/Util');
+
+const getMessage = lazy(() => require('./Message').Message);
 
 /**
  * Represents a context menu interaction.
@@ -55,8 +58,7 @@ class ContextMenuInteraction extends BaseCommandInteraction {
         type: '_MESSAGE',
         value: target_id,
         message:
-          this.channel?.messages._add(resolved.messages[target_id]) ??
-          new (require('./Message').Message)(resolved.messages[target_id]),
+          this.channel?.messages._add(resolved.messages[target_id]) ?? new (getMessage())(resolved.messages[target_id]),
       });
     }
 
