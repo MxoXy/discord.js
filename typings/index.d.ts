@@ -455,26 +455,23 @@ export class BaseGuildEmoji extends Emoji {
 export class BaseGuildTextChannel extends TextBasedChannelMixin(GuildChannel) {
   protected constructor(guild: Guild, data?: RawGuildChannelData, client?: Client, immediatePatch?: boolean);
   public defaultAutoArchiveDuration?: ThreadAutoArchiveDuration;
-  public messages: MessageManager;
+  public rateLimitPerUser: number | null;
   public nsfw: boolean;
   public threads: ThreadManager<AllowedThreadTypeForTextChannel | AllowedThreadTypeForNewsChannel>;
   public topic: string | null;
   public createInvite(options?: CreateInviteOptions): Promise<Invite>;
-  public createWebhook(name: string, options?: ChannelWebhookCreateOptions): Promise<Webhook>;
   public fetchInvites(cache?: boolean): Promise<Collection<string, Invite>>;
   public setDefaultAutoArchiveDuration(
     defaultAutoArchiveDuration: ThreadAutoArchiveDuration,
     reason?: string,
   ): Promise<this>;
-  public setNSFW(nsfw?: boolean, reason?: string): Promise<this>;
   public setTopic(topic: string | null, reason?: string): Promise<this>;
   public setType(type: Pick<typeof ChannelTypes, 'GUILD_TEXT'>, reason?: string): Promise<TextChannel>;
   public setType(type: Pick<typeof ChannelTypes, 'GUILD_NEWS'>, reason?: string): Promise<NewsChannel>;
-  public fetchWebhooks(): Promise<Collection<Snowflake, Webhook>>;
 }
 
 export class BaseGuildVoiceChannel extends GuildChannel {
-  protected constructor(guild: Guild, data?: RawGuildChannelData);
+  public constructor(guild: Guild, data?: RawGuildChannelData);
   public readonly members: Collection<Snowflake, GuildMember>;
   public readonly full: boolean;
   public readonly joinable: boolean;
@@ -908,9 +905,14 @@ export class DiscordAPIError extends Error {
   public requestData: HTTPErrorData;
 }
 
-export class DMChannel extends TextBasedChannelMixin(Channel, ['bulkDelete']) {
+export class DMChannel extends TextBasedChannelMixin(Channel, [
+  'bulkDelete',
+  'fetchWebhooks',
+  'createWebhook',
+  'setRateLimitPerUser',
+  'setNSFW',
+]) {
   private constructor(client: Client, data?: RawDMChannelData);
-  public messages: MessageManager;
   public recipient: User;
   public type: 'DM';
   public fetch(force?: boolean): Promise<this>;
@@ -1721,9 +1723,13 @@ export class MessageComponentInteraction<Cached extends CacheType = CacheType> e
   public inGuild(): this is MessageComponentInteraction<'present'>;
   public inCachedGuild(): this is MessageComponentInteraction<'cached'>;
   public inRawGuild(): this is MessageComponentInteraction<'raw'>;
-  public deferReply(options: InteractionDeferReplyOptions & { fetchReply: true }): Promise<Message<BooleanCache<Cached>>>;
+  public deferReply(
+    options: InteractionDeferReplyOptions & { fetchReply: true },
+  ): Promise<Message<BooleanCache<Cached>>>;
   public deferReply(options?: InteractionDeferReplyOptions): Promise<void>;
-  public deferUpdate(options: InteractionDeferUpdateOptions & { fetchReply: true }): Promise<Message<BooleanCache<Cached>>>;
+  public deferUpdate(
+    options: InteractionDeferUpdateOptions & { fetchReply: true },
+  ): Promise<Message<BooleanCache<Cached>>>;
   public deferUpdate(options?: InteractionDeferUpdateOptions): Promise<void>;
   public deleteReply(): Promise<void>;
   public editReply(options: string | MessagePayload | WebhookEditMessageOptions): Promise<Message>;
@@ -2385,10 +2391,9 @@ export class TextChannel extends BaseGuildTextChannel {
   public rateLimitPerUser: number;
   public threads: ThreadManager<AllowedThreadTypeForTextChannel>;
   public type: 'GUILD_TEXT';
-  public setRateLimitPerUser(rateLimitPerUser: number, reason?: string): Promise<TextChannel>;
 }
 
-export class ThreadChannel extends TextBasedChannelMixin(Channel) {
+export class ThreadChannel extends TextBasedChannelMixin(Channel, ['fetchWebhooks', 'createWebhook', 'setNSFW']) {
   private constructor(guild: Guild, data?: RawThreadChannelData, client?: Client, fromInteraction?: boolean);
   public archived: boolean | null;
   public readonly archivedAt: Date | null;
@@ -2407,7 +2412,6 @@ export class ThreadChannel extends TextBasedChannelMixin(Channel) {
   public readonly sendable: boolean;
   public memberCount: number | null;
   public messageCount: number | null;
-  public messages: MessageManager;
   public members: ThreadMemberManager;
   public name: string;
   public ownerId: Snowflake | null;
@@ -2435,7 +2439,6 @@ export class ThreadChannel extends TextBasedChannelMixin(Channel) {
   public setInvitable(invitable?: boolean, reason?: string): Promise<ThreadChannel>;
   public setLocked(locked?: boolean, reason?: string): Promise<ThreadChannel>;
   public setName(name: string, reason?: string): Promise<ThreadChannel>;
-  public setRateLimitPerUser(rateLimitPerUser: number, reason?: string): Promise<ThreadChannel>;
 }
 
 export class ThreadMember extends Base {
@@ -2579,11 +2582,12 @@ export class Formatters extends null {
   public static userMention: typeof userMention;
 }
 
-export class VoiceChannel extends BaseGuildVoiceChannel {
+export class VoiceChannel extends TextBasedChannelMixin(BaseGuildVoiceChannel, ['lastPinTimestamp', 'lastPinAt']) {
   /** @deprecated Use manageable instead */
   public readonly editable: boolean;
   public readonly speakable: boolean;
   public type: 'GUILD_VOICE';
+  public rateLimitPerUser: number | null;
   public setBitrate(bitrate: number, reason?: string): Promise<VoiceChannel>;
   public setUserLimit(userLimit: number, reason?: string): Promise<VoiceChannel>;
 }
@@ -3397,6 +3401,7 @@ export interface TextBasedChannelFields extends PartialTextBasedChannelFields {
   lastPinTimestamp: number | null;
   readonly lastPinAt: Date | null;
   readonly embedable: boolean;
+  messages: MessageManager;
   awaitMessageComponent<T extends MessageComponentTypeResolvable = 'ACTION_ROW'>(
     options?: AwaitMessageCollectorOptionsParams<T, true>,
   ): Promise<MappedInteractionTypes[T]>;
@@ -3409,6 +3414,10 @@ export interface TextBasedChannelFields extends PartialTextBasedChannelFields {
     options?: MessageChannelCollectorOptionsParams<T, true>,
   ): InteractionCollector<MappedInteractionTypes[T]>;
   createMessageCollector(options?: MessageCollectorOptions): MessageCollector;
+  createWebhook(name: string, options?: ChannelWebhookCreateOptions): Promise<Webhook>;
+  setRateLimitPerUser(rateLimitPerUser: number, reason?: string): Promise<this>;
+  setNSFW(nsfw?: boolean, reason?: string): Promise<this>;
+  fetchWebhooks(): Promise<Collection<Snowflake, Webhook>>;
   sendTyping(): Promise<void>;
 }
 
@@ -4085,7 +4094,7 @@ export interface ClientEvents extends BaseClientEvents {
   typingStart: [typing: Typing];
   userUpdate: [oldUser: User | PartialUser, newUser: User];
   voiceStateUpdate: [oldState: VoiceState, newState: VoiceState];
-  webhookUpdate: [channel: TextChannel | NewsChannel];
+  webhookUpdate: [channel: TextChannel | NewsChannel | VoiceChannel];
   /** @deprecated Use interactionCreate instead */
   interaction: [interaction: Interaction];
   interactionCreate: [interaction: Interaction];
