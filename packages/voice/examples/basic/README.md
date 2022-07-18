@@ -21,7 +21,7 @@ import {
 	StreamType,
 	AudioPlayerStatus,
 	VoiceConnectionStatus,
-} from '@discordjs/voice';
+} from '@draftbot/voice';
 import { createDiscordJSAdapter } from './adapter';
 
 const player = createAudioPlayer();

@@ -12,7 +12,7 @@ const {
 	AudioPlayerStatus,
 	VoiceConnectionStatus,
 	joinVoiceChannel,
-} = require('@discordjs/voice');
+} = require('@draftbot/voice');
 
 const player = createAudioPlayer({
 	behaviors: {

@@ -1,7 +1,7 @@
 'use strict';
 
 const process = require('node:process');
-const { DefaultRestOptions } = require('@discordjs/rest');
+const { DefaultRestOptions } = require('@draftbot/rest');
 const { toSnakeCase } = require('./Transformers');
 
 /**
@@ -117,7 +117,7 @@ class Options extends null {
    *  });
    */
   static cacheWithLimits(settings = {}) {
-    const { Collection } = require('@discordjs/collection');
+    const { Collection } = require('@draftbot/collection');
     const LimitedCollection = require('./LimitedCollection');
 
     return manager => {
@@ -146,7 +146,7 @@ class Options extends null {
    * @returns {CacheFactory}
    */
   static cacheEverything() {
-    const { Collection } = require('@discordjs/collection');
+    const { Collection } = require('@draftbot/collection');
     return () => new Collection();
   }
 

@@ -2,8 +2,8 @@
 
 const { Buffer } = require('node:buffer');
 const { setTimeout, clearTimeout } = require('node:timers');
-const { Collection } = require('@discordjs/collection');
-const { makeURLSearchParams } = require('@discordjs/rest');
+const { Collection } = require('@draftbot/collection');
+const { makeURLSearchParams } = require('@draftbot/rest');
 const { DiscordSnowflake } = require('@sapphire/snowflake');
 const { Routes, GatewayOpcodes } = require('discord-api-types/v10');
 const CachedManager = require('./CachedManager');

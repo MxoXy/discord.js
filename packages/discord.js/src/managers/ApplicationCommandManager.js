@@ -1,8 +1,8 @@
 'use strict';
 
-const { isJSONEncodable } = require('@discordjs/builders');
-const { Collection } = require('@discordjs/collection');
-const { makeURLSearchParams } = require('@discordjs/rest');
+const { isJSONEncodable } = require('@draftbot/builders');
+const { Collection } = require('@draftbot/collection');
+const { makeURLSearchParams } = require('@draftbot/rest');
 const { Routes } = require('discord-api-types/v10');
 const ApplicationCommandPermissionsManager = require('./ApplicationCommandPermissionsManager');
 const CachedManager = require('./CachedManager');

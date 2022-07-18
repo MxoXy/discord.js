@@ -1,6 +1,6 @@
 'use strict';
 
-const { ButtonBuilder: BuildersButton, isJSONEncodable } = require('@discordjs/builders');
+const { ButtonBuilder: BuildersButton, isJSONEncodable } = require('@draftbot/builders');
 const { toSnakeCase } = require('../util/Transformers');
 const { parseEmoji } = require('../util/Util');
 

@@ -1,6 +1,6 @@
 import { createWriteStream } from 'node:fs';
 import { pipeline } from 'node:stream';
-import { EndBehaviorType, VoiceReceiver } from '@discordjs/voice';
+import { EndBehaviorType, VoiceReceiver } from '@draftbot/voice';
 import type { User } from 'discord.js';
 import * as prism from 'prism-media';
 

@@ -10,17 +10,17 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - package: '@discordjs/builders'
+          - package: '@draftbot/builders'
             folder: 'builders'
-          - package: '@discordjs/collection'
+          - package: '@draftbot/collection'
             folder: 'collection'
-          - package: 'discord.js'
+          - package: '@draftbot/discord.js'
             folder: 'discord.js'
-          - package: '@discordjs/proxy'
+          - package: '@draftbot/proxy'
             folder: 'proxy'
-          - package: '@discordjs/rest'
+          - package: '@draftbot/rest'
             folder: 'rest'
-          - package: '@discordjs/voice'
+          - package: '@draftbot/voice'
             folder: 'voice'
     runs-on: ubuntu-latest
     if: github.repository_owner == 'discordjs'

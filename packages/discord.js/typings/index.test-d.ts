@@ -136,7 +136,7 @@ import {
   InteractionWebhook,
 } from '.';
 import { expectAssignable, expectNotAssignable, expectNotType, expectType } from 'tsd';
-import type { ContextMenuCommandBuilder, SlashCommandBuilder } from '@discordjs/builders';
+import type { ContextMenuCommandBuilder, SlashCommandBuilder } from '@draftbot/builders';
 
 // Test type transformation:
 declare const serialize: <T>(value: T) => Serialized<T>;

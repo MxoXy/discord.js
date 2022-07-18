@@ -1,5 +1,5 @@
 {
-	"name": "@discordjs/builders",
+	"name": "@draftbot/builders",
 	"version": "1.0.0",
 	"description": "A set of builders that you can use when creating your bot",
 	"scripts": {
@@ -47,10 +47,10 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/discordjs/discord.js.git"
+		"url": "https://github.com/DraftBot/discord.js.git"
 	},
 	"bugs": {
-		"url": "https://github.com/discordjs/discord.js/issues"
+		"url": "https://github.com/DraftBot/discord.js/issues"
 	},
 	"homepage": "https://discord.js.org",
 	"dependencies": {
@@ -61,7 +61,7 @@
 		"tslib": "^2.4.0"
 	},
 	"devDependencies": {
-		"@discordjs/docgen": "workspace:^",
+		"@draftbot/docgen": "workspace:^",
 		"@favware/cliff-jumper": "^1.8.5",
 		"@microsoft/api-extractor": "^7.28.4",
 		"@types/node": "^16.11.45",

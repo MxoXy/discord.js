@@ -16,7 +16,7 @@ import type { DocNode, DocParagraph, DocPlainText } from '@microsoft/tsdoc';
 import { Meaning, ModuleSource } from '@microsoft/tsdoc/lib-commonjs/beta/DeclarationReference';
 
 export function findPackage(model: ApiModel, name: string): ApiPackage | undefined {
-	return (model.findMembersByName(name)[0] ?? model.findMembersByName(`@discordjs/${name}`)[0]) as
+	return (model.findMembersByName(name)[0] ?? model.findMembersByName(`@draftbot/${name}`)[0]) as
 		| ApiPackage
 		| undefined;
 }
@@ -37,7 +37,7 @@ function generatePath(items: readonly ApiItem[]) {
 		}
 	}
 
-	return path.replace(/@discordjs\//, '');
+	return path.replace(/@draftbot\//, '');
 }
 
 export function resolveDocComment(item: ApiDocumentedItem) {

@@ -1,5 +1,5 @@
 {
-	"name": "@discordjs/actions",
+	"name": "@draftbot/actions",
 	"version": "0.1.0",
 	"description": "A set of actions that we use for our workflows",
 	"private": true,
@@ -38,10 +38,10 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/discordjs/discord.js.git"
+		"url": "https://github.com/DraftBot/discord.js.git"
 	},
 	"bugs": {
-		"url": "https://github.com/discordjs/discord.js/issues"
+		"url": "https://github.com/DraftBot/discord.js/issues"
 	},
 	"homepage": "https://discord.js.org",
 	"dependencies": {

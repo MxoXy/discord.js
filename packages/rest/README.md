@@ -36,7 +36,7 @@ pnpm add @discordjs/rest discord-api-types
 Send a basic message:
 
 ```js
-import { REST } from '@discordjs/rest';
+import { REST } from '@draftbot/rest';
 import { Routes } from 'discord-api-types/v10';
 
 const rest = new REST({ version: '10' }).setToken('token');
@@ -55,7 +55,7 @@ try {
 Create a thread from an existing message to be archived after 60 minutes of inactivity:
 
 ```js
-import { REST } from '@discordjs/rest';
+import { REST } from '@draftbot/rest';
 import { Routes } from 'discord-api-types/v10';
 
 const rest = new REST({ version: '10' }).setToken('token');

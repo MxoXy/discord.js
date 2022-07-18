@@ -1,6 +1,6 @@
 {
   "name": "discord.js",
-  "monoRepo": true,
+  "org": "draftbot",
   "packagePath": "packages/discord.js",
   "tagTemplate": "{{new-version}}"
 }

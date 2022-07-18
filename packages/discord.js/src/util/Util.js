@@ -1,7 +1,7 @@
 'use strict';
 
 const { parse } = require('node:path');
-const { Collection } = require('@discordjs/collection');
+const { Collection } = require('@draftbot/collection');
 const { ChannelType, RouteBases, Routes } = require('discord-api-types/v10');
 const { fetch } = require('undici');
 const Colors = require('./Colors');

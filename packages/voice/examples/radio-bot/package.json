@@ -18,7 +18,7 @@
 	"author": "Amish Shah <amish@shah.gg>",
 	"license": "MIT",
 	"dependencies": {
-		"@discordjs/voice": "file:../../",
+		"@draftbot/voice": "file:../../",
 		"discord.js": "^13.7.0",
 		"libsodium-wrappers": "^0.7.9",
 		"module-alias": "^2.2.2",
@@ -26,7 +26,7 @@
 	},
 	"_moduleAliases": {
 		"@root": ".",
-		"@discordjs/voice": "../../",
+		"@draftbot/voice": "../../",
 		"libsodium-wrappers": "./node_modules/libsodium-wrappers"
 	}
 }

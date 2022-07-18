@@ -1,5 +1,5 @@
 {
-	"name": "@discordjs/voice",
+	"name": "@draftbot/voice",
 	"version": "0.12.0",
 	"description": "Implementation of the Discord Voice API for node.js",
 	"scripts": {
@@ -45,10 +45,10 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/discordjs/discord.js.git"
+		"url": "git+https://github.com/DraftBot/discord.js.git"
 	},
 	"bugs": {
-		"url": "https://github.com/discordjs/discord.js/issues"
+		"url": "https://github.com/DraftBot/discord.js/issues"
 	},
 	"homepage": "https://discord.js.org",
 	"dependencies": {
@@ -62,8 +62,8 @@
 		"@babel/core": "^7.18.9",
 		"@babel/preset-env": "^7.18.9",
 		"@babel/preset-typescript": "^7.18.6",
-		"@discordjs/docgen": "workspace:^",
-		"@discordjs/scripts": "workspace:^",
+		"@draftbot/docgen": "workspace:^",
+		"@draftbot/scripts": "workspace:^",
 		"@favware/cliff-jumper": "^1.8.5",
 		"@microsoft/api-extractor": "^7.28.4",
 		"@types/jest": "^28.1.6",

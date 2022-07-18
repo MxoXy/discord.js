@@ -1,6 +1,6 @@
 'use strict';
 
-const { Collection } = require('@discordjs/collection');
+const { Collection } = require('@draftbot/collection');
 const { Routes, PermissionFlagsBits } = require('discord-api-types/v10');
 const BaseGuildEmojiManager = require('./BaseGuildEmojiManager');
 const { Error, TypeError, ErrorCodes } = require('../errors');

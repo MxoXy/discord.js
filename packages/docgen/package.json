@@ -1,5 +1,5 @@
 {
-	"name": "@discordjs/docgen",
+	"name": "@draftbot/docgen",
 	"version": "0.12.0",
 	"description": "The docs.json generator for discord.js and its related projects",
 	"scripts": {
@@ -43,14 +43,14 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/discordjs/discord.js.git"
+		"url": "https://github.com/DraftBot/discord.js.git"
 	},
 	"bugs": {
-		"url": "https://github.com/discordjs/discord.js/issues"
+		"url": "https://github.com/DraftBot/discord.js/issues"
 	},
 	"homepage": "https://discord.js.org",
 	"dependencies": {
-		"@discordjs/collection": "workspace:^",
+		"@draftbot/collection": "workspace:^",
 		"commander": "^9.4.0",
 		"jsdoc-to-markdown": "^7.1.1",
 		"tslib": "^2.4.0",

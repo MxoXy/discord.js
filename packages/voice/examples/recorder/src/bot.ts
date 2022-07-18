@@ -1,4 +1,4 @@
-import { getVoiceConnection } from '@discordjs/voice';
+import { getVoiceConnection } from '@draftbot/voice';
 import { GatewayIntentBits } from 'discord-api-types/v9';
 import Discord, { Interaction, Constants } from 'discord.js';
 import { deploy } from './deploy';

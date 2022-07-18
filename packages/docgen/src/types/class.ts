@@ -1,5 +1,5 @@
 import { parse } from 'node:path';
-import { Collection } from '@discordjs/collection';
+import { Collection } from '@draftbot/collection';
 import type { DeclarationReflection } from 'typedoc';
 import { DocumentedConstructor } from './constructor.js';
 import { DocumentedEvent } from './event.js';

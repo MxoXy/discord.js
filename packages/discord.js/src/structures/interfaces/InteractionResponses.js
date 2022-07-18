@@ -1,7 +1,7 @@
 'use strict';
 
 const { setTimeout } = require('timers/promises');
-const { isJSONEncodable } = require('@discordjs/builders');
+const { isJSONEncodable } = require('@draftbot/builders');
 const { InteractionResponseType, MessageFlags, Routes, InteractionType } = require('discord-api-types/v10');
 const { Error, ErrorCodes } = require('../../errors');
 const InteractionCollector = require('../InteractionCollector');

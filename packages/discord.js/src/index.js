@@ -22,7 +22,7 @@ exports.ActivityFlagsBitField = require('./util/ActivityFlagsBitField');
 exports.ApplicationFlagsBitField = require('./util/ApplicationFlagsBitField');
 exports.BaseManager = require('./managers/BaseManager');
 exports.BitField = require('./util/BitField');
-exports.Collection = require('@discordjs/collection').Collection;
+exports.Collection = require('@draftbot/collection').Collection;
 exports.Constants = require('./util/Constants');
 exports.Colors = require('./util/Colors');
 exports.DataResolver = require('./util/DataResolver');
@@ -181,9 +181,9 @@ exports.WelcomeScreen = require('./structures/WelcomeScreen');
 exports.WebSocket = require('./WebSocket');
 
 // External
-exports.DiscordAPIError = require('@discordjs/rest').DiscordAPIError;
-exports.HTTPError = require('@discordjs/rest').HTTPError;
-exports.RateLimitError = require('@discordjs/rest').RateLimitError;
+exports.DiscordAPIError = require('@draftbot/rest').DiscordAPIError;
+exports.HTTPError = require('@draftbot/rest').HTTPError;
+exports.RateLimitError = require('@draftbot/rest').RateLimitError;
 
 __exportStar(require('discord-api-types/v10'), exports);
-__exportStar(require('@discordjs/builders'), exports);
+__exportStar(require('@draftbot/builders'), exports);

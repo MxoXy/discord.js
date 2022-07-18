@@ -1,7 +1,7 @@
 'use strict';
 
 const { setTimeout } = require('timers/promises');
-const { Collection } = require('@discordjs/collection');
+const { Collection } = require('@draftbot/collection');
 const { DiscordSnowflake } = require('@sapphire/snowflake');
 const {
   InteractionType,

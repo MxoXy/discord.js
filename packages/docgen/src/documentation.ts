@@ -1,5 +1,5 @@
 import { dirname, join, relative } from 'node:path';
-import { Collection } from '@discordjs/collection';
+import { Collection } from '@draftbot/collection';
 import type { DeclarationReflection } from 'typedoc';
 import type { ChildTypes, Class, Config, CustomDocs, RootTypes } from './interfaces/index.js';
 import { DocumentedClass } from './types/class.js';

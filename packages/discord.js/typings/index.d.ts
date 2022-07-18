@@ -30,9 +30,9 @@ import {
   AnyComponentBuilder,
   ComponentBuilder,
   type RestOrArray,
-} from '@discordjs/builders';
-import { Collection } from '@discordjs/collection';
-import { BaseImageURLOptions, ImageURLOptions, RawFile, REST, RESTOptions } from '@discordjs/rest';
+} from '@draftbot/builders';
+import { Collection } from '@draftbot/collection';
+import { BaseImageURLOptions, ImageURLOptions, RawFile, REST, RESTOptions } from '@draftbot/rest';
 import {
   APIActionRowComponent,
   APIApplicationCommand,
@@ -891,7 +891,7 @@ export class ClientVoiceManager {
   public adapters: Map<Snowflake, InternalDiscordGatewayAdapterLibraryMethods>;
 }
 
-export { Collection } from '@discordjs/collection';
+export { Collection } from '@draftbot/collection';
 
 export interface CollectorEventTypes<K, V, F extends unknown[] = []> {
   collect: [V, ...F];
@@ -5675,5 +5675,5 @@ export type InternalDiscordGatewayAdapterCreator = (
 
 // External
 export * from 'discord-api-types/v10';
-export * from '@discordjs/builders';
-export { DiscordAPIError, HTTPError, RateLimitError } from '@discordjs/rest';
+export * from '@draftbot/builders';
+export { DiscordAPIError, HTTPError, RateLimitError } from '@draftbot/rest';

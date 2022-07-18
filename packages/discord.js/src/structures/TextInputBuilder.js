@@ -1,6 +1,6 @@
 'use strict';
 
-const { TextInputBuilder: BuildersTextInput, isJSONEncodable } = require('@discordjs/builders');
+const { TextInputBuilder: BuildersTextInput, isJSONEncodable } = require('@draftbot/builders');
 const { toSnakeCase } = require('../util/Transformers');
 
 /**

@@ -1,6 +1,6 @@
 'use strict';
 
-const { Collection } = require('@discordjs/collection');
+const { Collection } = require('@draftbot/collection');
 const DataManager = require('./DataManager');
 const { TypeError, ErrorCodes } = require('../errors');
 const { Role } = require('../structures/Role');

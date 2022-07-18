@@ -38,7 +38,7 @@ function version(name: string): string {
 	try {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		const pkg =
-			name === '@discordjs/voice'
+			name === '@draftbot/voice'
 				? require('../../package.json')
 				: findPackageJSON(dirname(require.resolve(name)), name, 3);
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
@@ -57,13 +57,13 @@ export function generateDependencyReport() {
 	const addVersion = (name: string) => report.push(`- ${name}: ${version(name)}`);
 	// general
 	report.push('Core Dependencies');
-	addVersion('@discordjs/voice');
+	addVersion('@draftbot/voice');
 	addVersion('prism-media');
 	report.push('');
 
 	// opus
 	report.push('Opus Libraries');
-	addVersion('@discordjs/opus');
+	addVersion('@draftbot/opus');
 	addVersion('opusscript');
 	report.push('');
 

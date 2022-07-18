@@ -3,7 +3,7 @@
 const EventEmitter = require('node:events');
 const { setImmediate } = require('node:timers');
 const { setTimeout: sleep } = require('node:timers/promises');
-const { Collection } = require('@discordjs/collection');
+const { Collection } = require('@draftbot/collection');
 const { GatewayCloseCodes, GatewayDispatchEvents } = require('discord-api-types/v10');
 const WebSocketShard = require('./WebSocketShard');
 const PacketHandlers = require('./handlers');

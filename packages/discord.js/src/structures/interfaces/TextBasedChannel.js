@@ -1,6 +1,6 @@
 'use strict';
 
-const { Collection } = require('@discordjs/collection');
+const { Collection } = require('@draftbot/collection');
 const { DiscordSnowflake } = require('@sapphire/snowflake');
 const { InteractionType, Routes, PermissionFlagsBits } = require('discord-api-types/v10');
 const { TypeError, Error, ErrorCodes } = require('../../errors');

@@ -7,7 +7,7 @@ import {
 	StreamType,
 	AudioPlayerStatus,
 	VoiceConnectionStatus,
-} from '@discordjs/voice';
+} from '@draftbot/voice';
 import { createDiscordJSAdapter } from './adapter';
 import { GatewayIntentBits } from 'discord-api-types/v9';
 

@@ -1,6 +1,6 @@
 'use strict';
 
-const { Collection } = require('@discordjs/collection');
+const { Collection } = require('@draftbot/collection');
 const Events = require('../../../util/Events');
 
 module.exports = (client, { d: data }) => {

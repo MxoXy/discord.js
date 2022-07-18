@@ -1,7 +1,7 @@
 'use strict';
 
 const process = require('node:process');
-const { Collection } = require('@discordjs/collection');
+const { Collection } = require('@draftbot/collection');
 const { ChannelType, Routes } = require('discord-api-types/v10');
 const CachedManager = require('./CachedManager');
 const ThreadManager = require('./ThreadManager');

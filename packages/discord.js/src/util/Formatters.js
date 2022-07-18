@@ -18,7 +18,7 @@ const {
   TimestampStyles,
   underscore,
   userMention,
-} = require('@discordjs/builders');
+} = require('@draftbot/builders');
 
 /**
  * Contains various Discord-specific functions for formatting messages.

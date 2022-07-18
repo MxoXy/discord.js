@@ -1,6 +1,6 @@
 'use strict';
 
-const { userMention } = require('@discordjs/builders');
+const { userMention } = require('@draftbot/builders');
 const { ChannelType } = require('discord-api-types/v10');
 const { BaseChannel } = require('./BaseChannel');
 const TextBasedChannel = require('./interfaces/TextBasedChannel');

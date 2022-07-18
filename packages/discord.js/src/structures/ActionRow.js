@@ -1,6 +1,6 @@
 'use strict';
 
-const { isJSONEncodable } = require('@discordjs/builders');
+const { isJSONEncodable } = require('@draftbot/builders');
 const Component = require('./Component');
 const { createComponent } = require('../util/Components');
 

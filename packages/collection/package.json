@@ -1,5 +1,5 @@
 {
-	"name": "@discordjs/collection",
+	"name": "@draftbot/collection",
 	"version": "1.0.0",
 	"description": "Utility data structure used in discord.js",
 	"scripts": {
@@ -43,14 +43,14 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/discordjs/discord.js.git"
+		"url": "git+https://github.com/DraftBot/discord.js.git"
 	},
 	"bugs": {
-		"url": "https://github.com/discordjs/discord.js/issues"
+		"url": "https://github.com/DraftBot/discord.js/issues"
 	},
 	"homepage": "https://discord.js.org",
 	"devDependencies": {
-		"@discordjs/docgen": "workspace:^",
+		"@draftbot/docgen": "workspace:^",
 		"@favware/cliff-jumper": "^1.8.5",
 		"@microsoft/api-extractor": "^7.28.4",
 		"@types/node": "^16.11.45",

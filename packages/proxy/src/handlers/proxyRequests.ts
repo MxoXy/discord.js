@@ -1,5 +1,5 @@
 import { URL } from 'node:url';
-import { DiscordAPIError, HTTPError, RateLimitError, RequestMethod, REST, RouteLike } from '@discordjs/rest';
+import { DiscordAPIError, HTTPError, RateLimitError, RequestMethod, REST, RouteLike } from '@draftbot/rest';
 import {
 	populateAbortErrorResponse,
 	populateGeneralErrorResponse,

@@ -1,6 +1,6 @@
 import { createServer } from 'node:http';
-import { proxyRequests } from '@discordjs/proxy';
-import { REST } from '@discordjs/rest';
+import { proxyRequests } from '@draftbot/proxy';
+import { REST } from '@draftbot/rest';
 
 if (!process.env.DISCORD_TOKEN) {
 	throw new Error('A DISCORD_TOKEN env var is required');

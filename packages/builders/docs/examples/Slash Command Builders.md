@@ -3,7 +3,7 @@
 ## Ping command
 
 ```ts
-import { SlashCommandBuilder } from '@discordjs/builders';
+import { SlashCommandBuilder } from '@draftbot/builders';
 
 // Create a slash command builder
 const pingCommand = new SlashCommandBuilder().setName('ping').setDescription('Check if this interaction is responsive');
@@ -15,7 +15,7 @@ const rawData = pingCommand.toJSON();
 ## Arguments
 
 ```ts
-import { SlashCommandBuilder } from '@discordjs/builders';
+import { SlashCommandBuilder } from '@draftbot/builders';
 
 // Creates a boop command
 const boopCommand = new SlashCommandBuilder()
@@ -43,7 +43,7 @@ const rawData = boopCommand.toJSON();
 ## Subcommands and subcommand groups
 
 ```ts
-import { SlashCommandBuilder } from '@discordjs/builders';
+import { SlashCommandBuilder } from '@draftbot/builders';
 
 const pointsCommand = new SlashCommandBuilder()
 	.setName('points')

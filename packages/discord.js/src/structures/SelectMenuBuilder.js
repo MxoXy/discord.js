@@ -1,6 +1,6 @@
 'use strict';
 
-const { SelectMenuBuilder: BuildersSelectMenu, isJSONEncodable, normalizeArray } = require('@discordjs/builders');
+const { SelectMenuBuilder: BuildersSelectMenu, isJSONEncodable, normalizeArray } = require('@draftbot/builders');
 const { toSnakeCase } = require('../util/Transformers');
 const { parseEmoji } = require('../util/Util');
 

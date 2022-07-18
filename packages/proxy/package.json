@@ -1,5 +1,5 @@
 {
-	"name": "@discordjs/proxy",
+	"name": "@draftbot/proxy",
 	"version": "1.0.0",
 	"description": "Tools for running an HTTP proxy for Discord's API",
 	"scripts": {
@@ -47,19 +47,19 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/discordjs/discord.js.git"
+		"url": "git+https://github.com/DraftBot/discord.js.git"
 	},
 	"bugs": {
-		"url": "https://github.com/discordjs/discord.js/issues"
+		"url": "https://github.com/DraftBot/discord.js/issues"
 	},
 	"homepage": "https://discord.js.org",
 	"dependencies": {
-		"@discordjs/rest": "^1.0.0",
+		"@draftbot/rest": "^1.0.0",
 		"tslib": "^2.4.0",
 		"undici": "^5.8.0"
 	},
 	"devDependencies": {
-		"@discordjs/docgen": "workspace:^",
+		"@draftbot/docgen": "workspace:^",
 		"@favware/cliff-jumper": "^1.8.5",
 		"@microsoft/api-extractor": "^7.28.4",
 		"@types/node": "^16.11.45",

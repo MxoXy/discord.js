@@ -1,5 +1,5 @@
 import { createServer } from 'node:http';
-import { REST } from '@discordjs/rest';
+import { REST } from '@draftbot/rest';
 import supertest from 'supertest';
 import { MockAgent, Interceptable, setGlobalDispatcher } from 'undici';
 import type { MockInterceptor } from 'undici/types/mock-interceptor';

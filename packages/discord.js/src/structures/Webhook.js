@@ -1,6 +1,6 @@
 'use strict';
 
-const { makeURLSearchParams } = require('@discordjs/rest');
+const { makeURLSearchParams } = require('@draftbot/rest');
 const { DiscordSnowflake } = require('@sapphire/snowflake');
 const { Routes, WebhookType } = require('discord-api-types/v10');
 const MessagePayload = require('./MessagePayload');

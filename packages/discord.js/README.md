@@ -53,7 +53,7 @@ pnpm add discord.js @discordjs/rest
 Register a slash command against the Discord API:
 
 ```js
-const { REST } = require('@discordjs/rest');
+const { REST } = require('@draftbot/rest');
 const { Routes } = require('discord.js');
 
 const commands = [

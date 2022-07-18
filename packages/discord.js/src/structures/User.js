@@ -1,6 +1,6 @@
 'use strict';
 
-const { userMention } = require('@discordjs/builders');
+const { userMention } = require('@draftbot/builders');
 const { DiscordSnowflake } = require('@sapphire/snowflake');
 const Base = require('./Base');
 const TextBasedChannel = require('./interfaces/TextBasedChannel');

@@ -1,6 +1,6 @@
 import type { ServerResponse } from 'node:http';
 import { pipeline } from 'node:stream/promises';
-import type { DiscordAPIError, HTTPError, RateLimitError } from '@discordjs/rest';
+import type { DiscordAPIError, HTTPError, RateLimitError } from '@draftbot/rest';
 import type { Dispatcher } from 'undici';
 
 /**

@@ -1,4 +1,4 @@
-import { entersState, joinVoiceChannel, VoiceConnection, VoiceConnectionStatus } from '@discordjs/voice';
+import { entersState, joinVoiceChannel, VoiceConnection, VoiceConnectionStatus } from '@draftbot/voice';
 import { Client, CommandInteraction, GuildMember, Snowflake } from 'discord.js';
 import { createListeningStream } from './createListeningStream';
 

@@ -1,6 +1,6 @@
 'use strict';
 
-const { Collection } = require('@discordjs/collection');
+const { Collection } = require('@draftbot/collection');
 const { GuildFeature } = require('discord-api-types/v10');
 const Base = require('./Base');
 const WelcomeChannel = require('./WelcomeChannel');
