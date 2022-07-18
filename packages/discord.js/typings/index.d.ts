@@ -452,13 +452,31 @@ export abstract class CommandInteraction<Cached extends CacheType = CacheType> e
   ): Promise<Message<BooleanCache<Cached>>>;
   public deferReply(options?: InteractionDeferReplyOptions): Promise<InteractionResponse<BooleanCache<Cached>>>;
   public deleteReply(): Promise<void>;
+  public delete(): Promise<void>;
   public editReply(options: string | MessagePayload | WebhookEditMessageOptions): Promise<Message>;
+  public edit(options: string | MessagePayload | WebhookEditMessageOptions): Promise<Message>;
   public fetchReply(): Promise<Message>;
   public followUp(options: string | MessagePayload | InteractionReplyOptions): Promise<Message>;
+  public send(options: InteractionReplyOptions & { fetchReply: true }): Promise<Message<BooleanCache<Cached>>>;
+  public send(
+    options: string | MessagePayload | InteractionReplyOptions,
+  ): Promise<InteractionResponse<BooleanCache<Cached>>>;
   public reply(options: InteractionReplyOptions & { fetchReply: true }): Promise<Message<BooleanCache<Cached>>>;
   public reply(
     options: string | MessagePayload | InteractionReplyOptions,
   ): Promise<InteractionResponse<BooleanCache<Cached>>>;
+  public replyEmbed(
+    embed: JSONEncodable<APIEmbed> | APIEmbed,
+    options?: Omit<InteractionReplyOptions & { fetchReply: true }, 'embeds'>,
+  ): Promise<Message<BooleanCache<Cached>>>;
+  public replyEmbed(
+    embed: JSONEncodable<APIEmbed> | APIEmbed,
+    options?: Omit<InteractionReplyOptions, 'embeds'>,
+  ): Promise<InteractionResponse<BooleanCache<Cached>>>;
+  public embed(
+    embed: JSONEncodable<APIEmbed> | APIEmbed,
+    options?: Omit<InteractionReplyOptions, 'embeds'>,
+  ): Promise<Message>;
   public showModal(
     modal:
       | JSONEncodable<APIModalInteractionResponseCallbackData>
@@ -1074,7 +1092,7 @@ export class Emoji extends Base {
 }
 
 export class Guild extends AnonymousGuild {
-  private constructor(client: Client, data: RawGuildData);
+  constructor(client: Client, data: RawGuildData);
   private _sortedRoles(): Collection<Snowflake, Role>;
   private _sortedChannels(channel: NonThreadGuildBasedChannel): Collection<Snowflake, NonThreadGuildBasedChannel>;
 
@@ -1665,7 +1683,7 @@ export interface MappedInteractionTypes<Cached extends boolean = boolean> {
 
 export class Message<Cached extends boolean = boolean> extends Base {
   private readonly _cacheType: Cached;
-  private constructor(client: Client, data: RawMessageData);
+  constructor(client: Client, data: RawMessageData);
   private _patch(data: RawPartialMessageData | RawMessageData): void;
 
   public activity: MessageActivity | null;
@@ -1715,8 +1733,19 @@ export class Message<Cached extends boolean = boolean> extends Base {
   public createMessageComponentCollector<T extends MessageComponentType>(
     options?: MessageCollectorOptionsParams<T, Cached>,
   ): InteractionCollector<MappedInteractionTypes<Cached>[T]>;
-  public delete(): Promise<Message>;
+  public delete(timeout?: number): Promise<Message>;
   public edit(content: string | MessageEditOptions | MessagePayload): Promise<Message>;
+  public replyEmbed(
+    embed: JSONEncodable<APIEmbed> | APIEmbed,
+    options?: Omit<ReplyMessageOptions, 'embeds'>,
+  ): Promise<Message>;
+  public embed(embed: JSONEncodable<APIEmbed> | APIEmbed, options?: Omit<MessageOptions, 'embeds'>): Promise<Message>;
+  public send(options: string | MessagePayload | MessageOptions): Promise<Message>;
+  public directEmbed(
+    embed: JSONEncodable<APIEmbed> | APIEmbed,
+    options?: Omit<MessageOptions, 'embeds'>,
+  ): Promise<Message>;
+  public replyMention(content: string, options: MessagePayload | Omit<MessageOptions, 'content'>): Promise<Message>;
   public equals(message: Message, rawData: unknown): boolean;
   public fetchReference(): Promise<Message>;
   public fetchWebhook(): Promise<Webhook>;
@@ -1809,13 +1838,28 @@ export class MessageComponentInteraction<Cached extends CacheType = CacheType> e
   ): Promise<Message<BooleanCache<Cached>>>;
   public deferUpdate(options?: InteractionDeferUpdateOptions): Promise<InteractionResponse<BooleanCache<Cached>>>;
   public deleteReply(): Promise<void>;
+  public delete(): Promise<void>;
   public editReply(options: string | MessagePayload | WebhookEditMessageOptions): Promise<Message>;
+  public edit(options: string | MessagePayload | WebhookEditMessageOptions): Promise<Message>;
   public fetchReply(): Promise<Message>;
   public followUp(options: string | MessagePayload | InteractionReplyOptions): Promise<Message>;
+  public send(options: string | MessagePayload | MessageOptions): Promise<GuildCacheMessage<Cached>>;
   public reply(options: InteractionReplyOptions & { fetchReply: true }): Promise<Message<BooleanCache<Cached>>>;
   public reply(
     options: string | MessagePayload | InteractionReplyOptions,
   ): Promise<InteractionResponse<BooleanCache<Cached>>>;
+  public replyEmbed(
+    embed: JSONEncodable<APIEmbed> | APIEmbed,
+    options?: Omit<InteractionReplyOptions & { fetchReply: true }, 'embeds'>,
+  ): Promise<Message<BooleanCache<Cached>>>;
+  public replyEmbed(
+    embed: JSONEncodable<APIEmbed> | APIEmbed,
+    options?: Omit<InteractionReplyOptions, 'embeds'>,
+  ): Promise<InteractionResponse<BooleanCache<Cached>>>;
+  public embed(
+    embed: JSONEncodable<APIEmbed> | APIEmbed,
+    options?: Omit<InteractionReplyOptions, 'embeds'>,
+  ): Promise<Message>;
   public update(options: InteractionUpdateOptions & { fetchReply: true }): Promise<Message>;
   public update(
     options: string | MessagePayload | InteractionUpdateOptions,
@@ -1986,10 +2030,24 @@ export class ModalSubmitInteraction<Cached extends CacheType = CacheType> extend
   public reply(
     options: string | MessagePayload | InteractionReplyOptions,
   ): Promise<InteractionResponse<BooleanCache<Cached>>>;
+  public replyEmbed(
+    embed: JSONEncodable<APIEmbed> | APIEmbed,
+    options?: Omit<InteractionReplyOptions & { fetchReply: true }, 'embeds'>,
+  ): Promise<Message>;
+  public replyEmbed(
+    embed: JSONEncodable<APIEmbed> | APIEmbed,
+    options?: Omit<InteractionReplyOptions, 'embeds'>,
+  ): Promise<InteractionResponse<BooleanCache<Cached>>>;
+  public embed(
+    embed: JSONEncodable<APIEmbed> | APIEmbed,
+    options?: Omit<InteractionReplyOptions, 'embeds'>,
+  ): Promise<Message<BooleanCache<Cached>>>;
   public deleteReply(): Promise<void>;
+  public delete(): Promise<void>;
   public editReply(
     options: string | MessagePayload | WebhookEditMessageOptions,
   ): Promise<Message<BooleanCache<Cached>>>;
+  public edit(options: string | MessagePayload | WebhookEditMessageOptions): Promise<Message<BooleanCache<Cached>>>;
   public deferReply(
     options: InteractionDeferReplyOptions & { fetchReply: true },
   ): Promise<Message<BooleanCache<Cached>>>;
@@ -2374,6 +2432,20 @@ export class StickerPack extends Base {
   public skuId: Snowflake;
   public stickers: Collection<Snowflake, Sticker>;
   public bannerURL(options?: ImageURLOptions): string | null;
+}
+
+export class Structures extends null {
+  private constructor();
+  public static get<K extends keyof Extendable>(structure: K): Extendable[K];
+  public static get(structure: string): (...args: any[]) => void;
+  public static extend<K extends keyof Extendable, T extends Extendable[K]>(
+    structure: K,
+    extender: (baseClass: Extendable[K]) => T,
+  ): T;
+  public static extend<T extends (...args: any[]) => void>(
+    structure: string,
+    extender: (baseClass: typeof Function) => T,
+  ): T;
 }
 
 export class Sweepers {
@@ -3616,6 +3688,7 @@ export function TextBasedChannelMixin<T, I extends keyof TextBasedChannelFields 
 
 export interface PartialTextBasedChannelFields {
   send(options: string | MessagePayload | MessageOptions): Promise<Message>;
+  embed(embed: JSONEncodable<APIEmbed> | APIEmbed, options?: Omit<MessageOptions, 'embeds'>): Promise<Message>;
 }
 
 export interface TextBasedChannelFields extends PartialTextBasedChannelFields {
@@ -4434,6 +4507,11 @@ export interface EscapeMarkdownOptions {
   codeBlockContent?: boolean;
 }
 
+interface Extendable {
+  Guild: typeof Guild;
+  Message: typeof Message;
+}
+
 export interface FetchApplicationCommandOptions extends BaseFetchOptions {
   guildId?: Snowflake;
   locale?: LocaleString;
@@ -4916,6 +4994,7 @@ export interface InteractionReplyOptions extends Omit<WebhookMessageOptions, 'us
   ephemeral?: boolean;
   fetchReply?: boolean;
   flags?: BitFieldResolvable<Extract<MessageFlagsString, 'SuppressEmbeds' | 'Ephemeral'>, number>;
+  forceFollowUp?: boolean;
 }
 
 export interface InteractionUpdateOptions extends MessageEditOptions {

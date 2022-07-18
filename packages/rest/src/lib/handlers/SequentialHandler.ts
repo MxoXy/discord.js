@@ -393,6 +393,10 @@ export class SequentialHandler implements IHandler {
 					remainingTime: invalidCountResetTime - Date.now(),
 				});
 			}
+
+			if (status === 403) {
+				console.warn(`[FORBIDDEN] ${method.toUpperCase()} ${routeId.bucketRoute}`, JSON.stringify(options.body));
+			}
 		}
 
 		if (status >= 200 && status < 300) {
@@ -436,6 +440,12 @@ export class SequentialHandler implements IHandler {
 					`  Sublimit       : ${sublimitTimeout ? `${sublimitTimeout}ms` : 'None'}`,
 				].join('\n'),
 			);
+
+			console.warn(
+				`[RATELIMIT] ${method.toUpperCase()} ${routeId.bucketRoute} (Global: ${isGlobal.toString()} (Limit: ${limit})`,
+				JSON.stringify(options.body),
+			);
+
 			// If caused by a sublimit, wait it out here so other requests on the route can be handled
 			if (sublimitTimeout) {
 				// Normally the sublimit queue will not exist, however, if a sublimit is hit while in the sublimit queue, it will

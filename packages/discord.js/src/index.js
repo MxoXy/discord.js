@@ -37,6 +37,7 @@ exports.PermissionsBitField = require('./util/PermissionsBitField');
 exports.ShardEvents = require('./util/ShardEvents');
 exports.Status = require('./util/Status');
 exports.SnowflakeUtil = require('@sapphire/snowflake').DiscordSnowflake;
+exports.Structures = require('./util/Structures');
 exports.Sweepers = require('./util/Sweepers');
 exports.SystemChannelFlagsBitField = require('./util/SystemChannelFlagsBitField');
 exports.ThreadMemberFlagsBitField = require('./util/ThreadMemberFlagsBitField');

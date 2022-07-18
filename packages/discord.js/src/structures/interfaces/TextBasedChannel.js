@@ -2,7 +2,7 @@
 
 const { Collection } = require('@discordjs/collection');
 const { DiscordSnowflake } = require('@sapphire/snowflake');
-const { InteractionType, Routes } = require('discord-api-types/v10');
+const { InteractionType, Routes, PermissionFlagsBits } = require('discord-api-types/v10');
 const { TypeError, Error, ErrorCodes } = require('../../errors');
 const InteractionCollector = require('../InteractionCollector');
 const MessageCollector = require('../MessageCollector');
@@ -49,6 +49,20 @@ class TextBasedChannel {
    */
   get lastPinAt() {
     return this.lastPinTimestamp && new Date(this.lastPinTimestamp);
+  }
+
+  /**
+   * Has the permissions to send embeds in the channel
+   * @type {boolean}
+   * @readonly
+   */
+  get embedable() {
+    if (!this.guild.me) throw new Error(ErrorCodes.GuildUncachedMe);
+    const permissions = this.permissionsFor(this.client.user);
+    if (!permissions) return false;
+    return permissions.has(
+      PermissionFlagsBits.ViewChannel | PermissionFlagsBits.SendMessages | PermissionFlagsBits.EmbedLinks,
+    );
   }
 
   /**
@@ -186,6 +200,17 @@ class TextBasedChannel {
    */
   async sendTyping() {
     await this.client.rest.post(Routes.channelTyping(this.id));
+  }
+
+  /**
+   * Responds with an embed
+   * @param {Embed|APIEmbed} embed - Embed to send
+   * @param {MessageOptions} [options] The options to provide
+   * @returns {Promise<Message>}
+   */
+  embed(embed, options = {}) {
+    options.embeds = [embed];
+    return this.send(options);
   }
 
   /**
@@ -389,11 +414,12 @@ class TextBasedChannel {
   }
 
   static applyToClass(structure, full = false, ignore = []) {
-    const props = ['send'];
+    const props = ['send', 'embed'];
     if (full) {
       props.push(
         'lastMessage',
         'lastPinAt',
+        'embedable',
         'bulkDelete',
         'sendTyping',
         'createMessageCollector',

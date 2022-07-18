@@ -283,7 +283,7 @@ export class CDN {
 	 */
 	private makeURL(
 		route: string,
-		{ allowedExtensions = ALLOWED_EXTENSIONS, extension = 'webp', size }: Readonly<MakeURLOptions> = {},
+		{ allowedExtensions = ALLOWED_EXTENSIONS, extension = 'png', size }: Readonly<MakeURLOptions> = {},
 	): string {
 		extension = String(extension).toLowerCase();
 

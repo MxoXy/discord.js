@@ -97,6 +97,8 @@ class Shard extends EventEmitter {
      * @private
      */
     this._exitListener = null;
+
+    this.token = manager.token;
   }
 
   /**

@@ -4,7 +4,7 @@ const EventEmitter = require('node:events');
 const { setImmediate } = require('node:timers');
 const { setTimeout: sleep } = require('node:timers/promises');
 const { Collection } = require('@discordjs/collection');
-const { GatewayCloseCodes, GatewayDispatchEvents, Routes } = require('discord-api-types/v10');
+const { GatewayCloseCodes, GatewayDispatchEvents } = require('discord-api-types/v10');
 const WebSocketShard = require('./WebSocketShard');
 const PacketHandlers = require('./handlers');
 const { Error, ErrorCodes } = require('../../errors');
@@ -128,37 +128,13 @@ class WebSocketManager extends EventEmitter {
 
   /**
    * Connects this manager to the gateway.
+   * @returns {Promise<boolean>}
    * @private
    */
-  async connect() {
-    const invalidToken = new Error(ErrorCodes.TokenInvalid);
-    const {
-      url: gatewayURL,
-      shards: recommendedShards,
-      session_start_limit: sessionStartLimit,
-    } = await this.client.rest.get(Routes.gatewayBot()).catch(error => {
-      throw error.status === 401 ? invalidToken : error;
-    });
-
-    const { total, remaining } = sessionStartLimit;
-
-    this.debug(`Fetched Gateway Information
-    URL: ${gatewayURL}
-    Recommended Shards: ${recommendedShards}`);
-
-    this.debug(`Session Limit Information
-    Total: ${total}
-    Remaining: ${remaining}`);
-
-    this.gateway = `${gatewayURL}/`;
+  connect() {
+    this.gateway = `${this.client.gatewayUrl}/`;
 
     let { shards } = this.client.options;
-
-    if (shards === 'auto') {
-      this.debug(`Using the recommended shard count provided by Discord: ${recommendedShards}`);
-      this.totalShards = this.client.options.shardCount = recommendedShards;
-      shards = this.client.options.shards = Array.from({ length: recommendedShards }, (_, i) => i);
-    }
 
     this.totalShards = shards.length;
     this.debug(`Spawning shards: ${shards.join(', ')}`);

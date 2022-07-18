@@ -1,5 +1,6 @@
 'use strict';
 
+const { setTimeout } = require('timers/promises');
 const { Collection } = require('@discordjs/collection');
 const { DiscordSnowflake } = require('@sapphire/snowflake');
 const {
@@ -663,6 +664,9 @@ class Message extends Base {
    */
   edit(options) {
     if (!this.channel) return Promise.reject(new Error(ErrorCodes.ChannelNotCached));
+
+    options.components ??= [];
+
     return this.channel.messages.edit(this, options);
   }
 
@@ -746,6 +750,7 @@ class Message extends Base {
 
   /**
    * Deletes the message.
+   * @param {number} [timeout=0] How long to wait to delete the message in milliseconds
    * @returns {Promise<Message>}
    * @example
    * // Delete a message
@@ -753,9 +758,18 @@ class Message extends Base {
    *   .then(msg => console.log(`Deleted message from ${msg.author.username}`))
    *   .catch(console.error);
    */
-  async delete() {
+  async delete(timeout = 0) {
     if (!this.channel) throw new Error(ErrorCodes.ChannelNotCached);
-    await this.channel.messages.delete(this.id);
+    if (!timeout) {
+      if (!this.deletable) return this;
+      await this.channel.messages.delete(this.id);
+    } else {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve(this.delete());
+        }, timeout);
+      });
+    }
     return this;
   }
 
@@ -817,6 +831,67 @@ class Message extends Base {
     }
     if (this.hasThread) return Promise.reject(new Error(ErrorCodes.MessageExistingThread));
     return this.channel.threads.create({ ...options, startMessage: this });
+  }
+
+  /**
+   * Responds with a plain message
+   * @param {string|MessagePayload|MessageOptions} options The options to provide
+   * @returns {Promise<Message>}
+   */
+  send(options) {
+    if (!this.channel) return Promise.reject(new Error(ErrorCodes.ChannelNotCached));
+    return this.channel.send(options);
+  }
+
+  /**
+   * Replies to the message.
+   * @param {string} [content=''] The content for the message
+   * @param {MessagePayload|MessageOptions} [options] The options to provide
+   * @returns {Promise<Message>}
+   * @example
+   * // Reply to a message
+   * message.replyreplyMention('Hey, I\'m a reply!')
+   *   .then(() => console.log(`Sent a reply to ${message.author.username}`))
+   *   .catch(console.error);
+   */
+  replyMention(content, options = {}) {
+    if (!this.channel) return Promise.reject(new Error(ErrorCodes.ChannelNotCached));
+    options.content = `${this.author.toString()}, ${content}`;
+    return this.channel.send(options);
+  }
+
+  /**
+   * Responds with an embed
+   * @param {Embed|APIEmbed} embed - Embed to send
+   * @param {MessageOptions} [options] The options to provide
+   * @returns {Promise<Message>}
+   */
+  directEmbed(embed, options = {}) {
+    options.embeds = [embed];
+    return this.author.send(options);
+  }
+
+  /**
+   * Responds with an embed
+   * @param {Embed|APIEmbed} embed - Embed to send
+   * @param {MessageOptions} [options] The options to provide
+   * @returns {Promise<Message>}
+   */
+  embed(embed, options = {}) {
+    if (!this.channel) return Promise.reject(new Error(ErrorCodes.ChannelNotCached));
+    options.embeds = [embed];
+    return this.channel.send(options);
+  }
+
+  /**
+   * Responds with an embed
+   * @param {Embed|APIEmbed} embed - Embed to send
+   * @param {MessageOptions} [options] The options to provide
+   * @returns {Promise<Message>}
+   */
+  replyEmbed(embed, options = {}) {
+    options.embeds = [embed];
+    return this.reply(options);
   }
 
   /**

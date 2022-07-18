@@ -10,15 +10,15 @@ const defaultAvatar = 1234 % 5;
 const cdn = new CDN(base);
 
 test('appAsset default', () => {
-	expect(cdn.appAsset(id, hash)).toEqual(`${base}/app-assets/${id}/${hash}.webp`);
+	expect(cdn.appAsset(id, hash)).toEqual(`${base}/app-assets/${id}/${hash}.png`);
 });
 
 test('appIcon default', () => {
-	expect(cdn.appIcon(id, hash)).toEqual(`${base}/app-icons/${id}/${hash}.webp`);
+	expect(cdn.appIcon(id, hash)).toEqual(`${base}/app-icons/${id}/${hash}.png`);
 });
 
 test('avatar default', () => {
-	expect(cdn.avatar(id, hash)).toEqual(`${base}/avatars/${id}/${hash}.webp`);
+	expect(cdn.avatar(id, hash)).toEqual(`${base}/avatars/${id}/${hash}.png`);
 });
 
 test('avatar dynamic-animated', () => {
@@ -26,15 +26,15 @@ test('avatar dynamic-animated', () => {
 });
 
 test('avatar dynamic-not-animated', () => {
-	expect(cdn.avatar(id, hash)).toEqual(`${base}/avatars/${id}/${hash}.webp`);
+	expect(cdn.avatar(id, hash)).toEqual(`${base}/avatars/${id}/${hash}.png`);
 });
 
 test('banner default', () => {
-	expect(cdn.banner(id, hash)).toEqual(`${base}/banners/${id}/${hash}.webp`);
+	expect(cdn.banner(id, hash)).toEqual(`${base}/banners/${id}/${hash}.png`);
 });
 
 test('channelIcon default', () => {
-	expect(cdn.channelIcon(id, hash)).toEqual(`${base}/channel-icons/${id}/${hash}.webp`);
+	expect(cdn.channelIcon(id, hash)).toEqual(`${base}/channel-icons/${id}/${hash}.png`);
 });
 
 test('defaultAvatar default', () => {
@@ -42,11 +42,11 @@ test('defaultAvatar default', () => {
 });
 
 test('discoverySplash default', () => {
-	expect(cdn.discoverySplash(id, hash)).toEqual(`${base}/discovery-splashes/${id}/${hash}.webp`);
+	expect(cdn.discoverySplash(id, hash)).toEqual(`${base}/discovery-splashes/${id}/${hash}.png`);
 });
 
 test('emoji default', () => {
-	expect(cdn.emoji(id)).toEqual(`${base}/emojis/${id}.webp`);
+	expect(cdn.emoji(id)).toEqual(`${base}/emojis/${id}.png`);
 });
 
 test('emoji gif', () => {
@@ -54,7 +54,7 @@ test('emoji gif', () => {
 });
 
 test('guildMemberAvatar default', () => {
-	expect(cdn.guildMemberAvatar(id, id, hash)).toEqual(`${base}/guilds/${id}/users/${id}/avatars/${hash}.webp`);
+	expect(cdn.guildMemberAvatar(id, id, hash)).toEqual(`${base}/guilds/${id}/users/${id}/avatars/${hash}.png`);
 });
 
 test('guildMemberAvatar dynamic-animated', () => {
@@ -64,15 +64,15 @@ test('guildMemberAvatar dynamic-animated', () => {
 });
 
 test('guildMemberAvatar dynamic-not-animated', () => {
-	expect(cdn.guildMemberAvatar(id, id, hash)).toEqual(`${base}/guilds/${id}/users/${id}/avatars/${hash}.webp`);
+	expect(cdn.guildMemberAvatar(id, id, hash)).toEqual(`${base}/guilds/${id}/users/${id}/avatars/${hash}.png`);
 });
 
 test('guildScheduledEventCover default', () => {
-	expect(cdn.guildScheduledEventCover(id, hash)).toEqual(`${base}/guild-events/${id}/${hash}.webp`);
+	expect(cdn.guildScheduledEventCover(id, hash)).toEqual(`${base}/guild-events/${id}/${hash}.png`);
 });
 
 test('icon default', () => {
-	expect(cdn.icon(id, hash)).toEqual(`${base}/icons/${id}/${hash}.webp`);
+	expect(cdn.icon(id, hash)).toEqual(`${base}/icons/${id}/${hash}.png`);
 });
 
 test('icon dynamic-animated', () => {
@@ -80,15 +80,15 @@ test('icon dynamic-animated', () => {
 });
 
 test('icon dynamic-not-animated', () => {
-	expect(cdn.icon(id, hash)).toEqual(`${base}/icons/${id}/${hash}.webp`);
+	expect(cdn.icon(id, hash)).toEqual(`${base}/icons/${id}/${hash}.png`);
 });
 
 test('role icon default', () => {
-	expect(cdn.roleIcon(id, hash)).toEqual(`${base}/role-icons/${id}/${hash}.webp`);
+	expect(cdn.roleIcon(id, hash)).toEqual(`${base}/role-icons/${id}/${hash}.png`);
 });
 
 test('splash default', () => {
-	expect(cdn.splash(id, hash)).toEqual(`${base}/splashes/${id}/${hash}.webp`);
+	expect(cdn.splash(id, hash)).toEqual(`${base}/splashes/${id}/${hash}.png`);
 });
 
 test('sticker default', () => {
@@ -96,11 +96,11 @@ test('sticker default', () => {
 });
 
 test('stickerPackBanner default', () => {
-	expect(cdn.stickerPackBanner(id)).toEqual(`${base}/app-assets/710982414301790216/store/${id}.webp`);
+	expect(cdn.stickerPackBanner(id)).toEqual(`${base}/app-assets/710982414301790216/store/${id}.png`);
 });
 
 test('teamIcon default', () => {
-	expect(cdn.teamIcon(id, hash)).toEqual(`${base}/team-icons/${id}/${hash}.webp`);
+	expect(cdn.teamIcon(id, hash)).toEqual(`${base}/team-icons/${id}/${hash}.png`);
 });
 
 test('makeURL throws on invalid size', () => {

@@ -1,5 +1,6 @@
 'use strict';
 
+const { setTimeout } = require('timers/promises');
 const { isJSONEncodable } = require('@discordjs/builders');
 const { InteractionResponseType, MessageFlags, Routes, InteractionType } = require('discord-api-types/v10');
 const { Error, ErrorCodes } = require('../../errors');
@@ -24,6 +25,7 @@ class InteractionResponses {
    * @typedef {Object} InteractionDeferReplyOptions
    * @property {boolean} [ephemeral] Whether the reply should be ephemeral
    * @property {boolean} [fetchReply] Whether to fetch the reply
+   * @property {boolean} [forceFollowUp] Whether to force followUp
    */
 
   /**
@@ -121,6 +123,32 @@ class InteractionResponses {
   }
 
   /**
+   * Creates a embed reply to this interaction.
+   * <info>Use the `fetchReply` option to get the bot's reply message.</info>
+   * @param {Embed|APIEmbed} embed The embed for the reply
+   * @param {MessagePayload|InteractionReplyOptions} [options] The options for the reply
+   * @returns {Promise<Message|InteractionResponse>}
+   * @example
+   * // Create an embed reply
+   * const embed = new MessageEmbed().setDescription('Pong!');
+   *
+   * interaction.replyEmbed(embed)
+   *   .then((message) => console.log(`Embed reply sent`))
+   *   .catch(console.error);
+   * @example
+   * // Create an ephemeral embed reply
+   * const embed = new MessageEmbed().setDescription('Pong!');
+   *
+   * interaction.replyEmbed(embed, { ephemeral: true })
+   *   .then(() => console.log('Embed reply sent.'))
+   *   .catch(console.error);
+   */
+  replyEmbed(embed, options = {}) {
+    options.embeds = [embed];
+    return this.reply(options);
+  }
+
+  /**
    * Fetches the initial reply to this interaction.
    * @see Webhook#fetchMessage
    * @returns {Promise<Message>}
@@ -147,14 +175,33 @@ class InteractionResponses {
    */
   async editReply(options) {
     if (!this.deferred && !this.replied) throw new Error(ErrorCodes.InteractionNotReplied);
+
+    options.components ??= [];
+
     const message = await this.webhook.editMessage('@original', options);
     this.replied = true;
     return message;
   }
 
   /**
+   * Edits the initial reply to this interaction.
+   * @see Webhook#editMessage
+   * @param {string|MessagePayload|WebhookEditMessageOptions} options The new options for the message
+   * @returns {Promise<Message>}
+   * @example
+   * // Edit the reply to this interaction
+   * interaction.edit('New content')
+   *   .then(console.log)
+   *   .catch(console.error);
+   */
+  edit(options) {
+    return this.editReply(options);
+  }
+
+  /**
    * Deletes the initial reply to this interaction.
    * @see Webhook#deleteMessage
+   * @param {number} [timeout] Timeout delete
    * @returns {Promise<void>}
    * @example
    * // Delete the reply to this interaction
@@ -162,9 +209,32 @@ class InteractionResponses {
    *   .then(console.log)
    *   .catch(console.error);
    */
-  async deleteReply() {
+  async deleteReply(timeout = 0) {
     if (this.ephemeral) throw new Error(ErrorCodes.InteractionEphemeralReplied);
-    await this.webhook.deleteMessage('@original');
+    if (!timeout) {
+      await this.webhook.deleteMessage('@original');
+    } else {
+      await new Promise(resolve => {
+        setTimeout(() => {
+          resolve(this.deleteReply());
+        }, timeout);
+      });
+    }
+  }
+
+  /**
+   * Deletes the initial reply to this interaction.
+   * @see Webhook#deleteMessage
+   * @param {number} [timeout] Timeout delete
+   * @returns {Promise<void>}
+   * @example
+   * // Delete the reply to this interaction
+   * interaction.delete()
+   *   .then(console.log)
+   *   .catch(console.error);
+   */
+  delete() {
+    return this.deleteReply();
   }
 
   /**
@@ -175,6 +245,29 @@ class InteractionResponses {
   followUp(options) {
     if (!this.deferred && !this.replied) return Promise.reject(new Error(ErrorCodes.InteractionNotReplied));
     return this.webhook.send(options);
+  }
+
+  /**
+   * Send a follow-up message to this interaction.
+   * @param {string|MessagePayload|InteractionReplyOptions} [options] The options for the reply
+   * @returns {Promise<Message|APIMessage>}
+   */
+  send(options = {}) {
+    if (options.forceFollowUp) return this.followUp(options);
+    return this[this.replied || this.deferred ? 'editReply' : 'reply'](options);
+  }
+
+  /**
+   * Send a follow-up embed message to this interaction.
+   * @param {Embed|APIEmbed} embed The embed for the reply
+   * @param {MessagePayload|InteractionReplyOptions} [options] The options for the reply
+   * @returns {Promise<Message>}
+   */
+  embed(embed, options = {}) {
+    options.embeds = [embed];
+
+    if (options.forceFollowUp) return this.followUp(options);
+    return this[this.replied || this.deferred ? 'editReply' : 'reply'](options);
   }
 
   /**
@@ -286,10 +379,15 @@ class InteractionResponses {
     const props = [
       'deferReply',
       'reply',
+      'replyEmbed',
       'fetchReply',
+      'edit',
       'editReply',
       'deleteReply',
+      'delete',
       'followUp',
+      'send',
+      'embed',
       'deferUpdate',
       'update',
       'showModal',
