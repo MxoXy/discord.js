@@ -4232,6 +4232,7 @@ export interface ClientOptions {
   waitGuildTimeout?: number;
   sweepers?: SweeperOptions;
   ws?: WebSocketOptions;
+  gatewayUrl?: `wss://${string}`;
   rest?: Partial<RESTOptions>;
   jsonTransformer?: (obj: unknown) => unknown;
 }

@@ -54,7 +54,7 @@ class WebSocketManager extends EventEmitter {
      * The gateway this manager uses
      * @type {?string}
      */
-    this.gateway = null;
+    this.gateway = `${this.client.options.gatewayUrl ?? 'wss://gateway.discord.gg'}/`;
 
     /**
      * The amount of shards this manager handles
@@ -132,8 +132,6 @@ class WebSocketManager extends EventEmitter {
    * @private
    */
   connect() {
-    this.gateway = `${this.client.gatewayUrl}/`;
-
     let { shards } = this.client.options;
 
     this.totalShards = shards.length;
