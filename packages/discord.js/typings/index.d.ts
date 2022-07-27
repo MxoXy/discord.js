@@ -3687,6 +3687,7 @@ export function TextBasedChannelMixin<T, I extends keyof TextBasedChannelFields 
 ): Constructable<T & Omit<TextBasedChannelFields, I>>;
 
 export interface PartialTextBasedChannelFields {
+  embedable: boolean;
   send(options: string | MessagePayload | MessageOptions): Promise<Message>;
   embed(embed: JSONEncodable<APIEmbed> | APIEmbed, options?: Omit<MessageOptions, 'embeds'>): Promise<Message>;
 }

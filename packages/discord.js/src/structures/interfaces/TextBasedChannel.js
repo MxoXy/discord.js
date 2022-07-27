@@ -414,12 +414,11 @@ class TextBasedChannel {
   }
 
   static applyToClass(structure, full = false, ignore = []) {
-    const props = ['send', 'embed'];
+    const props = ['send', 'embed', 'embedable'];
     if (full) {
       props.push(
         'lastMessage',
         'lastPinAt',
-        'embedable',
         'bulkDelete',
         'sendTyping',
         'createMessageCollector',
