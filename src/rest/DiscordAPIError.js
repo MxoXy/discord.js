@@ -15,13 +15,13 @@ class DiscordAPIError extends Error {
      * The HTTP method used for the request
      * @type {string}
      */
-    this.method = request.method;
+    this.method = request?.method;
 
     /**
      * The path of the request relative to the HTTP endpoint
      * @type {string}
      */
-    this.path = request.path;
+    this.path = request?.path;
 
     /**
      * HTTP error code returned by Discord
@@ -40,8 +40,8 @@ class DiscordAPIError extends Error {
      * @type {HTTPErrorData}
      */
     this.requestData = {
-      json: request.options.data,
-      files: request.options.files ?? [],
+      json: request?.options.data,
+      files: request?.options.files ?? [],
     };
   }
 

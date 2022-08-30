@@ -895,7 +895,7 @@ export class DataResolver extends null {
 }
 
 export class DiscordAPIError extends Error {
-  private constructor(error: unknown, status: number, request: unknown);
+  public constructor(error: unknown, status?: number, request?: unknown);
   private static flattenErrors(obj: unknown, key: string): string[];
 
   public code: number;
