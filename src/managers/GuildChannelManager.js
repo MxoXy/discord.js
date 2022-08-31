@@ -170,6 +170,36 @@ class GuildChannelManager extends CachedManager {
   }
 
   /**
+   * Creates a webhook for the channel.
+   * @param {string} name The name of the webhook
+   * @param {ChannelWebhookCreateOptions} [options] Options for creating the webhook
+   * @returns {Promise<Webhook>} Returns the created Webhook
+   * @example
+   * // Create a webhook for the current channel
+   * channel.createWebhook('Snek', {
+   *   avatar: 'https://i.imgur.com/mI8XcpG.jpg',
+   *   reason: 'Needed a cool new Webhook'
+   * })
+   *   .then(console.log)
+   *   .catch(console.error)
+   */
+  async createWebhook(channel, name, { avatar, reason } = {}) {
+    const id = this.resolveId(channel);
+    if (typeof avatar === 'string' && !avatar.startsWith('data:')) {
+      avatar = await DataResolver.resolveImage(avatar);
+    }
+
+    const data = await this.client.api.channels[id].webhooks.post({
+      data: {
+        name,
+        avatar,
+      },
+      reason,
+    });
+    return new Webhook(this.client, data);
+  }
+
+  /**
    * Obtains one or more guild channels from Discord, or the channel cache if they're already available.
    * @param {Snowflake} [id] The channel's id
    * @param {BaseFetchOptions} [options] Additional options for this fetch
@@ -203,6 +233,38 @@ class GuildChannelManager extends CachedManager {
     for (const channel of data) channels.set(channel.id, this.client.channels._add(channel, this.guild, { cache }));
     return channels;
   }
+
+  /**
+   * Fetches all webhooks for the channel.
+   * @param {GuildChannelResolvable} channel The channel to fetch webhooks for
+   * @returns {Promise<Collection<Snowflake, Webhook>>}
+   * @example
+   * // Fetch webhooks
+   * guild.channels.fetchWebhooks('769862166131245066')
+   *   .then(hooks => console.log(`This channel has ${hooks.size} hooks`))
+   *   .catch(console.error);
+   */
+  async fetchWebhooks(channel) {
+    const id = this.client.channels.resolveId(channel);
+    const data = await this.client.api.channels[id].webhooks.get();
+    return data.reduce((hooks, hook) => hooks.set(hook.id, new Webhook(this.client, hook)), new Collection());
+  }
+
+  /**
+   * Data that can be resolved to give a Category Channel object. This can be:
+   * * A CategoryChannel object
+   * * A Snowflake
+   * @typedef {CategoryChannel|Snowflake} CategoryChannelResolvable
+   */
+
+  /**
+   * The data needed for updating a channel's position.
+   * @typedef {Object} ChannelPosition
+   * @property {GuildChannel|Snowflake} channel Channel to update
+   * @property {number} [position] New position for the channel
+   * @property {CategoryChannelResolvable} [parent] Parent channel for this channel
+   * @property {boolean} [lockPermissions] If the overwrites should be locked to the parents overwrites
+   */
 
   /**
    * Batch-updates the guild's channels' positions.
