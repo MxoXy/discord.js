@@ -1188,6 +1188,15 @@ exports.GuildScheduledEventStatuses = createEnum([null, 'SCHEDULED', 'ACTIVE', '
 exports.GuildScheduledEventEntityTypes = createEnum([null, 'STAGE_INSTANCE', 'VOICE', 'EXTERNAL']);
 /* eslint-enable max-len */
 
+/**
+ * The camera video quality mode of a {@link VoiceChannel}:
+ * * AUTO
+ * * FULL
+ * @typedef {string} VideoQualityMode
+ * @see {@link https://discord.com/developers/docs/resources/channel#channel-object-video-quality-modes}
+ */
+ exports.VideoQualityModes = createEnum([null, 'AUTO', 'FULL']);
+
 exports._cleanupSymbol = Symbol('djsCleanup');
 
 function keyMirror(arr) {
