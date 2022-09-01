@@ -152,6 +152,8 @@ class Client extends BaseClient {
       this.token = null;
     }
 
+    this.clusterMode = process.env.CLUSTER_MODE === 'true';
+
     /**
      * User that the client is logged in as
      * @type {?ClientUser}

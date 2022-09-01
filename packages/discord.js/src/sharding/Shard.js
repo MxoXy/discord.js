@@ -56,6 +56,7 @@ class Shard extends EventEmitter {
       SHARDING_MANAGER: true,
       SHARDS: this.id,
       SHARD_COUNT: this.manager.totalShards,
+      CLUSTER_MODE: this.manager.clusterMode,
       DISCORD_TOKEN: this.manager.token,
     });
 

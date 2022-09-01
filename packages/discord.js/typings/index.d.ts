@@ -796,6 +796,7 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
   public shard: ShardClientUtil | null;
   public token: If<Ready, string, string | null>;
   public get uptime(): If<Ready, number>;
+  public clusterMode: boolean;
   public user: If<Ready, ClientUser>;
   public users: UserManager;
   public voice: ClientVoiceManager;
@@ -5413,6 +5414,7 @@ export interface ShardingManagerOptions {
   totalShards?: number | 'auto';
   shardList?: number[] | 'auto';
   mode?: ShardingManagerMode;
+  clusterMode?: boolean;
   respawn?: boolean;
   shardArgs?: string[];
   token?: string;

@@ -51,6 +51,8 @@ class ShardingManager extends EventEmitter {
       {
         totalShards: 'auto',
         mode: 'process',
+        clusterMode: false,
+        clusterId: null,
         respawn: true,
         shardArgs: [],
         execArgv: [],
