@@ -124,6 +124,18 @@ class ShardingManager extends EventEmitter {
     this.respawn = options.respawn;
 
     /**
+     * Whether this manager is in cluster mode
+     * @type {boolean}
+     */
+    this.clusterMode = options.clusterMode ?? false;
+
+    /**
+     * Cluster Id of that manager
+     * @type {number}
+     */
+    this.clusterId = options.clusterId ?? null;
+
+    /**
      * An array of arguments to pass to shards (only when {@link ShardingManager#mode} is `process`)
      * @type {string[]}
      */
@@ -215,13 +227,20 @@ class ShardingManager extends EventEmitter {
       );
     }
 
-    // Spawn the shards
-    for (const shardId of this.shardList) {
-      const promises = [];
-      const shard = this.createShard(shardId);
-      promises.push(shard.spawn(timeout));
-      if (delay > 0 && this.shards.size !== this.shardList.length) promises.push(sleep(delay));
-      await Promise.all(promises); // eslint-disable-line no-await-in-loop
+    if (this.clusterMode) {
+      // Spawn the cluster
+      this.shardList = [this.clusterId];
+      const shard = this.createShard(this.clusterId);
+      await shard.spawn(timeout);
+    } else {
+      // Spawn the shards
+      for (const shardId of this.shardList) {
+        const promises = [];
+        const shard = this.createShard(shardId);
+        promises.push(shard.spawn(timeout));
+        if (delay > 0 && this.shards.size !== this.shardList.length) promises.push(sleep(delay));
+        await Promise.all(promises); // eslint-disable-line no-await-in-loop
+      }
     }
 
     return this.shards;

@@ -154,6 +154,10 @@ class WebSocketManager extends EventEmitter {
 
     this.shardQueue.delete(shard);
 
+    if (this.client.clusterMode) {
+      setTimeout(() => this.createShards(), 500);
+    }
+
     if (!shard.eventsAttached) {
       shard.on(WebSocketShardEvents.AllReady, unavailableGuilds => {
         /**
@@ -230,10 +234,12 @@ class WebSocketManager extends EventEmitter {
         throw error;
       }
     }
-    // If we have more shards, add a 5s delay
+    // If we have more shards, add a 5s delay if no cluster mode
     if (this.shardQueue.size) {
-      this.debug(`Shard Queue Size: ${this.shardQueue.size}; continuing in 5 seconds...`);
-      await sleep(5_000);
+      if (!this.client.clusterMode) {
+        this.debug(`Shard Queue Size: ${this.shardQueue.size}; continuing in 5 seconds...`);
+        await sleep(5_000);
+      }
       return this.createShards();
     }
 
