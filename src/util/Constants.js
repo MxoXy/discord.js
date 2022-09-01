@@ -1195,7 +1195,7 @@ exports.GuildScheduledEventEntityTypes = createEnum([null, 'STAGE_INSTANCE', 'VO
  * @typedef {string} VideoQualityMode
  * @see {@link https://discord.com/developers/docs/resources/channel#channel-object-video-quality-modes}
  */
- exports.VideoQualityModes = createEnum([null, 'AUTO', 'FULL']);
+exports.VideoQualityModes = createEnum([null, 'AUTO', 'FULL']);
 
 exports._cleanupSymbol = Symbol('djsCleanup');
 

@@ -4,11 +4,13 @@ const process = require('node:process');
 const { Collection } = require('@discordjs/collection');
 const CachedManager = require('./CachedManager');
 const ThreadManager = require('./ThreadManager');
+const Webhook = require('./Webhook');
 const { Error } = require('../errors');
 const GuildChannel = require('../structures/GuildChannel');
 const PermissionOverwrites = require('../structures/PermissionOverwrites');
 const ThreadChannel = require('../structures/ThreadChannel');
 const { ChannelTypes, ThreadChannelTypes } = require('../util/Constants');
+const DataResolver = require('../util/DataResolver');
 
 let cacheWarningEmitted = false;
 let storeChannelDeprecationEmitted = false;
@@ -171,6 +173,7 @@ class GuildChannelManager extends CachedManager {
 
   /**
    * Creates a webhook for the channel.
+   * @param {GuildChannelResolvable} channel The channel of the webhook
    * @param {string} name The name of the webhook
    * @param {ChannelWebhookCreateOptions} [options] Options for creating the webhook
    * @returns {Promise<Webhook>} Returns the created Webhook
