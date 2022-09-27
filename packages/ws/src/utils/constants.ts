@@ -23,7 +23,7 @@ export enum CompressionMethod {
 const packageJson = readFileSync(join(__dirname, '..', '..', 'package.json'), 'utf8');
 const Package = JSON.parse(packageJson);
 
-export const DefaultDeviceProperty = `@discordjs/ws ${Package.version}`;
+export const DefaultDeviceProperty = `@draftbot/ws ${Package.version}`;
 
 const getDefaultSessionStore = lazy(() => new Collection<number, SessionInfo | null>());
 

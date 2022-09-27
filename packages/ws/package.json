@@ -1,5 +1,5 @@
 {
-	"name": "@discordjs/ws",
+	"name": "@draftbot/ws",
 	"version": "0.3.0",
 	"description": "Wrapper around Discord's gateway",
 	"scripts": {
