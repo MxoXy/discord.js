@@ -249,6 +249,7 @@ class ApplicationCommandManager extends CachedManager {
     }
 
     return {
+      id: command.id,
       name: command.name,
       name_localizations: command.nameLocalizations ?? command.name_localizations,
       description: command.description,
