@@ -3936,6 +3936,7 @@ export type AllowedThreadTypeForNewsChannel = ChannelType.AnnouncementThread;
 export type AllowedThreadTypeForTextChannel = ChannelType.PublicThread | ChannelType.PrivateThread;
 
 export interface BaseApplicationCommandData {
+  id?: Snowflake;
   name: string;
   nameLocalizations?: LocalizationMap;
   dmPermission?: boolean;
