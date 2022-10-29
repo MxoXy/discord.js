@@ -1,4 +1,4 @@
-import type { Awaitable } from '@draftbot/util';
+import type { Awaitable } from '@discordjs/util';
 import type { APIGatewayBotInfo } from 'discord-api-types/v10';
 import type { SessionInfo, WebSocketManager, WebSocketManagerOptions } from '../../ws/WebSocketManager';
 

@@ -54,7 +54,7 @@
 	"dependencies": {
 		"@draftbot/collection": "workspace:^",
 		"@draftbot/rest": "workspace:^",
-		"@draftbot/util": "workspace:^",
+		"@discordjs/util": "^0.1.0",
 		"@sapphire/async-queue": "^1.5.0",
 		"@types/ws": "^8.5.3",
 		"@vladfrangu/async_event_emitter": "^2.1.2",

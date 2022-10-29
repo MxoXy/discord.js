@@ -22,7 +22,7 @@ jobs:
             folder: 'proxy'
           - package: '@draftbot/rest'
             folder: 'rest'
-          - package: '@draftbot/util'
+          - package: '@discordjs/util'
             folder: 'util'
           - package: '@draftbot/voice'
             folder: 'voice'

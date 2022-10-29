@@ -2,7 +2,7 @@
 
 const { Buffer } = require('node:buffer');
 const { isJSONEncodable } = require('@draftbot/builders');
-const { lazy } = require('@draftbot/util');
+const { lazy } = require('@discordjs/util');
 const { MessageFlags } = require('discord-api-types/v10');
 const ActionRowBuilder = require('./ActionRowBuilder');
 const { DiscordjsRangeError, ErrorCodes } = require('../errors');

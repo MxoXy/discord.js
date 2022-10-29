@@ -3,7 +3,7 @@ import { EventEmitter } from 'node:events';
 import { setInterval, clearInterval } from 'node:timers';
 import type { URLSearchParams } from 'node:url';
 import { Collection } from '@draftbot/collection';
-import { lazy } from '@draftbot/util';
+import { lazy } from '@discordjs/util';
 import { DiscordSnowflake } from '@sapphire/snowflake';
 import { FormData, type RequestInit, type BodyInit, type Dispatcher, type Agent } from 'undici';
 import type { RESTOptions, RestEvents, RequestOptions } from './REST.js';

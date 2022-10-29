@@ -30,7 +30,7 @@ import {
   ComponentBuilder,
   type RestOrArray,
 } from '@draftbot/builders';
-import { Awaitable, JSONEncodable } from '@draftbot/util';
+import { Awaitable, JSONEncodable } from '@discordjs/util';
 import { Collection } from '@draftbot/collection';
 import { BaseImageURLOptions, ImageURLOptions, RawFile, REST, RESTOptions } from '@draftbot/rest';
 import {
@@ -5945,4 +5945,4 @@ export type InternalDiscordGatewayAdapterCreator = (
 export * from 'discord-api-types/v10';
 export * from '@draftbot/builders';
 export * from '@draftbot/rest';
-export * from '@draftbot/util';
+export * from '@discordjs/util';

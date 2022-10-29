@@ -187,4 +187,4 @@ exports.WebSocket = require('./WebSocket');
 __exportStar(require('discord-api-types/v10'), exports);
 __exportStar(require('@draftbot/builders'), exports);
 __exportStar(require('@draftbot/rest'), exports);
-__exportStar(require('@draftbot/util'), exports);
+__exportStar(require('@discordjs/util'), exports);

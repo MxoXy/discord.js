@@ -1,6 +1,6 @@
 'use strict';
 
-const { lazy } = require('@draftbot/util');
+const { lazy } = require('@discordjs/util');
 const BaseInteraction = require('./BaseInteraction');
 const InteractionWebhook = require('./InteractionWebhook');
 const InteractionResponses = require('./interfaces/InteractionResponses');
