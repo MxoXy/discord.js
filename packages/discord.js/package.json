@@ -46,10 +46,10 @@
   },
   "homepage": "https://discord.js.org",
   "dependencies": {
+    "@discordjs/util": "^0.1.0",
     "@draftbot/builders": "workspace:^",
     "@draftbot/collection": "workspace:^",
     "@draftbot/rest": "workspace:^",
-    "@discordjs/util": "^0.1.0",
     "@sapphire/snowflake": "^3.2.2",
     "@types/ws": "^8.5.3",
     "discord-api-types": "^0.37.14",

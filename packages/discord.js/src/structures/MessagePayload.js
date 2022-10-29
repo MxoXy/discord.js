@@ -1,8 +1,8 @@
 'use strict';
 
 const { Buffer } = require('node:buffer');
-const { isJSONEncodable } = require('@draftbot/builders');
 const { lazy } = require('@discordjs/util');
+const { isJSONEncodable } = require('@draftbot/builders');
 const { MessageFlags } = require('discord-api-types/v10');
 const ActionRowBuilder = require('./ActionRowBuilder');
 const { DiscordjsRangeError, ErrorCodes } = require('../errors');

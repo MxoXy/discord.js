@@ -1,5 +1,5 @@
-import type { REST } from '@draftbot/rest';
 import { range, type Awaitable } from '@discordjs/util';
+import type { REST } from '@draftbot/rest';
 import { AsyncEventEmitter } from '@vladfrangu/async_event_emitter';
 import {
 	Routes,

@@ -51,9 +51,9 @@
 	},
 	"homepage": "https://discord.js.org",
 	"dependencies": {
+		"@discordjs/util": "^0.1.0",
 		"@draftbot/collection": "workspace:^",
 		"@draftbot/rest": "workspace:^",
-		"@discordjs/util": "^0.1.0",
 		"@sapphire/async-queue": "^1.5.0",
 		"@types/ws": "^8.5.3",
 		"@vladfrangu/async_event_emitter": "^2.1.2",
@@ -75,6 +75,7 @@
 		"tsup": "^6.3.0",
 		"typescript": "^4.8.4",
 		"undici": "^5.11.0",
+		"vitest": "^0.24.3",
 		"zlib-sync": "^0.1.7"
 	},
 	"engines": {
