@@ -5945,4 +5945,4 @@ export type InternalDiscordGatewayAdapterCreator = (
 export * from 'discord-api-types/v10';
 export * from '@draftbot/builders';
 export * from '@draftbot/rest';
-export * from '@discordjs/util';
+export { range, lazy, isJSONEncodable, isEquatable } from '@discordjs/util';
