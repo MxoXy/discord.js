@@ -3,8 +3,7 @@
   "version": "14.6.0-1",
   "description": "A powerful library for interacting with the Discord API",
   "scripts": {
-    "test": "yarn docs:test && yarn test:typescript",
-    "test:typescript": "tsc --noEmit && tsd",
+    "test": "tsc --noEmit && tsd",
     "lint": "prettier --check . && tslint typings/index.d.ts && eslint src --format=pretty",
     "format": "prettier --write . && eslint src --fix --format=pretty",
     "fmt": "yarn format",
