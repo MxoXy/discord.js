@@ -8,7 +8,6 @@
 		"lint": "prettier --check . && cross-env TIMING=1 eslint src __tests__ --ext .mjs,.js,.ts --format=pretty",
 		"format": "prettier --write . && cross-env TIMING=1 eslint src __tests__ --ext .mjs,.js,.ts --fix --format=pretty",
 		"fmt": "yarn format",
-		"docs": "api-extractor run --local",
 		"prepack": "yarn lint && yarn test && yarn build",
 		"changelog": "git cliff --prepend ./CHANGELOG.md -u -c ./cliff.toml -r ../../ --include-path 'packages/voice/*'",
 		"release": "cliff-jumper"
@@ -63,7 +62,6 @@
 		"@babel/preset-env": "^7.19.4",
 		"@babel/preset-typescript": "^7.18.6",
 		"@favware/cliff-jumper": "^1.8.8",
-		"@microsoft/api-extractor": "^7.33.4",
 		"@types/jest": "^29.2.0",
 		"@types/node": "16.11.68",
 		"cross-env": "^7.0.3",

@@ -33,9 +33,6 @@ jobs:
       - name: Tests
         run: yarn test
 
-      - name: Docs
-        run: yarn docs
-
       - name: Upload Coverage
         if: github.repository_owner == 'discordjs'
         uses: ./packages/actions/src/uploadCoverage

@@ -10,8 +10,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - package: '@draftbot/brokers'
-            folder: 'brokers'
           - package: '@draftbot/builders'
             folder: 'builders'
           - package: '@draftbot/collection'
@@ -22,8 +20,6 @@ jobs:
             folder: 'proxy'
           - package: '@draftbot/rest'
             folder: 'rest'
-          - package: '@discordjs/util'
-            folder: 'util'
           - package: '@draftbot/voice'
             folder: 'voice'
           - package: '@draftbot/ws'
