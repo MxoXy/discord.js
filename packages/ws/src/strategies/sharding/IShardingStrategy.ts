@@ -1,4 +1,4 @@
-import type { Awaitable } from '@discordjs/util';
+import type { Awaitable } from '@draftbot/util';
 import type { GatewaySendPayload } from 'discord-api-types/v10';
 import type { WebSocketShardDestroyOptions } from '../../ws/WebSocketShard';
 

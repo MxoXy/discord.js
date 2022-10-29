@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import type { Awaitable } from '@discordjs/util';
+import type { Awaitable } from '@draftbot/util';
 
 /**
  * Represents a simple HTTP request handler

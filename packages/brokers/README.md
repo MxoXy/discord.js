@@ -36,7 +36,7 @@ pnpm add @discordjs/brokers
 
 ```ts
 // publisher.js
-import { PubSubRedisBroker } from '@discordjs/brokers';
+import { PubSubRedisBroker } from '@draftbot/brokers';
 import Redis from 'ioredis';
 
 const broker = new PubSubRedisBroker({ redisClient: new Redis() });
@@ -45,7 +45,7 @@ await broker.publish('test', 'Hello World!');
 await broker.destroy();
 
 // subscriber.js
-import { PubSubRedisBroker } from '@discordjs/brokers';
+import { PubSubRedisBroker } from '@draftbot/brokers';
 import Redis from 'ioredis';
 
 const broker = new PubSubRedisBroker({ redisClient: new Redis() });
@@ -61,7 +61,7 @@ await broker.subscribe('subscribers', ['test']);
 
 ```ts
 // caller.js
-import { RPCRedisBroker } from '@discordjs/brokers';
+import { RPCRedisBroker } from '@draftbot/brokers';
 import Redis from 'ioredis';
 
 const broker = new RPCRedisBroker({ redisClient: new Redis() });
@@ -70,7 +70,7 @@ console.log(await broker.call('testcall', 'Hello World!'));
 await broker.destroy();
 
 // responder.js
-import { RPCRedisBroker } from '@discordjs/brokers';
+import { RPCRedisBroker } from '@draftbot/brokers';
 import Redis from 'ioredis';
 
 const broker = new RPCRedisBroker({ redisClient: new Redis() });

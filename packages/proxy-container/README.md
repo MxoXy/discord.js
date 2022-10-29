@@ -41,7 +41,7 @@ const client = new Client({
 Or with just `@discordjs/rest`:
 
 ```ts
-import { REST } from '@discordjs/rest';
+import { REST } from '@draftbot/rest';
 
 const rest = new REST({
 	api: 'http://localhost:8080/api',

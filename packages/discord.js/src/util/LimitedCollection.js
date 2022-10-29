@@ -1,6 +1,6 @@
 'use strict';
 
-const { Collection } = require('@discordjs/collection');
+const { Collection } = require('@draftbot/collection');
 const { DiscordjsTypeError, ErrorCodes } = require('../errors');
 
 /**
