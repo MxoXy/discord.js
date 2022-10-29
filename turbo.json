@@ -9,6 +9,22 @@
         "dist/**"
       ]
     },
+    "@discordjs/guide#build:prod": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@discordjs/website#build:prod": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        ".next/**"
+      ]
+    },
     "test": {
       "dependsOn": [
         "^build"
@@ -26,6 +42,15 @@
         "^build"
       ],
       "outputs": []
+    },
+    "docs": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "docs/docs.json",
+        "docs/docs.api.json"
+      ]
     },
     "changelog": {
       "dependsOn": [

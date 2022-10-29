@@ -10,6 +10,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - package: '@draftbot/brokers'
+            folder: 'brokers'
           - package: '@draftbot/builders'
             folder: 'builders'
           - package: '@draftbot/collection'
@@ -20,6 +22,8 @@ jobs:
             folder: 'proxy'
           - package: '@draftbot/rest'
             folder: 'rest'
+          - package: '@draftbot/util'
+            folder: 'util'
           - package: '@draftbot/voice'
             folder: 'voice'
           - package: '@draftbot/ws'
@@ -38,10 +42,9 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-          cache: 'yarn'
 
       - name: Install dependencies
-        run: yarn --immutable
+        uses: ./packages/actions/src/yarnCache
 
       - name: Build dependencies
         run: yarn build
