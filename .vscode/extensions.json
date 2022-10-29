@@ -7,8 +7,6 @@
 		"codezombiech.gitignore",
 		"eamodio.gitlens",
 		"christian-kohler.npm-intellisense",
-		"christian-kohler.path-intellisense",
-		"astro-build.astro-vscode",
-		"unifiedjs.vscode-mdx"
+		"christian-kohler.path-intellisense"
 	]
 }

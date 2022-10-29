@@ -10,8 +10,7 @@
     "format": "turbo run format --parallel",
     "fmt": "turbo run format --parallel",
     "postinstall": "is-ci || husky install",
-    "update": "yarn upgrade-interactive",
-    "create-package": "node packages/scripts/src/packageScript.mjs"
+    "update": "yarn upgrade-interactive"
   },
   "contributors": [
     "Crawl <icrawltogo@gmail.com>",
