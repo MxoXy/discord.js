@@ -1,7 +1,3 @@
-chore:
-  - any: ['*']
-    all: ['!packages/*', '!packages/**/*']
-
 'packages:builders':
   - packages/builders/*
   - packages/builders/**/*
@@ -13,10 +9,6 @@ chore:
 'packages:discord.js':
   - packages/discord.js/*
   - packages/discord.js/**/*
-
-'packages:docgen':
-  - packages/docgen/*
-  - packages/docgen/**/*
 
 'packages:proxy':
   - packages/proxy/*
@@ -33,10 +25,6 @@ chore:
 'packages:voice':
   - packages/voice/*
   - packages/voice/**/*
-
-'packages:website':
-  - packages/website/*
-  - packages/website/**/*
 
 'packages:ws':
   - packages/ws/*

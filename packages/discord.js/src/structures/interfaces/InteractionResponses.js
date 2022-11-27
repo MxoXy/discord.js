@@ -35,12 +35,13 @@ class InteractionResponses {
    */
 
   /**
-   * Options for a reply to an {@link BaseInteraction}.
+   * Options for a reply to a {@link BaseInteraction}.
    * @typedef {BaseMessageOptions} InteractionReplyOptions
+   * @property {boolean} [tts=false] Whether the message should be spoken aloud
    * @property {boolean} [ephemeral] Whether the reply should be ephemeral
    * @property {boolean} [fetchReply] Whether to fetch the reply
    * @property {MessageFlags} [flags] Which flags to set for the message.
-   * Only `MessageFlags.SuppressEmbeds` and `MessageFlags.Ephemeral` can be set.
+   * <info>Only `MessageFlags.SuppressEmbeds` and `MessageFlags.Ephemeral` can be set.</info>
    */
 
   /**
@@ -290,7 +291,7 @@ class InteractionResponses {
     });
     this.deferred = true;
 
-    return options.fetchReply ? this.fetchReply() : new InteractionResponse(this, this.message.interaction?.id);
+    return options.fetchReply ? this.fetchReply() : new InteractionResponse(this, this.message?.interaction?.id);
   }
 
   /**
@@ -331,6 +332,7 @@ class InteractionResponses {
   /**
    * Shows a modal component
    * @param {APIModal|ModalData|Modal} modal The modal to show
+   * @returns {Promise<void>}
    */
   async showModal(modal) {
     if (this.deferred || this.replied) throw new Error(ErrorCodes.InteractionAlreadyReplied);
@@ -347,7 +349,7 @@ class InteractionResponses {
    * An object containing the same properties as {@link CollectorOptions}, but a few less:
    * @typedef {Object} AwaitModalSubmitOptions
    * @property {CollectorFilter} [filter] The filter applied to this collector
-   * @property {number} time Time to wait for an interaction before rejecting
+   * @property {number} time Time in milliseconds to wait for an interaction before rejecting
    */
 
   /**

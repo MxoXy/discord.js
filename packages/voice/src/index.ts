@@ -1,21 +1,21 @@
 export * from './joinVoiceChannel';
-export * from './audio';
-export * from './util';
-export * from './receive';
+export * from './audio/index';
+export * from './util/index';
+export * from './receive/index';
 
 export {
 	VoiceConnection,
-	VoiceConnectionState,
+	type VoiceConnectionState,
 	VoiceConnectionStatus,
-	VoiceConnectionConnectingState,
-	VoiceConnectionDestroyedState,
-	VoiceConnectionDisconnectedState,
-	VoiceConnectionDisconnectedBaseState,
-	VoiceConnectionDisconnectedOtherState,
-	VoiceConnectionDisconnectedWebSocketState,
+	type VoiceConnectionConnectingState,
+	type VoiceConnectionDestroyedState,
+	type VoiceConnectionDisconnectedState,
+	type VoiceConnectionDisconnectedBaseState,
+	type VoiceConnectionDisconnectedOtherState,
+	type VoiceConnectionDisconnectedWebSocketState,
 	VoiceConnectionDisconnectReason,
-	VoiceConnectionReadyState,
-	VoiceConnectionSignallingState,
+	type VoiceConnectionReadyState,
+	type VoiceConnectionSignallingState,
 } from './VoiceConnection';
 
-export { JoinConfig, getVoiceConnection, getVoiceConnections, getGroups } from './DataStore';
+export { type JoinConfig, getVoiceConnection, getVoiceConnections, getGroups } from './DataStore';
