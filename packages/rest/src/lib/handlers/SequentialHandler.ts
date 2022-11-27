@@ -137,7 +137,7 @@ export class SequentialHandler implements IHandler {
 	 * @param time - The amount of time to delay all requests for
 	 */
 	private async globalDelayFor(time: number): Promise<void> {
-		await sleep(time, undefined, { ref: false });
+		await sleep(time);
 		this.manager.globalDelay = null;
 	}
 
@@ -175,7 +175,7 @@ export class SequentialHandler implements IHandler {
 		}
 
 		// Wait for any previous requests to be completed before this one is run
-		await queue.wait();
+		await queue.wait({ signal: requestData.signal });
 		// This set handles retroactively sublimiting requests
 		if (queueType === QueueType.Standard) {
 			if (this.#sublimitedQueue && hasSublimit(routeId.bucketRoute, requestData.body, options.method)) {
@@ -293,8 +293,17 @@ export class SequentialHandler implements IHandler {
 
 		const controller = new AbortController();
 		const timeout = setTimeout(() => controller.abort(), this.manager.options.timeout).unref();
-		let res: Dispatcher.ResponseData;
+		if (requestData.signal) {
+			// The type polyfill is required because Node.js's types are incomplete.
+			const signal = requestData.signal as PolyFillAbortSignal;
+			// If the user signal was aborted, abort the controller, else abort the local signal.
+			// The reason why we don't re-use the user's signal, is because users may use the same signal for multiple
+			// requests, and we do not want to cause unexpected side-effects.
+			if (signal.aborted) controller.abort();
+			else signal.addEventListener('abort', () => controller.abort());
+		}
 
+		let res: Dispatcher.ResponseData;
 		try {
 			res = await request(url, { ...options, signal: controller.signal });
 		} catch (error: unknown) {
@@ -461,7 +470,7 @@ export class SequentialHandler implements IHandler {
 
 				this.#sublimitPromise?.resolve();
 				this.#sublimitPromise = null;
-				await sleep(sublimitTimeout, undefined, { ref: false });
+				await sleep(sublimitTimeout);
 				let resolve: () => void;
 				// eslint-disable-next-line promise/param-names, no-promise-executor-return
 				const promise = new Promise<void>((res) => (resolve = res));
@@ -483,7 +492,7 @@ export class SequentialHandler implements IHandler {
 			}
 
 			// We are out of retries, throw an error
-			throw new HTTPError(res.constructor.name, status, method, url, requestData);
+			throw new HTTPError(status, method, url, requestData);
 		} else {
 			// Handle possible malformed requests
 			if (status >= 400 && status < 500) {
@@ -501,4 +510,10 @@ export class SequentialHandler implements IHandler {
 			return res;
 		}
 	}
+}
+
+interface PolyFillAbortSignal {
+	readonly aborted: boolean;
+	addEventListener(type: 'abort', listener: () => void): void;
+	removeEventListener(type: 'abort', listener: () => void): void;
 }

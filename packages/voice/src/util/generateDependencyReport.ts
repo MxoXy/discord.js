@@ -33,10 +33,11 @@ function findPackageJSON(
  */
 function version(name: string): string {
 	try {
-		const pkg =
-			name === '@draftbot/voice'
-				? require('../../package.json')
-				: findPackageJSON(dirname(require.resolve(name)), name, 3);
+		if (name === '@draftbot/voice') {
+			return '[VI]{{inject}}[/VI]';
+		}
+
+		const pkg = findPackageJSON(dirname(require.resolve(name)), name, 3);
 		return pkg?.version ?? 'not found';
 	} catch {
 		return 'not found';

@@ -16,12 +16,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: 'yarn'
 
       - name: Install dependencies
-        run: yarn --immutable
+        uses: ./packages/actions/src/yarnCache
 
       - name: Deprecate versions
-        run: 'yarn npm-deprecate --name "*dev*" --package @draftbot/builders @draftbot/collection @draftbot/discord.js @draftbot/proxy @draftbot/rest @draftbot/voice'
+        run: 'yarn npm-deprecate --name "*dev*" --package @draftbot/builders @draftbot/collection @draftbot/discord.js @draftbot/proxy @draftbot/rest @draftbot/voice @draftbot/ws'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}

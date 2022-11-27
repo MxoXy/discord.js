@@ -3,7 +3,7 @@
 const { Collection } = require('@draftbot/collection');
 const { DiscordSnowflake } = require('@sapphire/snowflake');
 const { InteractionType, Routes, PermissionFlagsBits } = require('discord-api-types/v10');
-const { TypeError, Error, ErrorCodes } = require('../../errors');
+const { DiscordjsTypeError, DiscordjsError, ErrorCodes } = require('../../errors');
 const InteractionCollector = require('../InteractionCollector');
 const MessageCollector = require('../MessageCollector');
 const MessagePayload = require('../MessagePayload');
@@ -298,7 +298,7 @@ class TextBasedChannel {
       collector.once('end', (interactions, reason) => {
         const interaction = interactions.first();
         if (interaction) resolve(interaction);
-        else reject(new Error(ErrorCodes.InteractionCollectorError, reason));
+        else reject(new DiscordjsError(ErrorCodes.InteractionCollectorError, reason));
       });
     });
   }
@@ -351,7 +351,7 @@ class TextBasedChannel {
       const msgs = await this.messages.fetch({ limit: messages });
       return this.bulkDelete(msgs, filterOld);
     }
-    throw new TypeError(ErrorCodes.MessageBulkDeleteType);
+    throw new DiscordjsTypeError(ErrorCodes.MessageBulkDeleteType);
   }
 
   /**

@@ -1,10 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import process from 'node:process';
+import { lazy } from '@discordjs/util';
 import { Collection } from '@draftbot/collection';
 import { APIVersion, GatewayOpcodes } from 'discord-api-types/v10';
 import type { OptionalWebSocketManagerOptions, SessionInfo } from '../ws/WebSocketManager.js';
-import { lazy } from './utils.js';
 
 /**
  * Valid encoding types

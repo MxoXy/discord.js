@@ -12,7 +12,6 @@ import {
   hyperlink,
   inlineCode,
   italic,
-  JSONEncodable,
   quote,
   roleMention,
   SelectMenuBuilder as BuilderSelectMenuComponent,
@@ -31,6 +30,7 @@ import {
   ComponentBuilder,
   type RestOrArray,
 } from '@draftbot/builders';
+import { Awaitable, JSONEncodable } from '@discordjs/util';
 import { Collection } from '@draftbot/collection';
 import { BaseImageURLOptions, ImageURLOptions, RawFile, REST, RESTOptions } from '@draftbot/rest';
 import {
@@ -125,6 +125,7 @@ import {
   AuditLogOptionsType,
   TextChannelType,
   ChannelFlags,
+  SortOrderType,
 } from 'discord-api-types/v10';
 import { ChildProcess } from 'node:child_process';
 import { EventEmitter } from 'node:events';
@@ -193,11 +194,14 @@ import {
 declare module 'node:events' {
   class EventEmitter {
     // Add type overloads for client events.
-    public static once<K extends keyof ClientEvents>(eventEmitter: Client, eventName: K): Promise<ClientEvents[K]>;
-    public static on<K extends keyof ClientEvents>(
-      eventEmitter: Client,
-      eventName: K,
-    ): AsyncIterableIterator<ClientEvents[K]>;
+    public static once<E extends EventEmitter, K extends keyof ClientEvents>(
+      eventEmitter: E,
+      eventName: E extends Client ? K : string,
+    ): Promise<E extends Client ? ClientEvents[K] : any[]>;
+    public static on<E extends EventEmitter, K extends keyof ClientEvents>(
+      eventEmitter: E,
+      eventName: E extends Client ? K : string,
+    ): AsyncIterableIterator<E extends Client ? ClientEvents[K] : any>;
   }
 }
 
@@ -639,7 +643,7 @@ export class SelectMenuOptionBuilder extends BuildersSelectMenuOption {
 }
 
 export class ModalBuilder extends BuildersModal {
-  public constructor(data?: Partial<ModalComponentData> | Partial<APIModalComponent>);
+  public constructor(data?: Partial<ModalComponentData> | Partial<APIModalInteractionResponseCallbackData>);
   public static from(other: JSONEncodable<APIModalComponent> | APIModalComponent): ModalBuilder;
 }
 
@@ -780,12 +784,13 @@ export class Client<Ready extends boolean = boolean> extends BaseClient {
   private presence: ClientPresence;
   private _eval(script: string): unknown;
   private _validateOptions(options: ClientOptions): void;
+  private get _censoredToken(): string | null;
 
   public application: If<Ready, ClientApplication>;
   public channels: ChannelManager;
   public get emojis(): BaseGuildEmojiManager;
   public guilds: GuildManager;
-  public options: ClientOptions;
+  public options: Omit<ClientOptions, 'intents'> & { intents: IntentsBitField };
   public get readyAt(): If<Ready, Date>;
   public readyTimestamp: If<Ready, number>;
   public sweepers: Sweepers;
@@ -1784,7 +1789,7 @@ export class Message<InGuild extends boolean = boolean> extends Base {
   public toJSON(): unknown;
   public toString(): string;
   public unpin(reason?: string): Promise<Message<InGuild>>;
-  public inGuild(): this is Message<true> & this;
+  public inGuild(): this is Message<true>;
 }
 
 export class AttachmentBuilder {
@@ -2161,6 +2166,7 @@ export class ForumChannel extends TextBasedChannelMixin(GuildChannel, true, [
   public defaultAutoArchiveDuration: ThreadAutoArchiveDuration | null;
   public nsfw: boolean;
   public topic: string | null;
+  public defaultSortOrder: SortOrderType | null;
 
   public setAvailableTags(tags: GuildForumTagData[], reason?: string): Promise<this>;
   public setDefaultReactionEmoji(emojiId: DefaultReactionEmoji | null, reason?: string): Promise<this>;
@@ -2172,6 +2178,7 @@ export class ForumChannel extends TextBasedChannelMixin(GuildChannel, true, [
     reason?: string,
   ): Promise<this>;
   public setTopic(topic: string | null, reason?: string): Promise<this>;
+  public setDefaultSortOrder(defaultSortOrder: SortOrderType | null, reason?: string): Promise<this>;
 }
 
 export class PermissionOverwrites extends Base {
@@ -2812,6 +2819,11 @@ export function escapeItalic(text: string): string;
 export function escapeUnderline(text: string): string;
 export function escapeStrikethrough(text: string): string;
 export function escapeSpoiler(text: string): string;
+export function escapeEscape(text: string): string;
+export function escapeHeading(text: string): string;
+export function escapeBulletedList(text: string): string;
+export function escapeNumberedList(text: string): string;
+export function escapeMaskedLink(text: string): string;
 export function cleanCodeBlockContent(text: string): string;
 export function fetchRecommendedShardCount(token: string, options?: FetchRecommendedShardCountOptions): Promise<number>;
 export function flatten(obj: unknown, ...props: Record<string, boolean | string>[]): unknown;
@@ -3313,6 +3325,7 @@ export enum DiscordjsErrorCodes {
 
   InteractionAlreadyReplied = 'InteractionAlreadyReplied',
   InteractionNotReplied = 'InteractionNotReplied',
+  /** @deprecated */
   InteractionEphemeralReplied = 'InteractionEphemeralReplied',
 
   CommandInteractionOptionNotFound = 'CommandInteractionOptionNotFound',
@@ -3524,6 +3537,11 @@ export class GuildChannelManager extends CachedManager<Snowflake, GuildBasedChan
   public get channelCountWithoutThreads(): number;
   public guild: Guild;
 
+  public addFollower(
+    channel: NewsChannel | Snowflake,
+    targetChannel: TextChannelResolvable,
+    reason?: string,
+  ): Promise<Snowflake>;
   public create<T extends GuildChannelTypes>(
     options: GuildChannelCreateOptions & { type: T },
   ): Promise<MappedGuildChannelTypes[T]>;
@@ -4225,8 +4243,6 @@ export interface AuditLogChange {
   new?: APIAuditLogChange['new_value'];
 }
 
-export type Awaitable<T> = T | PromiseLike<T>;
-
 export type AwaitMessageComponentOptions<T extends CollectedMessageInteraction> = Omit<
   MessageComponentCollectorOptions<T>,
   'max' | 'maxComponents' | 'maxUsers'
@@ -4335,6 +4351,8 @@ export interface CategoryCreateChannelOptions {
   videoQualityMode?: VideoQualityMode;
   availableTags?: GuildForumTagData[];
   defaultReactionEmoji?: DefaultReactionEmoji;
+  defaultAutoArchiveDuration?: ThreadAutoArchiveDuration;
+  defaultSortOrder?: SortOrderType;
   reason?: string;
 }
 
@@ -4742,8 +4760,13 @@ export interface EscapeMarkdownOptions {
   underline?: boolean;
   strikethrough?: boolean;
   spoiler?: boolean;
-  inlineCodeContent?: boolean;
   codeBlockContent?: boolean;
+  inlineCodeContent?: boolean;
+  escape?: boolean;
+  heading?: boolean;
+  bulletedList?: boolean;
+  numberedList?: boolean;
+  maskedLink?: boolean;
 }
 
 interface Extendable {
@@ -5022,6 +5045,7 @@ export interface GuildChannelEditOptions {
   defaultReactionEmoji?: DefaultReactionEmoji | null;
   defaultThreadRateLimitPerUser?: number;
   flags?: ChannelFlagsResolvable;
+  defaultSortOrder?: SortOrderType | null;
   reason?: string;
 }
 
@@ -5921,3 +5945,4 @@ export type InternalDiscordGatewayAdapterCreator = (
 export * from 'discord-api-types/v10';
 export * from '@draftbot/builders';
 export * from '@draftbot/rest';
+export { range, lazy, isJSONEncodable, isEquatable } from '@discordjs/util';
