@@ -1,6 +1,6 @@
 'use strict';
 
-const { setTimeout } = require('node:timers/promises');
+const { setTimeout } = require('node:timers');
 const { messageLink } = require('@draftbot/builders');
 const { Collection } = require('@draftbot/collection');
 const { DiscordSnowflake } = require('@sapphire/snowflake');
