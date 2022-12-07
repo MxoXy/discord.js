@@ -16,9 +16,10 @@ body:
         - discord.js
         - builders
         - collection
-        - rest
+        - core
         - proxy
         - proxy-container
+        - rest
         - voice
         - ws
     validations:

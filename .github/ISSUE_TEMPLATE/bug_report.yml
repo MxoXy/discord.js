@@ -15,9 +15,10 @@ body:
         - brokers
         - builders
         - collection
-        - rest
+        - core
         - proxy
         - proxy-container
+        - rest
         - voice
         - ws
     validations:
@@ -132,6 +133,8 @@ body:
         - DirectMessageTyping
         - MessageContent
         - GuildScheduledEvents
+        - AutoModerationConfiguration
+        - AutoModerationExecution
       multiple: true
     validations:
       required: true

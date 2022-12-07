@@ -45,7 +45,7 @@ function version(name: string): string {
 }
 
 /**
- * Generates a report of the dependencies used by the \@discordjs/voice module.
+ * Generates a report of the dependencies used by the \@draftbot/voice module.
  * Useful for debugging.
  */
 export function generateDependencyReport() {
