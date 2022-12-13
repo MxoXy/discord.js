@@ -1,6 +1,6 @@
 {
   "name": "@draftbot/discord.js",
-  "version": "14.6.0-2",
+  "version": "14.6.0-7",
   "description": "A powerful library for interacting with the Discord API",
   "scripts": {
     "test": "tsc --noEmit && tsd",

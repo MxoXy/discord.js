@@ -187,6 +187,15 @@ class WebSocketShard extends EventEmitter {
   }
 
   /**
+   * Emits a sentry event.
+   * @param {any} data The debug message
+   * @private
+   */
+  sentry(data) {
+    this.manager.sentry(data, this.id);
+  }
+
+  /**
    * Connects the shard to the gateway.
    * @private
    * @returns {Promise<void>} A promise that will resolve if the shard turns ready successfully,
@@ -382,8 +391,16 @@ class WebSocketShard extends EventEmitter {
       code: 1011,
       reason: 'INTERNAL_ERROR',
       wasClean: false,
+      reset: false,
     },
   ) {
+    if (event.reset) {
+      this.sequence = -1;
+      this.sessionId = null;
+
+      this.sentry(event);
+    }
+
     this.debug(`[CLOSE]
     Event Code: ${event.code}
     Clean     : ${event.wasClean}
@@ -593,7 +610,14 @@ class WebSocketShard extends EventEmitter {
         `[WebSocket] did not close properly, assuming a zombie connection.\nEmitting close and reconnecting again.`,
       );
 
-      this.emitClose();
+      // Just incase if destroy was initiated with reset false and still the zombie connection happened.
+      this.emitClose({
+        code: 4009,
+        reason: 'Session time out.',
+        wasClean: false,
+        reset: true,
+      });
+
       // Setting the variable false to check for zombie connections.
       this.closeEmitted = false;
     }, time).unref();

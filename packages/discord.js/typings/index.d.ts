@@ -3049,6 +3049,7 @@ export class WebSocketManager extends EventEmitter {
   public once(event: GatewayDispatchEvents, listener: (data: any, shardId: number) => void): this;
 
   private debug(message: string, shard?: WebSocketShard): void;
+  private sentry(data: any, shardId?: number): void;
   private connect(): Promise<void>;
   private createShards(): Promise<void>;
   private reconnect(): Promise<void>;
@@ -3096,6 +3097,7 @@ export class WebSocketShard extends EventEmitter {
   public ping: number;
 
   private debug(message: string): void;
+  private sentry(data: any): void;
   private connect(): Promise<void>;
   private onOpen(): void;
   private onMessage(event: MessageEvent): void;
@@ -4395,6 +4397,7 @@ export interface ClientEvents {
     newChannel: DMChannel | NonThreadGuildBasedChannel,
   ];
   debug: [message: string];
+  sentry: [data: any, shardId: number];
   warn: [message: string];
   emojiCreate: [emoji: GuildEmoji];
   emojiDelete: [emoji: GuildEmoji];
@@ -4651,6 +4654,7 @@ export enum Events {
   Error = 'error',
   Warn = 'warn',
   Debug = 'debug',
+  Sentry = 'sentry',
   CacheSweep = 'cacheSweep',
   ShardDisconnect = 'shardDisconnect',
   ShardError = 'shardError',
