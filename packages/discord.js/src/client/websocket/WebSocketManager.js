@@ -127,6 +127,16 @@ class WebSocketManager extends EventEmitter {
   }
 
   /**
+   * Emits a sentry debug message.
+   * @param {any} data The debug message
+   * @param {number} shardId The shard that emitted this message, if any
+   * @private
+   */
+  sentry(data, shardId) {
+    this.client.emit('sentry', data, shardId);
+  }
+
+  /**
    * Connects this manager to the gateway.
    * @returns {Promise<boolean>}
    * @private
