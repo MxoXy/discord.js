@@ -397,9 +397,9 @@ class WebSocketShard extends EventEmitter {
     if (event.reset) {
       this.sequence = -1;
       this.sessionId = null;
-
-      this.sentry(event);
     }
+
+    this.sentry(event);
 
     this.debug(`[CLOSE]
     Event Code: ${event.code}
@@ -610,12 +610,15 @@ class WebSocketShard extends EventEmitter {
         `[WebSocket] did not close properly, assuming a zombie connection.\nEmitting close and reconnecting again.`,
       );
 
+      // Cleanup connection listeners
+      this._cleanupConnection();
+
       // Just incase if destroy was initiated with reset false and still the zombie connection happened.
       this.emitClose({
         code: 4009,
         reason: 'Session time out.',
         wasClean: false,
-        reset: true,
+        reset: false,
       });
 
       // Setting the variable false to check for zombie connections.
