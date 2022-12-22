@@ -611,7 +611,9 @@ class WebSocketShard extends EventEmitter {
       );
 
       // Cleanup connection listeners
-      this._cleanupConnection();
+      if (this.connection) {
+        this._cleanupConnection();
+      }
 
       // Just incase if destroy was initiated with reset false and still the zombie connection happened.
       this.emitClose({
