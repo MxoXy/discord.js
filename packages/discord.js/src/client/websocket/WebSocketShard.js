@@ -443,6 +443,7 @@ class WebSocketShard extends EventEmitter {
      */
     this.emit(WebSocketShardEvents.Close, event);
   }
+
   /**
    * Called whenever a packet is received.
    * @param {Object} packet The received packet
@@ -687,9 +688,7 @@ class WebSocketShard extends EventEmitter {
       // Check if close event was emitted.
       if (this.closeEmitted) {
         this.debug(
-          `[WebSocket] was closed. | WS State: ${
-            CONNECTION_STATE[this.connection?.readyState ?? WebSocket.CLOSED]
-          } | Close Emitted: ${this.closeEmitted}`,
+          `[WebSocket] was closed. | WS State: ${CONNECTION_STATE[this.connection?.readyState ?? WebSocket.CLOSED]}`,
         );
         // Setting the variable false to check for zombie connections.
         this.closeEmitted = false;
@@ -701,18 +700,13 @@ class WebSocketShard extends EventEmitter {
       );
 
       // Cleanup connection listeners
-      if (this.connection) {
-        this._cleanupConnection();
-      }
+      if (this.connection) this._cleanupConnection();
 
       this.emitClose({
         code: 4009,
         reason: 'Session time out.',
         wasClean: false,
       });
-
-      // Setting the variable false to check for zombie connections.
-      this.closeEmitted = false;
     }, time);
   }
 
