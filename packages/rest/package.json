@@ -1,6 +1,6 @@
 {
 	"name": "@draftbot/rest",
-	"version": "1.4.0-1",
+	"version": "1.4.0-2",
 	"description": "The REST API for discord.js",
 	"scripts": {
 		"test": "vitest run",

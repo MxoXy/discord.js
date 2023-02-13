@@ -457,7 +457,9 @@ export class SequentialHandler implements IHandler {
 			console.warn(
 				`[RATELIMIT] ${method.toUpperCase()} ${
 					routeId.bucketRoute
-				} (Global: ${isGlobal.toString()} (Limit: ${limit}) (Retry After: ${retryAfter})`,
+				} (Global: ${isGlobal.toString()}) (Limit: ${limit}) (Retry After: ${retryAfter}) (Reset After: ${Math.round(
+					timeout / 1_000,
+				)})`,
 				JSON.stringify(options.body),
 			);
 
