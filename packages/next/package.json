@@ -52,8 +52,8 @@
 	},
 	"homepage": "https://discord.js.org",
 	"dependencies": {
-		"@discordjs/util": "^0.2.0",
 		"@discordjs/formatters": "^0.2.0",
+		"@discordjs/util": "^0.2.0",
 		"@draftbot/builders": "workspace:^",
 		"@draftbot/collection": "workspace:^",
 		"@draftbot/core": "workspace:^",
