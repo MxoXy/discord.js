@@ -1,10 +1,11 @@
 {
 	"name": "@draftbot/ws",
-	"version": "0.5.0",
+	"version": "0.7.0",
 	"description": "Wrapper around Discord's gateway",
 	"scripts": {
 		"test": "vitest run",
 		"build": "tsup",
+		"build:docs": "tsc -p tsconfig.docs.json",
 		"lint": "prettier --check . && cross-env TIMING=1 eslint src __tests__ --ext .mjs,.js,.ts --format=pretty",
 		"format": "prettier --write . && cross-env TIMING=1 eslint src __tests__ --ext .mjs,.js,.ts --fix --format=pretty",
 		"prepack": "yarn build && yarn lint",
@@ -15,9 +16,15 @@
 	"module": "./dist/index.mjs",
 	"typings": "./dist/index.d.ts",
 	"exports": {
-		"import": "./dist/index.mjs",
-		"require": "./dist/index.js",
-		"types": "./dist/index.d.ts"
+		".": {
+			"import": "./dist/index.mjs",
+			"require": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		},
+		"./defaultWorker": {
+			"import": "./dist/defaultWorker.mjs",
+			"require": "./dist/defaultWorker.js"
+		}
 	},
 	"directories": {
 		"lib": "src",
@@ -55,28 +62,28 @@
 		"@draftbot/collection": "workspace:^",
 		"@draftbot/rest": "workspace:^",
 		"@sapphire/async-queue": "^1.5.0",
-		"@types/ws": "^8.5.3",
-		"@vladfrangu/async_event_emitter": "^2.1.2",
-		"discord-api-types": "^0.37.20",
-		"tslib": "^2.4.1",
-		"ws": "^8.11.0"
+		"@types/ws": "^8.5.4",
+		"@vladfrangu/async_event_emitter": "^2.1.4",
+		"discord-api-types": "^0.37.35",
+		"tslib": "^2.5.0",
+		"ws": "^8.12.1"
 	},
 	"devDependencies": {
-		"@favware/cliff-jumper": "^1.9.0",
-		"@types/node": "16.18.3",
-		"@vitest/coverage-c8": "^0.25.3",
+		"@favware/cliff-jumper": "^1.10.0",
+		"@types/node": "16.18.13",
+		"@vitest/coverage-c8": "^0.29.1",
 		"cross-env": "^7.0.3",
-		"esbuild-plugin-version-injector": "^1.0.2",
-		"eslint": "^8.28.0",
+		"esbuild-plugin-version-injector": "^1.0.3",
+		"eslint": "^8.35.0",
 		"eslint-config-neon": "^0.1.40",
 		"eslint-formatter-pretty": "^4.1.0",
-		"mock-socket": "^9.1.5",
-		"prettier": "^2.8.0",
-		"tsup": "^6.5.0",
-		"typescript": "^4.9.3",
-		"undici": "^5.13.0",
-		"vitest": "^0.25.3",
-		"zlib-sync": "^0.1.7"
+		"mock-socket": "^9.2.1",
+		"prettier": "^2.8.4",
+		"tsup": "^6.6.3",
+		"typescript": "^4.9.5",
+		"undici": "^5.20.0",
+		"vitest": "^0.29.1",
+		"zlib-sync": "^0.1.8"
 	},
 	"engines": {
 		"node": ">=16.9.0"

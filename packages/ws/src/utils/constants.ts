@@ -1,10 +1,10 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import process from 'node:process';
 import { lazy } from '@discordjs/util';
 import { Collection } from '@draftbot/collection';
 import { APIVersion, GatewayOpcodes } from 'discord-api-types/v10';
-import type { OptionalWebSocketManagerOptions, SessionInfo } from '../ws/WebSocketManager.js';
+import { SimpleShardingStrategy } from '../strategies/sharding/SimpleShardingStrategy.js';
+import type { SessionInfo, OptionalWebSocketManagerOptions } from '../ws/WebSocketManager.js';
+import type { SendRateLimitState } from '../ws/WebSocketShard.js';
 
 /**
  * Valid encoding types
@@ -20,17 +20,15 @@ export enum CompressionMethod {
 	ZlibStream = 'zlib-stream',
 }
 
-const packageJson = readFileSync(join(__dirname, '..', '..', 'package.json'), 'utf8');
-const Package = JSON.parse(packageJson);
-
-export const DefaultDeviceProperty = `@draftbot/ws ${Package.version}`;
+export const DefaultDeviceProperty = `@draftbot/ws [VI]{{inject}}[/VI]` as `@draftbot/ws ${string}`;
 
 const getDefaultSessionStore = lazy(() => new Collection<number, SessionInfo | null>());
 
 /**
  * Default options used by the manager
  */
-export const DefaultWebSocketManagerOptions: OptionalWebSocketManagerOptions = {
+export const DefaultWebSocketManagerOptions = {
+	buildStrategy: (manager) => new SimpleShardingStrategy(manager),
 	shardCount: null,
 	shardIds: null,
 	largeThreshold: null,
@@ -58,10 +56,17 @@ export const DefaultWebSocketManagerOptions: OptionalWebSocketManagerOptions = {
 	handshakeTimeout: 30_000,
 	helloTimeout: 60_000,
 	readyTimeout: 15_000,
-};
+} as const satisfies OptionalWebSocketManagerOptions;
 
 export const ImportantGatewayOpcodes = new Set([
 	GatewayOpcodes.Heartbeat,
 	GatewayOpcodes.Identify,
 	GatewayOpcodes.Resume,
 ]);
+
+export function getInitialSendRateLimitState(): SendRateLimitState {
+	return {
+		remaining: 120,
+		resetAt: Date.now() + 60_000,
+	};
+}
