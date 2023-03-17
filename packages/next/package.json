@@ -1,5 +1,5 @@
 {
-	"name": "@discordjs/next",
+	"name": "@draftbot/next",
 	"version": "0.1.0",
 	"description": "A powerful TypeScript library for interacting with the Discord API",
 	"scripts": {

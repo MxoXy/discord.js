@@ -1985,40 +1985,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@discordjs/next@workspace:packages/next":
-  version: 0.0.0-use.local
-  resolution: "@discordjs/next@workspace:packages/next"
-  dependencies:
-    "@discordjs/formatters": ^0.2.0
-    "@discordjs/util": ^0.2.0
-    "@draftbot/builders": "workspace:^"
-    "@draftbot/collection": "workspace:^"
-    "@draftbot/core": "workspace:^"
-    "@draftbot/rest": "workspace:^"
-    "@draftbot/ws": "workspace:^"
-    "@favware/cliff-jumper": ^1.10.0
-    "@types/node": 18.14.2
-    "@vitest/coverage-c8": ^0.29.1
-    cross-env: ^7.0.3
-    discord-api-types: ^0.37.35
-    esbuild-plugin-version-injector: ^1.0.3
-    eslint: ^8.35.0
-    eslint-config-neon: ^0.1.40
-    eslint-formatter-pretty: ^4.1.0
-    prettier: ^2.8.4
-    tsup: ^6.6.3
-    typescript: ^4.9.5
-    vitest: ^0.29.1
-  languageName: unknown
-  linkType: soft
-
-"@discordjs/util@npm:^0.1.0":
-  version: 0.1.0
-  resolution: "@discordjs/util@npm:0.1.0"
-  checksum: 880e15cd761437a21cf17b8a9dab50e7e5418fcc77dc34037c31a52b871fab1b958218ab6218aafd20af8b7a4e658a705d3f257268324773a285d9a06368c1b9
-  languageName: node
-  linkType: hard
-
 "@discordjs/util@npm:^0.2.0":
   version: 0.2.0
   resolution: "@discordjs/util@npm:0.2.0"
@@ -2126,25 +2092,34 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@draftbot/proxy-container@workspace:packages/proxy-container":
+"@draftbot/next@workspace:packages/next":
   version: 0.0.0-use.local
-  resolution: "@draftbot/proxy-container@workspace:packages/proxy-container"
+  resolution: "@draftbot/next@workspace:packages/next"
   dependencies:
-    "@draftbot/proxy": "workspace:^"
+    "@discordjs/formatters": ^0.2.0
+    "@discordjs/util": ^0.2.0
+    "@draftbot/builders": "workspace:^"
+    "@draftbot/collection": "workspace:^"
+    "@draftbot/core": "workspace:^"
     "@draftbot/rest": "workspace:^"
-    "@types/node": 16.18.13
+    "@draftbot/ws": "workspace:^"
+    "@favware/cliff-jumper": ^1.10.0
+    "@types/node": 18.14.2
+    "@vitest/coverage-c8": ^0.29.1
     cross-env: ^7.0.3
+    discord-api-types: ^0.37.35
+    esbuild-plugin-version-injector: ^1.0.3
     eslint: ^8.35.0
     eslint-config-neon: ^0.1.40
     eslint-formatter-pretty: ^4.1.0
     prettier: ^2.8.4
-    tslib: ^2.5.0
     tsup: ^6.6.3
     typescript: ^4.9.5
+    vitest: ^0.29.1
   languageName: unknown
   linkType: soft
 
-"@draftbot/proxy@workspace:^, @draftbot/proxy@workspace:packages/proxy":
+"@draftbot/proxy@workspace:packages/proxy":
   version: 0.0.0-use.local
   resolution: "@draftbot/proxy@workspace:packages/proxy"
   dependencies:
@@ -2172,7 +2147,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@draftbot/rest@workspace:packages/rest"
   dependencies:
-    "@discordjs/util": ^0.1.0
+    "@discordjs/util": ^0.2.0
     "@draftbot/collection": "workspace:^"
     "@favware/cliff-jumper": ^1.10.0
     "@sapphire/async-queue": ^1.5.0
@@ -2229,7 +2204,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@draftbot/ws@workspace:packages/ws"
   dependencies:
-    "@discordjs/util": ^0.1.0
+    "@discordjs/util": ^0.2.0
     "@draftbot/collection": "workspace:^"
     "@draftbot/rest": "workspace:^"
     "@favware/cliff-jumper": ^1.10.0

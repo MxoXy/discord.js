@@ -1,6 +1,6 @@
 import { setTimeout } from 'node:timers';
-import type { REST } from '@draftbot/rest';
 import { calculateShardId } from '@discordjs/util';
+import type { REST } from '@draftbot/rest';
 import { WebSocketShardEvents, type WebSocketManager } from '@draftbot/ws';
 import { DiscordSnowflake } from '@sapphire/snowflake';
 import { AsyncEventEmitter } from '@vladfrangu/async_event_emitter';

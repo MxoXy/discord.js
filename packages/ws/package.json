@@ -58,7 +58,7 @@
 	},
 	"homepage": "https://discord.js.org",
 	"dependencies": {
-		"@discordjs/util": "^0.1.0",
+		"@discordjs/util": "^0.2.0",
 		"@draftbot/collection": "workspace:^",
 		"@draftbot/rest": "workspace:^",
 		"@sapphire/async-queue": "^1.5.0",

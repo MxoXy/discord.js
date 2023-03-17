@@ -547,7 +547,7 @@ export abstract class CommandInteraction<Cached extends CacheType = CacheType> e
   public editReply(
     options: string | MessagePayload | InteractionEditReplyOptions,
   ): Promise<Message<BooleanCache<Cached>>>;
-  public edit(options: string | MessagePayload | WebhookEditMessageOptions): Promise<Message<BooleanCache<Cached>>>;
+  public edit(options: string | MessagePayload | WebhookMessageEditOptions): Promise<Message<BooleanCache<Cached>>>;
   public fetchReply(message?: Snowflake | '@original'): Promise<Message<BooleanCache<Cached>>>;
   public followUp(options: string | MessagePayload | InteractionReplyOptions): Promise<Message<BooleanCache<Cached>>>;
   public send(options: InteractionReplyOptions & { fetchReply: true }): Promise<Message<BooleanCache<Cached>>>;
@@ -2102,7 +2102,7 @@ export class MessageComponentInteraction<Cached extends CacheType = CacheType> e
   public editReply(
     options: string | MessagePayload | InteractionEditReplyOptions,
   ): Promise<Message<BooleanCache<Cached>>>;
-  public edit(options: string | MessagePayload | WebhookEditMessageOptions): Promise<Message<BooleanCache<Cached>>>;
+  public edit(options: string | MessagePayload | WebhookMessageEditOptions): Promise<Message<BooleanCache<Cached>>>;
   public fetchReply(message?: Snowflake | '@original'): Promise<Message<BooleanCache<Cached>>>;
   public followUp(options: string | MessagePayload | InteractionReplyOptions): Promise<Message<BooleanCache<Cached>>>;
   public send(options: string | MessagePayload | InteractionReplyOptions): Promise<Message<BooleanCache<Cached>>>;
@@ -2320,7 +2320,7 @@ export class ModalSubmitInteraction<Cached extends CacheType = CacheType> extend
   public editReply(
     options: string | MessagePayload | InteractionEditReplyOptions,
   ): Promise<Message<BooleanCache<Cached>>>;
-  public edit(options: string | MessagePayload | WebhookEditMessageOptions): Promise<Message<BooleanCache<Cached>>>;
+  public edit(options: string | MessagePayload | WebhookMessageEditOptions): Promise<Message<BooleanCache<Cached>>>;
   public deferReply(
     options: InteractionDeferReplyOptions & { fetchReply: true },
   ): Promise<Message<BooleanCache<Cached>>>;
@@ -4760,8 +4760,8 @@ export type CacheConstructors = {
 // Narrowing the type of `manager.name` doesn't propagate type information to `holds` and the return type.
 export type CacheFactory = (
   manager: CacheConstructors[keyof Caches],
-  holds: Caches[typeof manager['name']][1],
-) => typeof manager['prototype'] extends DataManager<infer K, infer V, any> ? Collection<K, V> : never;
+  holds: Caches[(typeof manager)['name']][1],
+) => (typeof manager)['prototype'] extends DataManager<infer K, infer V, any> ? Collection<K, V> : never;
 
 export type CacheWithLimitsOptions = {
   [K in keyof Caches]?: Caches[K][0]['prototype'] extends DataManager<infer K, infer V, any>
@@ -5202,6 +5202,11 @@ export interface ErrorEvent {
   message: string;
   type: string;
   target: WebSocket;
+}
+
+interface Extendable {
+  Guild: typeof Guild;
+  Message: typeof Message;
 }
 
 export interface FetchApplicationCommandOptions extends BaseFetchOptions {

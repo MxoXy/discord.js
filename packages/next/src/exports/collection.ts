@@ -1,1 +1,1 @@
-export * from '@discordjs/collection';
+export * from '@draftbot/collection';
