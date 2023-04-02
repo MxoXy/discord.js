@@ -1,5 +1,5 @@
 {
-	"$schema": "https://turborepo.org/schema.json",
+	"$schema": "https://turbo.build/schema.json",
 	"globalDependencies": [
 		"yarn.lock"
 	],
@@ -64,7 +64,6 @@
 				"../../.prettierrc.json",
 				"../../tsconfig.json",
 				"../../tsconfig.eslint.json",
-				"src/**/*.astro",
 				"src/**/*.tsx",
 				"src/**/*.ts",
 				"src/**/*.css",
@@ -73,13 +72,13 @@
 				"scripts/**.mjs",
 				".eslintignore",
 				".eslintrc.json",
-				"astro.config.ts",
 				".prettierignore",
 				".prettierrc.js",
 				".prettierrc.cjs",
 				".prettierrc.json",
 				"tsconfig.json",
 				"tsconfig.eslint.json",
+				"next.config.js",
 				"tsup.config.ts",
 				"vite.config.ts"
 			],
@@ -94,7 +93,6 @@
 				"../../.prettierrc.json",
 				"../../tsconfig.json",
 				"../../tsconfig.eslint.json",
-				"src/**/*.astro",
 				"src/**/*.tsx",
 				"src/**/*.ts",
 				"src/**/*.css",
@@ -103,13 +101,13 @@
 				"scripts/**.mjs",
 				".eslintignore",
 				".eslintrc.json",
-				"astro.config.ts",
 				".prettierignore",
 				".prettierrc.js",
 				".prettierrc.cjs",
 				".prettierrc.json",
 				"tsconfig.json",
 				"tsconfig.eslint.json",
+				"next.config.js",
 				"tsup.config.ts",
 				"vite.config.ts"
 			],
