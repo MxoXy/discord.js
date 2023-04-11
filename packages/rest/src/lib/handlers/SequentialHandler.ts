@@ -326,7 +326,7 @@ export class SequentialHandler implements IHandler {
 		if (status === 401 || status === 403 || status === 429) {
 			incrementInvalidCount(this.manager);
 			if (status === 403) {
-				console.warn(`[FORBIDDEN] ${method.toUpperCase()} ${routeId.bucketRoute}`, JSON.stringify(options.body));
+				console.warn(`[FORBIDDEN] ${method.toUpperCase()} ${routeId.original}`, JSON.stringify(options.body));
 			}
 		}
 
@@ -375,7 +375,7 @@ export class SequentialHandler implements IHandler {
 
 			console.warn(
 				`[RATELIMIT] ${method.toUpperCase()} ${
-					routeId.bucketRoute
+					routeId.original
 				} (Global: ${isGlobal.toString()}) (Limit: ${limit}) (Retry After: ${retryAfter}) (Reset After: ${Math.round(
 					timeout / 1_000,
 				)})`,
