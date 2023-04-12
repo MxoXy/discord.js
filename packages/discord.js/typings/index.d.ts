@@ -4278,7 +4278,7 @@ export function TextBasedChannelMixin<
 ): Constructable<T & Omit<TextBasedChannelFields<InGuild>, I>>;
 
 export interface PartialTextBasedChannelFields<InGuild extends boolean = boolean> {
-  embedable: boolean;
+  get embedable(): boolean;
   send(options: string | MessagePayload | MessageCreateOptions): Promise<Message<InGuild>>;
   embed(
     embed: JSONEncodable<APIEmbed> | APIEmbed,
