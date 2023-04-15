@@ -4204,10 +4204,10 @@ export class ThreadManager<Forum extends boolean = boolean> extends CachedManage
   public fetch(
     options: FetchThreadsOptions & { archived: FetchArchivedThreadOptions },
     cacheOptions?: { cache?: boolean },
-  ): Promise<FetchedThreadsMore>;
-  public fetch(options?: FetchThreadsOptions, cacheOptions?: { cache?: boolean }): Promise<FetchedThreads>;
-  public fetchArchived(options?: FetchArchivedThreadOptions, cache?: boolean): Promise<FetchedThreadsMore>;
-  public fetchActive(cache?: boolean): Promise<FetchedThreads>;
+  ): Promise<FetchedThreadsMore<Forum>>;
+  public fetch(options?: FetchThreadsOptions, cacheOptions?: { cache?: boolean }): Promise<FetchedThreads<Forum>>;
+  public fetchArchived(options?: FetchArchivedThreadOptions, cache?: boolean): Promise<FetchedThreadsMore<Forum>>;
+  public fetchActive(cache?: boolean): Promise<FetchedThreads<Forum>>;
 }
 
 export class GuildTextThreadManager<AllowedThreadType> extends ThreadManager<false> {
@@ -5256,12 +5256,12 @@ export interface FetchChannelOptions extends BaseFetchOptions {
   allowUnknownGuild?: boolean;
 }
 
-export interface FetchedThreads {
-  threads: Collection<Snowflake, AnyThreadChannel>;
+export interface FetchedThreads<Forum extends boolean = boolean> {
+  threads: Collection<Snowflake, AnyThreadChannel<Forum>>;
   members: Collection<Snowflake, ThreadMember>;
 }
 
-export interface FetchedThreadsMore extends FetchedThreads {
+export interface FetchedThreadsMore<Forum extends boolean = boolean> extends FetchedThreads<Forum> {
   hasMore: boolean;
 }
 
