@@ -14,6 +14,8 @@ jobs:
             folder: 'builders'
           - package: '@draftbot/collection'
             folder: 'collection'
+          - package: '@draftbot/core'
+            folder: 'core'
           - package: '@draftbot/discord.js'
             folder: 'discord.js'
           - package: '@draftbot/proxy'

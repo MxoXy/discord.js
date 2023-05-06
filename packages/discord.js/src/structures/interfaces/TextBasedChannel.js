@@ -4,6 +4,7 @@ const { Collection } = require('@draftbot/collection');
 const { DiscordSnowflake } = require('@sapphire/snowflake');
 const { InteractionType, Routes, PermissionFlagsBits } = require('discord-api-types/v10');
 const { DiscordjsTypeError, DiscordjsError, ErrorCodes } = require('../../errors');
+const { MaxBulkDeletableMessageAge } = require('../../util/Constants');
 const InteractionCollector = require('../InteractionCollector');
 const MessageCollector = require('../MessageCollector');
 const MessagePayload = require('../MessagePayload');
@@ -74,7 +75,7 @@ class TextBasedChannel {
    * (see [here](https://discord.com/developers/docs/resources/channel#allowed-mentions-object) for more details)
    * @property {Array<JSONEncodable<AttachmentPayload>>|BufferResolvable[]|Attachment[]|AttachmentBuilder[]} [files]
    * The files to send with the message.
-   * @property {ActionRow[]|ActionRowOptions[]} [components]
+   * @property {ActionRow[]|ActionRowBuilder[]} [components]
    * Action rows containing interactive components for the message (buttons, select menus)
    */
 
@@ -94,7 +95,7 @@ class TextBasedChannel {
    * @property {ReplyOptions} [reply] The options for replying to a message
    * @property {StickerResolvable[]} [stickers=[]] The stickers to send in the message
    * @property {MessageFlags} [flags] Which flags to set for the message.
-   * <info>Only `MessageFlags.SuppressEmbeds` can be set.</info>
+   * <info>Only `MessageFlags.SuppressEmbeds` and `MessageFlags.SuppressNotifications` can be set.</info>
    */
 
   /**
@@ -319,7 +320,9 @@ class TextBasedChannel {
     if (Array.isArray(messages) || messages instanceof Collection) {
       let messageIds = messages instanceof Collection ? [...messages.keys()] : messages.map(m => m.id ?? m);
       if (filterOld) {
-        messageIds = messageIds.filter(id => Date.now() - DiscordSnowflake.timestampFrom(id) < 1_209_600_000);
+        messageIds = messageIds.filter(
+          id => Date.now() - DiscordSnowflake.timestampFrom(id) < MaxBulkDeletableMessageAge,
+        );
       }
       if (messageIds.length === 0) return new Collection();
       if (messageIds.length === 1) {
@@ -368,7 +371,7 @@ class TextBasedChannel {
   }
 
   /**
-   * Options used to create a {@link Webhook} in a {@link TextChannel} or a {@link NewsChannel}.
+   * Options used to create a {@link Webhook}.
    * @typedef {Object} ChannelWebhookCreateOptions
    * @property {string} name The name of the webhook
    * @property {?(BufferResolvable|Base64Resolvable)} [avatar] Avatar for the webhook

@@ -8,7 +8,7 @@ import { DiscordAPIError, type DiscordErrorData, type OAuthErrorData } from '../
 import { HTTPError } from '../errors/HTTPError.js';
 import { RateLimitError } from '../errors/RateLimitError.js';
 import { RESTEvents } from '../utils/constants.js';
-import { hasSublimit, parseHeader, parseResponse } from '../utils/utils.js';
+import { hasSublimit, parseHeader, parseResponse, shouldRetry } from '../utils/utils.js';
 import type { IHandler } from './IHandler.js';
 
 /**
@@ -307,8 +307,9 @@ export class SequentialHandler implements IHandler {
 		try {
 			res = await request(url, { ...options, signal: controller.signal });
 		} catch (error: unknown) {
-			// Retry the specified number of times for possible timed out requests
-			if (error instanceof Error && error.name === 'AbortError' && retries !== this.manager.options.retries) {
+			if (!(error instanceof Error)) throw error;
+			// Retry the specified number of times if needed
+			if (shouldRetry(error) && retries !== this.manager.options.retries) {
 				// eslint-disable-next-line no-param-reassign
 				return await this.runRequest(routeId, url, options, requestData, ++retries);
 			}
@@ -406,7 +407,7 @@ export class SequentialHandler implements IHandler {
 			}
 
 			if (status === 403) {
-				console.warn(`[FORBIDDEN] ${method.toUpperCase()} ${routeId.bucketRoute}`, JSON.stringify(options.body));
+				console.warn(`[FORBIDDEN] ${method.toUpperCase()} ${routeId.original}`, JSON.stringify(options.body));
 			}
 		}
 
@@ -454,7 +455,11 @@ export class SequentialHandler implements IHandler {
 			);
 
 			console.warn(
-				`[RATELIMIT] ${method.toUpperCase()} ${routeId.bucketRoute} (Global: ${isGlobal.toString()} (Limit: ${limit})`,
+				`[RATELIMIT] ${method.toUpperCase()} ${
+					routeId.original
+				} (Global: ${isGlobal.toString()}) (Limit: ${limit}) (Retry After: ${retryAfter}) (Reset After: ${Math.round(
+					timeout / 1_000,
+				)})`,
 				JSON.stringify(options.body),
 			);
 

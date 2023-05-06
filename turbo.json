@@ -1,39 +1,119 @@
 {
-  "$schema": "https://turborepo.org/schema.json",
-  "pipeline": {
-    "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "dist/**"
-      ]
-    },
-    "test": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": []
-    },
-    "lint": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": []
-    },
-    "format": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": []
-    },
-    "changelog": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "CHANGELOG.md"
-      ]
-    }
-  }
+	"$schema": "https://turborepo.org/schema.json",
+	"globalDependencies": [
+		"yarn.lock"
+	],
+	"pipeline": {
+		"build": {
+			"dependsOn": [
+				"^build"
+			],
+			"inputs": [
+				"../../tsconfig.json",
+				"../../tsup.config.ts",
+				"src/**/*.ts",
+				"tsconfig.json",
+				"tsup.config.ts"
+			],
+			"outputs": [
+				"dist/**"
+			]
+		},
+		"test": {
+			"dependsOn": [
+				"^build"
+			],
+			"inputs": [
+				"../../codecov.yml",
+				"../../tsconfig.json",
+				"../../vitest.config.ts",
+				"__tests_/**/*.ts",
+				"src/**/*.ts",
+				"src/**/*.js",
+				"tsconfig.json"
+			],
+			"outputs": [
+				"coverage/**"
+			]
+		},
+		"@draftbot/voice#test": {
+			"dependsOn": [
+				"^build"
+			],
+			"inputs": [
+				"../../tsconfig.json",
+				"__tests_/**/*.ts",
+				"__mocks__/**/*.ts",
+				"__mocks__/**/*.js",
+				"src/**/*.ts",
+				"src/**/*.js",
+				"babel.config.js",
+				"jest.config.js",
+				"tsconfig.json"
+			],
+			"outputs": [
+				"coverage/**"
+			]
+		},
+		"lint": {
+			"dependsOn": [
+				"^build"
+			],
+			"inputs": [
+				"../../.eslintrc.json",
+				"../../.prettierrc.json",
+				"../../tsconfig.json",
+				"../../tsconfig.eslint.json",
+				"src/**/*.astro",
+				"src/**/*.tsx",
+				"src/**/*.ts",
+				"src/**/*.css",
+				"src/**/*.mdx",
+				"scripts/**.js",
+				"scripts/**.mjs",
+				".eslintignore",
+				".eslintrc.json",
+				"astro.config.ts",
+				".prettierignore",
+				".prettierrc.js",
+				".prettierrc.cjs",
+				".prettierrc.json",
+				"tsconfig.json",
+				"tsconfig.eslint.json",
+				"tsup.config.ts",
+				"vite.config.ts"
+			],
+			"outputs": []
+		},
+		"format": {
+			"dependsOn": [
+				"^build"
+			],
+			"inputs": [
+				"../../.eslintrc.json",
+				"../../.prettierrc.json",
+				"../../tsconfig.json",
+				"../../tsconfig.eslint.json",
+				"src/**/*.astro",
+				"src/**/*.tsx",
+				"src/**/*.ts",
+				"src/**/*.css",
+				"src/**/*.mdx",
+				"scripts/**.js",
+				"scripts/**.mjs",
+				".eslintignore",
+				".eslintrc.json",
+				"astro.config.ts",
+				".prettierignore",
+				".prettierrc.js",
+				".prettierrc.cjs",
+				".prettierrc.json",
+				"tsconfig.json",
+				"tsconfig.eslint.json",
+				"tsup.config.ts",
+				"vite.config.ts"
+			],
+			"outputs": []
+		}
+	}
 }
