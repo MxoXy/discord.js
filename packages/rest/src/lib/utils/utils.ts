@@ -1,7 +1,7 @@
 import { Blob, Buffer } from 'node:buffer';
 import { URLSearchParams } from 'node:url';
 import { types } from 'node:util';
-import type { RESTPatchAPIChannelJSONBody } from 'discord-api-types/v10';
+import type { RESTPatchAPIChannelJSONBody, Snowflake } from 'discord-api-types/v10';
 import { FormData, type Dispatcher, type RequestInit } from 'undici';
 import type { RateLimitData, RequestOptions } from '../REST.js';
 import { type RequestManager, RequestMethod } from '../RequestManager.js';
@@ -166,4 +166,13 @@ export async function onRateLimit(manager: RequestManager, rateLimitData: RateLi
 	if (shouldThrow) {
 		throw new RateLimitError(rateLimitData);
 	}
+}
+
+/**
+ * Calculates the default avatar index for a given user id.
+ *
+ * @param userId - The user id to calculate the default avatar index for
+ */
+export function calculateUserDefaultAvatarIndex(userId: Snowflake) {
+	return Number(BigInt(userId) >> 22n) % 6;
 }
