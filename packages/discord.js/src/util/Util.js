@@ -53,6 +53,12 @@ function flatten(obj, ...props) {
   return out;
 }
 
+function chunkArray(array, chunkSize) {
+  const R = [];
+  for (let i = 0; i < array.length; i += chunkSize) R.push(array.slice(i, i + chunkSize));
+  return R;
+}
+
 /**
  * @typedef {Object} FetchRecommendedShardCountOptions
  * @property {number} [guildsPerShard=1000] Number of guilds assigned per shard
@@ -388,6 +394,7 @@ module.exports = {
   cleanContent,
   cleanCodeBlockContent,
   parseWebhookURL,
+  chunkArray,
 };
 
 // Fixes Circular

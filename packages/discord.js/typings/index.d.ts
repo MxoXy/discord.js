@@ -2692,7 +2692,7 @@ export interface ShardEventTypes {
 }
 
 export class Shard extends EventEmitter {
-  private constructor(manager: ShardingManager, id: number);
+  private constructor(manager: ShardingManager, id: number, shardsIds: number[]);
   private _evals: Map<string, Promise<unknown>>;
   private _exitListener: (...args: any[]) => void;
   private _fetches: Map<string, Promise<unknown>>;
@@ -2705,6 +2705,7 @@ export class Shard extends EventEmitter {
   public execArgv: string[];
   public env: unknown;
   public id: number;
+  public shardsIds: number[];
   public manager: ShardingManager;
   public process: ChildProcess | null;
   public ready: boolean;
@@ -2738,6 +2739,7 @@ export class ShardClientUtil {
 
   public client: Client;
   public get count(): number;
+  public get clusterId(): number;
   public get ids(): number[];
   public mode: ShardingManagerMode;
   public parentPort: MessagePort | null;
@@ -2783,7 +2785,7 @@ export class ShardingManager extends EventEmitter {
     fn: (client: Client<true>, context: Serialized<P>) => Awaitable<T>,
     options: { context: P; shard: number },
   ): Promise<Serialized<T>>;
-  public createShard(id: number): Shard;
+  public createShard(id: number, shardsIds?: number[]): Shard;
   public fetchClientValues(prop: string): Promise<unknown[]>;
   public fetchClientValues(prop: string, shard: number): Promise<unknown>;
   public respawnAll(options?: MultipleShardRespawnOptions): Promise<Collection<number, Shard>>;

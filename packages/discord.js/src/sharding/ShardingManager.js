@@ -8,7 +8,7 @@ const { setTimeout: sleep } = require('node:timers/promises');
 const { Collection } = require('@draftbot/collection');
 const Shard = require('./Shard');
 const { DiscordjsError, DiscordjsTypeError, DiscordjsRangeError, ErrorCodes } = require('../errors');
-const { mergeDefault, fetchRecommendedShardCount } = require('../util/Util');
+const { mergeDefault, fetchRecommendedShardCount, chunkArray } = require('../util/Util');
 
 /**
  * This is a utility class that makes multi-process sharding of a bot an easy and painless experience.
@@ -155,12 +155,13 @@ class ShardingManager extends EventEmitter {
   /**
    * Creates a single shard.
    * <warn>Using this method is usually not necessary if you use the spawn method.</warn>
-   * @param {number} [id=this.shards.size] Id of the shard to create
+   * @param {number} id Id of the cluster to create
+   * @param {number} [shardIds=[id]] Ids that the cluster would create
    * <info>This is usually not necessary to manually specify.</info>
    * @returns {Shard} Note that the created shard needs to be explicitly spawned using its spawn method.
    */
-  createShard(id = this.shards.size) {
-    const shard = new Shard(this, id);
+  createShard(id, shardIds = [id]) {
+    const shard = new Shard(this, id, shardIds);
     this.shards.set(id, shard);
     /**
      * Emitted upon creating a shard.
@@ -199,13 +200,11 @@ class ShardingManager extends EventEmitter {
     }
 
     // Make sure this many shards haven't already been spawned
-    if (this.shards.size >= amount) throw new DiscordjsError(ErrorCodes.ShardingAlreadySpawned, this.shards.size);
-    if (this.shardList === 'auto' || this.totalShards === 'auto' || this.totalShards !== amount) {
-      this.shardList = [...Array(amount).keys()];
-    }
-    if (this.totalShards === 'auto' || this.totalShards !== amount) {
-      this.totalShards = amount;
-    }
+    if (this.shards.size) throw new DiscordjsError(ErrorCodes.ShardingAlreadySpawned, this.shards.size);
+
+    if (this.shardList === 'auto' || !this.shardList.length) this.shardList = [...Array(amount).keys()];
+
+    const shardsClusterList = chunkArray(this.shardList, 16);
 
     if (this.shardList.some(shardId => shardId >= amount)) {
       throw new DiscordjsRangeError(
@@ -216,9 +215,9 @@ class ShardingManager extends EventEmitter {
     }
 
     // Spawn the shards
-    for (const shardId of this.shardList) {
+    for (const [clusterId, shardsIds] of Object.entries(shardsClusterList)) {
       const promises = [];
-      const shard = this.createShard(shardId);
+      const shard = this.createShard(clusterId, shardsIds);
       promises.push(shard.spawn(timeout));
       if (delay > 0 && this.shards.size !== this.shardList.length) promises.push(sleep(delay));
       await Promise.all(promises); // eslint-disable-line no-await-in-loop

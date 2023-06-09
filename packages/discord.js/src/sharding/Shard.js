@@ -18,7 +18,7 @@ let Worker = null;
  * @extends {EventEmitter}
  */
 class Shard extends EventEmitter {
-  constructor(manager, id) {
+  constructor(manager, id, shardsIds = [id]) {
     super();
 
     switch (manager.mode) {
@@ -43,6 +43,12 @@ class Shard extends EventEmitter {
     this.id = id;
 
     /**
+     * The cluster shards ids in the manager
+     * @type {number}
+     */
+    this.shardsIds = shardsIds;
+
+    /**
      * Arguments for the shard's process (only when {@link ShardingManager#mode} is `process`)
      * @type {string[]}
      */
@@ -60,7 +66,8 @@ class Shard extends EventEmitter {
      */
     this.env = Object.assign({}, process.env, {
       SHARDING_MANAGER: true,
-      SHARDS: this.id,
+      CLUSTER_ID: this.id,
+      SHARDS: JSON.stringify(shardsIds),
       SHARD_COUNT: this.manager.totalShards,
       DISCORD_TOKEN: this.manager.token,
     });
