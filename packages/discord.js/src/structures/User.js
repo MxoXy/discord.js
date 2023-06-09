@@ -1,8 +1,8 @@
 'use strict';
 
 const process = require('node:process');
-const { calculateUserDefaultAvatarIndex } = require('@discordjs/rest');
 const { userMention } = require('@draftbot/builders');
+const { calculateUserDefaultAvatarIndex } = require('@draftbot/rest');
 const { DiscordSnowflake } = require('@sapphire/snowflake');
 const Base = require('./Base');
 const TextBasedChannel = require('./interfaces/TextBasedChannel');
