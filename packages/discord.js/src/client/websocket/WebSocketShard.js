@@ -4,6 +4,7 @@ const EventEmitter = require('node:events');
 const { setTimeout, setInterval, clearTimeout, clearInterval } = require('node:timers');
 const { GatewayDispatchEvents, GatewayIntentBits, GatewayOpcodes } = require('discord-api-types/v10');
 const WebSocket = require('../../WebSocket');
+const { UnrecoverableErrorCodes, DiscordjsError } = require('../../errors');
 const Events = require('../../util/Events');
 const Status = require('../../util/Status');
 const WebSocketShardEvents = require('../../util/WebSocketShardEvents');
@@ -231,94 +232,106 @@ class WebSocketShard extends EventEmitter {
    * @returns {Promise<void>} A promise that will resolve if the shard turns ready successfully,
    * or reject if we couldn't connect
    */
-  connect() {
+  async connect() {
     const { client } = this.manager;
 
     if (this.connection?.readyState === WebSocket.OPEN && this.status === Status.Ready) {
-      return Promise.resolve();
+      return;
     }
 
     const gateway = this.resumeURL ?? this.manager.gateway;
 
-    return new Promise((resolve, reject) => {
-      const cleanup = () => {
-        this.removeListener(WebSocketShardEvents.Close, onClose);
-        this.removeListener(WebSocketShardEvents.Ready, onReady);
-        this.removeListener(WebSocketShardEvents.Resumed, onResumed);
-        this.removeListener(WebSocketShardEvents.InvalidSession, onInvalidOrDestroyed);
-        this.removeListener(WebSocketShardEvents.Destroyed, onInvalidOrDestroyed);
-      };
+    try {
+      await new Promise((resolve, reject) => {
+        const cleanup = () => {
+          this.removeListener(WebSocketShardEvents.Close, onClose);
+          this.removeListener(WebSocketShardEvents.Ready, onReady);
+          this.removeListener(WebSocketShardEvents.Resumed, onResumed);
+          this.removeListener(WebSocketShardEvents.InvalidSession, onInvalidOrDestroyed);
+          this.removeListener(WebSocketShardEvents.Destroyed, onInvalidOrDestroyed);
+        };
 
-      const onReady = () => {
-        cleanup();
-        resolve();
-      };
+        const onReady = () => {
+          cleanup();
+          resolve();
+        };
 
-      const onResumed = () => {
-        cleanup();
-        resolve();
-      };
+        const onResumed = () => {
+          cleanup();
+          resolve();
+        };
 
-      const onClose = event => {
-        cleanup();
-        reject(event);
-      };
+        const onClose = event => {
+          cleanup();
+          reject(event);
+        };
 
-      const onInvalidOrDestroyed = () => {
-        cleanup();
-        // eslint-disable-next-line prefer-promise-reject-errors
-        reject();
-      };
+        const onInvalidOrDestroyed = () => {
+          cleanup();
+          // eslint-disable-next-line prefer-promise-reject-errors
+          reject();
+        };
 
-      this.once(WebSocketShardEvents.Ready, onReady);
-      this.once(WebSocketShardEvents.Resumed, onResumed);
-      this.once(WebSocketShardEvents.Close, onClose);
-      this.once(WebSocketShardEvents.InvalidSession, onInvalidOrDestroyed);
-      this.once(WebSocketShardEvents.Destroyed, onInvalidOrDestroyed);
+        this.once(WebSocketShardEvents.Ready, onReady);
+        this.once(WebSocketShardEvents.Resumed, onResumed);
+        this.once(WebSocketShardEvents.Close, onClose);
+        this.once(WebSocketShardEvents.InvalidSession, onInvalidOrDestroyed);
+        this.once(WebSocketShardEvents.Destroyed, onInvalidOrDestroyed);
 
-      if (this.connection?.readyState === WebSocket.OPEN) {
-        this.debug('An open connection was found, attempting an immediate identify.');
-        this.identify();
-        return;
+        if (this.connection?.readyState === WebSocket.OPEN) {
+          this.debug('An open connection was found, attempting an immediate identify.');
+          this.identify();
+          return;
+        }
+
+        if (this.connection) {
+          this.debug(`A connection object was found. Cleaning up before continuing.
+      State: ${CONNECTION_STATE[this.connection.readyState]}`);
+          this.destroy({ emit: false });
+        }
+
+        const wsQuery = { v: client.options.ws.version };
+
+        if (zlib) {
+          this.inflate = new zlib.Inflate({
+            chunkSize: 65535,
+            flush: zlib.Z_SYNC_FLUSH,
+            to: WebSocket.encoding === 'json' ? 'string' : '',
+          });
+          wsQuery.compress = 'zlib-stream';
+        }
+
+        this.debug(
+          `[CONNECT]
+      Gateway    : ${gateway}
+      Version    : ${client.options.ws.version}
+      Encoding   : ${WebSocket.encoding}
+      Compression: ${zlib ? 'zlib-stream' : 'none'}`,
+        );
+
+        this.status = this.status === Status.Disconnected ? Status.Reconnecting : Status.Connecting;
+        this.setHelloTimeout();
+
+        this.connectedAt = Date.now();
+
+        // Adding a handshake timeout to just make sure no zombie connection appears.
+        const ws = (this.connection = WebSocket.create(gateway, wsQuery, { handshakeTimeout: 30_000 }));
+        ws.onopen = this.onOpen.bind(this);
+        ws.onmessage = this.onMessage.bind(this);
+        ws.onerror = this.onError.bind(this);
+        ws.onclose = this.onClose.bind(this);
+      });
+    } catch (error) {
+      if (error?.code && error.code in UnrecoverableErrorCodes) {
+        throw new DiscordjsError(UnrecoverableErrorCodes[error.code]);
+        // Undefined if session is invalid, error event for regular closes
+      } else if (!error || error.code) {
+        this.debug('Failed to connect to the gateway, requeueing...', this);
+        this.manager.shardQueue.add(this);
+      } else {
+        throw error;
       }
-
-      if (this.connection) {
-        this.debug(`A connection object was found. Cleaning up before continuing.
-    State: ${CONNECTION_STATE[this.connection.readyState]}`);
-        this.destroy({ emit: false });
-      }
-
-      const wsQuery = { v: client.options.ws.version };
-
-      if (zlib) {
-        this.inflate = new zlib.Inflate({
-          chunkSize: 65535,
-          flush: zlib.Z_SYNC_FLUSH,
-          to: WebSocket.encoding === 'json' ? 'string' : '',
-        });
-        wsQuery.compress = 'zlib-stream';
-      }
-
-      this.debug(
-        `[CONNECT]
-    Gateway    : ${gateway}
-    Version    : ${client.options.ws.version}
-    Encoding   : ${WebSocket.encoding}
-    Compression: ${zlib ? 'zlib-stream' : 'none'}`,
-      );
-
-      this.status = this.status === Status.Disconnected ? Status.Reconnecting : Status.Connecting;
-      this.setHelloTimeout();
-
-      this.connectedAt = Date.now();
-
-      // Adding a handshake timeout to just make sure no zombie connection appears.
-      const ws = (this.connection = WebSocket.create(gateway, wsQuery, { handshakeTimeout: 30_000 }));
-      ws.onopen = this.onOpen.bind(this);
-      ws.onmessage = this.onMessage.bind(this);
-      ws.onerror = this.onError.bind(this);
-      ws.onclose = this.onClose.bind(this);
-    });
+    }
   }
 
   /**

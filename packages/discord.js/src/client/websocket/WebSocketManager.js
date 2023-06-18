@@ -7,7 +7,7 @@ const { Collection } = require('@draftbot/collection');
 const { GatewayCloseCodes, GatewayDispatchEvents } = require('discord-api-types/v10');
 const WebSocketShard = require('./WebSocketShard');
 const PacketHandlers = require('./handlers');
-const { DiscordjsError, ErrorCodes } = require('../../errors');
+const { UnrecoverableErrorCodes } = require('../../errors');
 const Events = require('../../util/Events');
 const Status = require('../../util/Status');
 const WebSocketShardEvents = require('../../util/WebSocketShardEvents');
@@ -21,14 +21,6 @@ const BeforeReadyWhitelist = [
   GatewayDispatchEvents.GuildMemberAdd,
   GatewayDispatchEvents.GuildMemberRemove,
 ];
-
-const unrecoverableErrorCodeMap = {
-  [GatewayCloseCodes.AuthenticationFailed]: ErrorCodes.TokenInvalid,
-  [GatewayCloseCodes.InvalidShard]: ErrorCodes.ShardingInvalid,
-  [GatewayCloseCodes.ShardingRequired]: ErrorCodes.ShardingRequired,
-  [GatewayCloseCodes.InvalidIntents]: ErrorCodes.InvalidIntents,
-  [GatewayCloseCodes.DisallowedIntents]: ErrorCodes.DisallowedIntents,
-};
 
 const UNRESUMABLE_CLOSE_CODES = [1000, GatewayCloseCodes.AlreadyAuthenticated, GatewayCloseCodes.InvalidSeq];
 
@@ -138,7 +130,7 @@ class WebSocketManager extends EventEmitter {
 
   /**
    * Connects this manager to the gateway.
-   * @returns {Promise<boolean>}
+   * @returns {Promise<void>}
    * @private
    */
   connect() {
@@ -153,12 +145,12 @@ class WebSocketManager extends EventEmitter {
 
   /**
    * Handles the creation of a shard.
-   * @returns {Promise<boolean>}
+   * @returns {Promise<void>}
    * @private
    */
   async createShards() {
     // If we don't have any shards to handle, return
-    if (!this.shardQueue.size) return false;
+    if (!this.shardQueue.size) return;
 
     const [shard] = this.shardQueue;
 
@@ -179,7 +171,7 @@ class WebSocketManager extends EventEmitter {
       });
 
       shard.on(WebSocketShardEvents.Close, event => {
-        if (event.code === 1_000 ? this.destroyed : event.code in unrecoverableErrorCodeMap) {
+        if (event.code === 1_000 ? this.destroyed : event.code in UnrecoverableErrorCodes) {
           /**
            * Emitted when a shard's WebSocket disconnects and will no longer reconnect.
            * @event Client#shardDisconnect
@@ -227,27 +219,15 @@ class WebSocketManager extends EventEmitter {
 
     this.shards.set(shard.id, shard);
 
-    try {
-      await shard.connect();
-    } catch (error) {
-      if (error?.code && error.code in unrecoverableErrorCodeMap) {
-        throw new DiscordjsError(unrecoverableErrorCodeMap[error.code]);
-        // Undefined if session is invalid, error event for regular closes
-      } else if (!error || error.code) {
-        this.debug('Failed to connect to the gateway, requeueing...', shard);
-        this.shardQueue.add(shard);
-      } else {
-        throw error;
-      }
-    }
-    // If we have more shards, add a 5s delay
-    if (this.shardQueue.size) {
-      this.debug(`Shard Queue Size: ${this.shardQueue.size}; continuing in 5 seconds...`);
-      await sleep(5_000);
-      return this.createShards();
-    }
+    shard.connect();
 
-    return true;
+    if (this.shardQueue.size) {
+      this.debug(`Shard Queue Size: ${this.shardQueue.size}`);
+
+      await sleep(200);
+
+      await this.createShards();
+    }
   }
 
   /**
