@@ -3435,14 +3435,11 @@ export class WebSocketShard extends EventEmitter {
   };
   private connection: WebSocket | null;
   private helloTimeout: NodeJS.Timeout | null;
-  private resumedDispatchTimeout: NodeJS.Timeout | null;
   private eventsAttached: boolean;
   private expectedGuilds: Set<Snowflake> | null;
   private readyTimeout: NodeJS.Timeout | null;
-  private readyDispatchTimeout: NodeJS.Timeout | null;
   private closeEmitted: boolean;
   private wsCloseTimeout: NodeJS.Timeout | null;
-  private lastReplayedAt: number;
 
   public manager: WebSocketManager;
   public id: number;
@@ -3459,8 +3456,6 @@ export class WebSocketShard extends EventEmitter {
   private onPacket(packet: unknown): void;
   private checkReady(): void;
   private setHelloTimeout(time?: number): void;
-  private setResumedDispatchTimeout(time?: number): void;
-  private setReadyDispatchTimeout(time?: number): void;
   private setWsCloseTimeout(time?: number): void;
   private setHeartbeatTimer(time: number): void;
   private sendHeartbeat(): void;
