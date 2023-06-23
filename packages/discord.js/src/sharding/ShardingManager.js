@@ -217,7 +217,7 @@ class ShardingManager extends EventEmitter {
     // Spawn the shards
     for (const [clusterId, shardsIds] of Object.entries(shardsClusterList)) {
       const promises = [];
-      const shard = this.createShard(clusterId, shardsIds);
+      const shard = this.createShard(Number(clusterId), shardsIds);
       promises.push(shard.spawn(timeout));
       if (delay > 0 && this.shards.size !== this.shardList.length) promises.push(sleep(delay));
       await Promise.all(promises); // eslint-disable-line no-await-in-loop
