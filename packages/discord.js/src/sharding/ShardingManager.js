@@ -288,10 +288,6 @@ class ShardingManager extends EventEmitter {
       return Promise.reject(new DiscordjsError(ErrorCodes.ShardingShardNotFound, shard));
     }
 
-    if (this.shards.size !== this.shardList.length) {
-      return Promise.reject(new DiscordjsError(ErrorCodes.ShardingInProcess));
-    }
-
     const promises = [];
     for (const sh of this.shards.values()) promises.push(sh[method](...args));
     const responses = await Promise.allSettled(promises);
