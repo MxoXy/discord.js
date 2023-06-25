@@ -399,7 +399,7 @@ class WebSocketShard extends EventEmitter {
     this.setWsCloseTimeout(-1);
     // If we still have a connection object, clean up its listeners
     if (this.connection) {
-      console.log(`Shard #${this.id + 1} cloud be disconnected without restart here`);
+      console.log(`Shard #${this.id + 1} could be disconnected without restart here`);
       this._cleanupConnection();
       // Having this after _cleanupConnection to just clean up the connection and not listen to ws.onclose
       this.destroy({ reset: !this.sessionId, emit: false, log: false });
