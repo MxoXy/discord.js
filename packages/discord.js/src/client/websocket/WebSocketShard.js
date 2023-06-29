@@ -304,6 +304,7 @@ class WebSocketShard extends EventEmitter {
       } else if (!error || error.code) {
         this.debug('Failed to connect to the gateway, requeueing...', this);
         this.manager.shardQueue.add(this);
+        this.manager.reconnect();
       } else {
         console.log(error);
         throw error;
