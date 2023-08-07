@@ -1,5 +1,5 @@
 {
-  "name": "@draftbot/discord.js",
+  "name": "@mxbot/discord.js",
   "version": "14.8.0-2",
   "description": "A powerful library for interacting with the Discord API",
   "scripts": {
@@ -22,11 +22,7 @@
     "typings"
   ],
   "contributors": [
-    "Crawl <icrawltogo@gmail.com>",
-    "Amish Shah <amishshah.2k@gmail.com>",
-    "Vlad Frangu <kingdgrizzle@gmail.com>",
-    "SpaceEEC <spaceeec@yahoo.com>",
-    "Aura Román <kyradiscord@gmail.com>"
+    "MoXy <mxxime@outlook.com>"
   ],
   "license": "Apache-2.0",
   "keywords": [
@@ -39,10 +35,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/DraftBot/discord.js.git"
+    "url": "https://github.com/MxoXy/discord.js.git"
   },
   "bugs": {
-    "url": "https://github.com/DraftBot/discord.js/issues"
+    "url": "https://github.com/MxoXy/discord.js/issues"
   },
   "homepage": "https://discord.js.org",
   "dependencies": {
