@@ -1,5 +1,5 @@
 {
-	"name": "@draftbot/builders",
+	"name": "@mxbot/builders",
 	"version": "1.5.0",
 	"description": "A set of builders that you can use when creating your bot",
 	"scripts": {
@@ -29,11 +29,7 @@
 		"dist"
 	],
 	"contributors": [
-		"Vlad Frangu <kingdgrizzle@gmail.com>",
-		"Crawl <icrawltogo@gmail.com>",
-		"Amish Shah <amishshah.2k@gmail.com>",
-		"SpaceEEC <spaceeec@yahoo.com>",
-		"Aura Román <kyradiscord@gmail.com>"
+		"MoXy <mxxime@outlook.com>"
 	],
 	"license": "Apache-2.0",
 	"keywords": [
@@ -47,10 +43,10 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/DraftBot/discord.js.git"
+		"url": "https://github.com/MxoXy/discord.js.git"
 	},
 	"bugs": {
-		"url": "https://github.com/DraftBot/discord.js/issues"
+		"url": "https://github.com/MxoXy/discord.js/issues"
 	},
 	"homepage": "https://discord.js.org",
 	"dependencies": {
