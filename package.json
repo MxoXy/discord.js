@@ -18,11 +18,7 @@
 		"update": "yarn upgrade-interactive"
 	},
 	"contributors": [
-		"Crawl <icrawltogo@gmail.com>",
-		"Amish Shah <amishshah.2k@gmail.com>",
-		"Vlad Frangu <kingdgrizzle@gmail.com>",
-		"SpaceEEC <spaceeec@yahoo.com>",
-		"Aura Román <kyradiscord@gmail.com>"
+		"MoXy <mxxime@outlook.com>"
 	],
 	"keywords": [
 		"discord",
@@ -34,10 +30,10 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/DraftBot/discord.js.git"
+		"url": "https://github.com/MxoXy/discord.js.git"
 	},
 	"bugs": {
-		"url": "https://github.com/DraftBot/discord.js/issues"
+		"url": "https://github.com/MxoXy/discord.js/issues"
 	},
 	"homepage": "https://discord.js.org",
 	"devDependencies": {
